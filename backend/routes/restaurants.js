@@ -34,13 +34,26 @@ router.get('/recommend', (req, res) => {
       filters.budget = req.query.budget;
     }
     
-    // 距離篩選（需要使用者位置和最大距離）
+    // 距離篩選（需要使用者位置和最大距離）- 附近餐廳模式
     if (req.query.userLat && req.query.userLng && req.query.maxDistance) {
       filters.userLocation = {
         lat: parseFloat(req.query.userLat),
         lng: parseFloat(req.query.userLng)
       };
       filters.maxDistance = parseFloat(req.query.maxDistance);
+    }
+    
+    // 地區篩選（縣市和行政區）- 選擇地區模式
+    if (req.query.city) {
+      filters.city = req.query.city;
+      if (req.query.district) {
+        filters.district = req.query.district;
+      }
+    }
+    
+    // 排除已顯示的餐廳
+    if (req.query.exclude) {
+      filters.exclude = req.query.exclude.split(',').map(s => s.trim());
     }
     
     // 返回數量
@@ -81,6 +94,28 @@ router.get('/filter-options', (req, res) => {
     res.status(500).json({
       success: false,
       error: '獲取篩選選項時發生錯誤',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/restaurants/location-options
+ * 獲取所有可用的地區選項（縣市和行政區）
+ */
+router.get('/location-options', (req, res) => {
+  try {
+    const { getLocationOptions } = require('../utils/recommendation');
+    const options = getLocationOptions();
+    res.json({
+      success: true,
+      options: options
+    });
+  } catch (error) {
+    console.error('獲取地區選項時發生錯誤:', error);
+    res.status(500).json({
+      success: false,
+      error: '獲取地區選項時發生錯誤',
       message: error.message
     });
   }

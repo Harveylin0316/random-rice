@@ -13,9 +13,16 @@ const resultCount = document.getElementById('resultCount');
 const resetBtn = document.getElementById('resetBtn');
 const getLocationBtn = document.getElementById('getLocationBtn');
 const locationStatus = document.getElementById('locationStatus');
+const citySelect = document.getElementById('citySelect');
+const districtSelect = document.getElementById('districtSelect');
+const nearbyOptions = document.getElementById('nearbyOptions');
+const areaOptions = document.getElementById('areaOptions');
 
 // 使用者位置和交通方式
 let userLocation = null;
+
+// 記錄已顯示的餐廳名稱（用於排除重複）
+let displayedRestaurants = [];
 
 // 篩選選項資料
 let filterOptions = {
@@ -24,11 +31,28 @@ let filterOptions = {
     budget: []
 };
 
+// 地區選項資料
+let locationOptions = {
+    cities: [],
+    districts: {}  // { city: [districts] }
+};
+
 // 初始化
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await loadFilterOptions();
+        await loadLocationOptions();
         renderForm();
+        setupLocationModeHandlers();
+        
+        // 初始化顯示「附近餐廳」選項（預設選項）
+        const areaOptions = document.getElementById('areaOptions');
+        const nearbyOptions = document.getElementById('nearbyOptions');
+        if (areaOptions) areaOptions.style.display = 'none';
+        if (nearbyOptions) nearbyOptions.style.display = 'block';
+        
+        // 自動獲取用戶位置
+        autoGetUserLocation();
     } catch (err) {
         showError('載入篩選選項失敗，請重新整理頁面');
         console.error('載入篩選選項錯誤:', err);
@@ -51,6 +75,113 @@ async function loadFilterOptions() {
     } catch (err) {
         console.error('載入篩選選項錯誤:', err);
         throw err;
+    }
+}
+
+// 載入地區選項
+async function loadLocationOptions() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/restaurants/location-options`);
+        if (!response.ok) {
+            throw new Error('無法載入地區選項');
+        }
+        const data = await response.json();
+        if (data.success) {
+            locationOptions = data.options;
+            renderCityOptions();
+        } else {
+            throw new Error('地區選項資料格式錯誤');
+        }
+    } catch (err) {
+        console.error('載入地區選項錯誤:', err);
+        throw err;
+    }
+}
+
+// 渲染縣市選項
+function renderCityOptions() {
+    if (!citySelect) return;
+    
+    citySelect.innerHTML = '<option value="">不限</option>';
+    locationOptions.cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+    });
+}
+
+// 渲染行政區選項
+function renderDistrictOptions(city) {
+    if (!districtSelect) return;
+    
+    districtSelect.innerHTML = '<option value="">不限</option>';
+    
+    if (!city || !locationOptions.districts[city]) {
+        districtSelect.disabled = true;
+        return;
+    }
+    
+    districtSelect.disabled = false;
+    locationOptions.districts[city].forEach(district => {
+        const option = document.createElement('option');
+        option.value = district;
+        option.textContent = district;
+        districtSelect.appendChild(option);
+    });
+}
+
+// 設置地區模式處理器
+function setupLocationModeHandlers() {
+    // 地區模式選擇
+    const locationModeRadios = document.querySelectorAll('input[name="locationMode"]');
+    locationModeRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            const mode = radio.value;
+            
+            // 隱藏所有選項
+            if (nearbyOptions) nearbyOptions.style.display = 'none';
+            if (areaOptions) areaOptions.style.display = 'none';
+            
+            // 顯示對應選項
+            if (mode === 'nearby' && nearbyOptions) {
+                nearbyOptions.style.display = 'block';
+                if (areaOptions) areaOptions.style.display = 'none';
+            } else if (mode === 'area' && areaOptions) {
+                areaOptions.style.display = 'block';
+                if (nearbyOptions) nearbyOptions.style.display = 'none';
+            }
+            
+            // 重置相關狀態
+            if (mode !== 'nearby') {
+                userLocation = null;
+                if (getLocationBtn) {
+                    getLocationBtn.textContent = '📍 使用我的位置';
+                    getLocationBtn.style.background = '';
+                }
+                if (locationStatus) {
+                    locationStatus.style.display = 'none';
+                }
+                // 取消選擇交通方式
+                const transportRadios = document.querySelectorAll('input[name="transport"]');
+                transportRadios.forEach(r => r.checked = false);
+            }
+            
+            if (mode !== 'area') {
+                if (citySelect) citySelect.value = '';
+                if (districtSelect) {
+                    districtSelect.value = '';
+                    districtSelect.disabled = true;
+                }
+            }
+        });
+    });
+    
+    // 縣市選擇改變時更新行政區選項
+    if (citySelect) {
+        citySelect.addEventListener('change', (e) => {
+            renderDistrictOptions(e.target.value);
+        });
     }
 }
 
@@ -150,12 +281,34 @@ form.addEventListener('submit', async (e) => {
     hideError();
     hideResults();
     
-    // 檢查距離篩選：如果選擇了距離選項但沒有位置，提示用戶
-    const transportRadio = document.querySelector('input[name="transport"]:checked');
-    if (transportRadio && transportRadio.value !== 'none' && !userLocation) {
-        showError('請先點擊「📍 使用我的位置」按鈕獲取您的位置，才能使用距離篩選功能');
-        showLocationStatus('請先獲取位置才能使用距離篩選', 'error');
+    // 檢查地區模式選擇
+    const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');
+    if (!locationModeRadio) {
+        showError('請選擇搜尋方式（附近餐廳或選擇地區）');
         return;
+    }
+    
+    // 檢查距離篩選：如果選擇了附近餐廳但沒有位置或交通方式，提示用戶
+    if (locationModeRadio.value === 'nearby') {
+        const transportRadio = document.querySelector('input[name="transport"]:checked');
+        if (!transportRadio) {
+            showError('請選擇交通方式（走路或開車）');
+            return;
+        }
+        if (!userLocation) {
+            showError('請先點擊「📍 使用我的位置」按鈕獲取您的位置');
+            showLocationStatus('請先獲取位置才能使用距離篩選', 'error');
+            return;
+        }
+    }
+    
+    // 檢查地區選擇：如果選擇了選擇地區但沒有選擇縣市，提示用戶
+    if (locationModeRadio.value === 'area') {
+        const citySelect = document.getElementById('citySelect');
+        if (!citySelect || !citySelect.value) {
+            showError('請選擇縣市');
+            return;
+        }
     }
     
     // 顯示載入中
@@ -166,8 +319,11 @@ form.addEventListener('submit', async (e) => {
         // 收集表單資料
         const formData = collectFormData();
         
-        // 發送 API 請求
-        const restaurants = await fetchRecommendations(formData);
+        // 發送 API 請求（不排除任何餐廳，因為這是新的搜尋）
+        const restaurants = await fetchRecommendations(formData, []);
+        
+        // 記錄已顯示的餐廳名稱（重置列表，因為這是新的搜尋）
+        displayedRestaurants = restaurants.map(r => r.name);
         
         // 顯示結果
         displayResults(restaurants);
@@ -211,19 +367,44 @@ function collectFormData() {
         formData.budget = budgetRadio.value;
     }
     
-    // 收集交通方式和距離（如果有選擇且有用戶位置）
-    const transportRadio = document.querySelector('input[name="transport"]:checked');
-    if (transportRadio && transportRadio.value !== 'none' && userLocation) {
+    // 收集地區模式（必須選擇）
+    const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');
+    if (!locationModeRadio) {
+        throw new Error('請選擇搜尋方式（附近餐廳或選擇地區）');
+    }
+    
+    const locationMode = locationModeRadio.value;
+    
+    if (locationMode === 'nearby') {
+        // 附近餐廳模式：需要位置和交通方式
+        const transportRadio = document.querySelector('input[name="transport"]:checked');
+        if (!transportRadio) {
+            throw new Error('請選擇交通方式（走路或開車）');
+        }
+        if (!userLocation) {
+            throw new Error('請先點擊「📍 使用我的位置」按鈕獲取您的位置');
+        }
+        
         formData.userLocation = userLocation;
         formData.transportMode = transportRadio.value;
         
         // 根據交通方式設定最大距離（公里）
-        // 走路10分鐘：假設每小時5公里，10分鐘約0.83公里，設為1公里
-        // 開車10分鐘：假設市區平均時速30公里，10分鐘約5公里，設為6公里（考慮路況）
         if (transportRadio.value === 'walking') {
-            formData.maxDistance = 1.0; // 走路10分鐘約1公里
+            formData.maxDistance = 0.5; // 走路10分鐘：直線距離 <= 500公尺
         } else if (transportRadio.value === 'driving') {
-            formData.maxDistance = 6.0; // 開車10分鐘約6公里
+            formData.maxDistance = 3.0; // 開車10分鐘：直線距離 <= 3公里（原6公里減半）
+        }
+    } else if (locationMode === 'area') {
+        // 選擇地區模式：必須選擇縣市
+        const city = citySelect ? citySelect.value : '';
+        if (!city) {
+            throw new Error('請選擇縣市');
+        }
+        
+        formData.city = city;
+        const district = districtSelect ? districtSelect.value : '';
+        if (district) {
+            formData.district = district;
         }
     }
     
@@ -231,7 +412,7 @@ function collectFormData() {
 }
 
 // 獲取推薦餐廳
-async function fetchRecommendations(formData) {
+async function fetchRecommendations(formData, excludeNames = []) {
     // 建立查詢參數
     const params = new URLSearchParams();
     
@@ -247,11 +428,26 @@ async function fetchRecommendations(formData) {
         params.append('budget', formData.budget);
     }
     
-    // 距離篩選參數
+    // 距離篩選參數（附近餐廳模式）
     if (formData.userLocation && formData.maxDistance) {
+        params.append('locationMode', 'nearby');
         params.append('userLat', formData.userLocation.lat);
         params.append('userLng', formData.userLocation.lng);
         params.append('maxDistance', formData.maxDistance);
+    }
+    
+    // 地區篩選參數（選擇地區模式）
+    if (formData.city) {
+        params.append('locationMode', 'area');
+        params.append('city', formData.city);
+        if (formData.district) {
+            params.append('district', formData.district);
+        }
+    }
+    
+    // 排除已顯示的餐廳
+    if (excludeNames && excludeNames.length > 0) {
+        params.append('exclude', excludeNames.join(','));
     }
     
     params.append('limit', formData.limit);
@@ -387,61 +583,45 @@ function displayResults(restaurants) {
     results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// 重置按鈕
-resetBtn.addEventListener('click', () => {
-    form.reset();
-    hideResults();
+// 重新選擇按鈕（使用相同條件重新獲取不同餐廳）
+resetBtn.addEventListener('click', async () => {
+    // 如果沒有已顯示的餐廳，說明還沒有搜尋過，不執行任何操作
+    if (displayedRestaurants.length === 0) {
+        return;
+    }
+    
+    // 隱藏錯誤
     hideError();
     
-    // 重置料理風格為「隨機」
-    const cuisineRandom = form.querySelector('input[name="cuisine_style"][value="random"]');
-    if (cuisineRandom) {
-        cuisineRandom.checked = true;
-    }
+    // 顯示載入中
+    showLoading();
+    resetBtn.disabled = true;
     
-    // 重置餐廳類型為「隨機」
-    const typeRandom = form.querySelector('input[name="type"][value="random"]');
-    if (typeRandom) {
-        typeRandom.checked = true;
+    try {
+        // 收集當前表單資料（使用相同條件）
+        const formData = collectFormData();
+        
+        // 發送 API 請求（排除已顯示的餐廳）
+        const restaurants = await fetchRecommendations(formData, displayedRestaurants);
+        
+        if (restaurants.length === 0) {
+            showError('沒有更多符合條件的餐廳了，請調整篩選條件');
+            return;
+        }
+        
+        // 更新已顯示的餐廳列表（累加）
+        displayedRestaurants = displayedRestaurants.concat(restaurants.map(r => r.name));
+        
+        // 顯示結果
+        displayResults(restaurants);
+        
+    } catch (err) {
+        showError(err.message || '獲取推薦餐廳失敗，請稍後再試');
+        console.error('推薦餐廳錯誤:', err);
+    } finally {
+        hideLoading();
+        resetBtn.disabled = false;
     }
-    
-    // 重置料理風格為「不限」
-    const cuisineNone = form.querySelector('input[name="cuisine_style"][value="none"]');
-    if (cuisineNone) {
-        cuisineNone.checked = true;
-    }
-    
-    // 重置餐廳類型為「不限」
-    const typeNone = form.querySelector('input[name="type"][value="none"]');
-    if (typeNone) {
-        typeNone.checked = true;
-    }
-    
-    // 重置交通方式為「不限」
-    const transportNone = document.querySelector('input[name="transport"][value="none"]');
-    if (transportNone) {
-        transportNone.checked = true;
-    }
-    
-    // 重置位置相關狀態
-    userLocation = null;
-    if (getLocationBtn) {
-        getLocationBtn.textContent = '📍 使用我的位置';
-        getLocationBtn.style.background = '';
-        getLocationBtn.disabled = false;
-    }
-    if (locationStatus) {
-        locationStatus.style.display = 'none';
-    }
-    
-    // 重置預算為「不限」
-    const allRadio = form.querySelector('input[name="budget"][value="all"]');
-    if (allRadio) {
-        allRadio.checked = true;
-    }
-    
-    // 滾動到頂部
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 // 顯示/隱藏載入中
@@ -473,48 +653,66 @@ function hideResults() {
     results.style.display = 'none';
 }
 
-// 獲取使用者位置
-if (getLocationBtn) {
-    getLocationBtn.addEventListener('click', () => {
-        if (!navigator.geolocation) {
-            showLocationStatus('您的瀏覽器不支援地理位置功能', 'error');
-            return;
-        }
-        
+// 獲取用戶位置的函數
+function getUserLocation() {
+    if (!navigator.geolocation) {
+        showLocationStatus('您的瀏覽器不支援地理位置功能', 'error');
+        return;
+    }
+    
+    if (getLocationBtn) {
         getLocationBtn.disabled = true;
         getLocationBtn.textContent = '📍 定位中...';
-        showLocationStatus('正在獲取您的位置...', 'loading');
-        
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
+    }
+    showLocationStatus('正在獲取您的位置...', 'loading');
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            if (getLocationBtn) {
                 getLocationBtn.disabled = false;
                 getLocationBtn.textContent = '✅ 位置已獲取';
                 getLocationBtn.style.background = '#4caf50';
-                showLocationStatus(`✅ 已獲取位置 (${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)})`, 'success');
-            },
-            (error) => {
+            }
+            showLocationStatus(`已獲取位置 (${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)})`, 'success');
+        },
+        (error) => {
+            if (getLocationBtn) {
                 getLocationBtn.disabled = false;
                 getLocationBtn.textContent = '📍 使用我的位置';
-                let errorMsg = '無法獲取位置';
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMsg = '位置權限被拒絕，請允許瀏覽器存取您的位置';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMsg = '無法取得位置資訊';
-                        break;
-                    case error.TIMEOUT:
-                        errorMsg = '定位請求逾時';
-                        break;
-                }
-                showLocationStatus(errorMsg, 'error');
             }
-        );
-    });
+            let errorMsg = '無法獲取位置';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMsg = '位置權限被拒絕，請允許瀏覽器存取您的位置';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMsg = '無法取得位置資訊';
+                    break;
+                case error.TIMEOUT:
+                    errorMsg = '定位請求逾時';
+                    break;
+            }
+            showLocationStatus(errorMsg, 'error');
+        }
+    );
+}
+
+// 自動獲取用戶位置（頁面載入時）
+function autoGetUserLocation() {
+    // 檢查是否選擇了「附近餐廳」模式
+    const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');
+    if (locationModeRadio && locationModeRadio.value === 'nearby') {
+        getUserLocation();
+    }
+}
+
+// 按鈕點擊事件
+if (getLocationBtn) {
+    getLocationBtn.addEventListener('click', getUserLocation);
 }
 
 function showLocationStatus(message, type) {

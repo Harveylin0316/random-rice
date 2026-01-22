@@ -16,36 +16,67 @@
 
         <!-- 表單區域 -->
         <main class="main-content">
-            <!-- 交通方式選擇（在表單之前） -->
-            <section class="transport-section">
-                <h2 class="transport-title">🚗 選擇交通方式</h2>
-                <div class="transport-options">
-                    <label class="transport-option">
-                        <input type="radio" name="transport" value="none" checked>
-                        <div class="transport-card">
-                            <span class="transport-icon">🚶</span>
-                            <span class="transport-text">不限距離</span>
+            <!-- 地區選擇（在表單之前） -->
+            <section class="location-section">
+                <h2 class="location-title">下面選一個</h2>
+                <div class="location-mode-options">
+                    <label class="location-mode-option">
+                        <input type="radio" name="locationMode" value="nearby" checked>
+                        <div class="location-mode-card">
+                            <span class="location-mode-icon">📍</span>
+                            <span class="location-mode-text">附近餐廳</span>
                         </div>
                     </label>
-                    <label class="transport-option">
-                        <input type="radio" name="transport" value="walking">
-                        <div class="transport-card">
-                            <span class="transport-icon">🚶</span>
-                            <span class="transport-text">走路10分鐘內</span>
-                        </div>
-                    </label>
-                    <label class="transport-option">
-                        <input type="radio" name="transport" value="driving">
-                        <div class="transport-card">
-                            <span class="transport-icon">🚗</span>
-                            <span class="transport-text">開車10分鐘內</span>
+                    <label class="location-mode-option">
+                        <input type="radio" name="locationMode" value="area">
+                        <div class="location-mode-card">
+                            <span class="location-mode-icon">🗺️</span>
+                            <span class="location-mode-text">選擇地區</span>
                         </div>
                     </label>
                 </div>
-                <button type="button" id="getLocationBtn" class="location-btn">
-                    📍 使用我的位置
-                </button>
-                <div id="locationStatus" class="location-status" style="display: none;"></div>
+                
+                <!-- 附近餐廳選項 -->
+                <div id="nearbyOptions" class="location-options">
+                    <button type="button" id="getLocationBtn" class="location-btn">
+                        📍 使用我的位置
+                    </button>
+                    <div id="locationStatus" class="location-status" style="display: none;"></div>
+                    <div class="transport-options">
+                        <label class="transport-option">
+                            <input type="radio" name="transport" value="walking">
+                            <div class="transport-card">
+                                <span class="transport-icon">🚶</span>
+                                <span class="transport-text">走路10分鐘內</span>
+                            </div>
+                        </label>
+                        <label class="transport-option">
+                            <input type="radio" name="transport" value="driving">
+                            <div class="transport-card">
+                                <span class="transport-icon">🚗</span>
+                                <span class="transport-text">開車10分鐘內</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 選擇地區選項 -->
+                <div id="areaOptions" class="location-options" style="display: none;">
+                    <div class="area-select-group">
+                        <label class="area-select-label">
+                            <span>縣市：</span>
+                            <select id="citySelect" name="city">
+                                <option value="">請選擇縣市</option>
+                            </select>
+                        </label>
+                        <label class="area-select-label">
+                            <span>行政區：</span>
+                            <select id="districtSelect" name="district" disabled>
+                                <option value="">請先選擇縣市</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
             </section>
 
             <form id="recommendationForm" class="recommendation-form">
@@ -145,7 +176,7 @@
                 <div id="restaurantList" class="restaurant-list">
                     <!-- 動態載入餐廳卡片 -->
                 </div>
-                <button id="resetBtn" class="reset-btn">重新選擇</button>
+                <button id="resetBtn" class="reset-btn">換一批</button>
             </div>
 
             <!-- 錯誤訊息 -->

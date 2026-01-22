@@ -147,7 +147,7 @@ function recommendRestaurants(filters = {}, limit = 5) {
     restaurants = restaurants.filter(r => matchesBudget(r, filters.budget));
   }
   
-  // 距離篩選（需要座標資料）
+  // 距離篩選（需要座標資料）- 附近餐廳模式
   if (filters.userLocation && filters.maxDistance) {
     restaurants = restaurants.filter(r => {
       if (!r.coordinates || !r.coordinates.lat || !r.coordinates.lng) {
@@ -161,6 +161,35 @@ function recommendRestaurants(filters = {}, limit = 5) {
       );
       return distance <= filters.maxDistance;
     });
+  }
+  
+  // 地區篩選（縣市和行政區）- 選擇地區模式
+  if (filters.city) {
+    restaurants = restaurants.filter(r => {
+      const restaurantCity = r.city;
+      const restaurantDistrict = r.district;
+      
+      // 如果餐廳沒有縣市資料，不匹配任何地區篩選
+      if (!restaurantCity) return false;
+      
+      // 檢查縣市是否匹配
+      if (restaurantCity !== filters.city) return false;
+      
+      // 如果指定了行政區，必須有行政區資料且匹配
+      if (filters.district) {
+        // 如果餐廳沒有行政區資料，不匹配
+        if (!restaurantDistrict) return false;
+        return restaurantDistrict === filters.district;
+      }
+      
+      // 只指定縣市，匹配該縣市的所有餐廳（包括沒有行政區的）
+      return true;
+    });
+  }
+  
+  // 排除已顯示的餐廳
+  if (filters.exclude && filters.exclude.length > 0) {
+    restaurants = restaurants.filter(r => !filters.exclude.includes(r.name));
   }
   
   // TODO: 用餐時段篩選（需要營業時間資料）
@@ -225,8 +254,53 @@ function getFilterOptions() {
   };
 }
 
+/**
+ * 獲取所有可用的地區選項（縣市和行政區）
+ * @returns {Object} 包含縣市列表和縣市-行政區對應關係的物件
+ */
+function getLocationOptions() {
+  const data = loadRestaurantDatabase();
+  const cities = new Set();
+  const districtsByCity = {};
+  
+  data.restaurants.forEach(restaurant => {
+    const city = restaurant.city;
+    const district = restaurant.district;
+    
+    if (city) {
+      cities.add(city);
+      
+      if (!districtsByCity[city]) {
+        districtsByCity[city] = new Set();
+      }
+      
+      if (district) {
+        districtsByCity[city].add(district);
+      }
+    }
+  });
+  
+  // 轉換為陣列並排序
+  const citiesArray = Array.from(cities).sort();
+  const districtsObject = {};
+  
+  citiesArray.forEach(city => {
+    if (districtsByCity[city]) {
+      districtsObject[city] = Array.from(districtsByCity[city]).sort();
+    } else {
+      districtsObject[city] = [];
+    }
+  });
+  
+  return {
+    cities: citiesArray,
+    districts: districtsObject
+  };
+}
+
 module.exports = {
   recommendRestaurants,
   getFilterOptions,
+  getLocationOptions,
   loadRestaurantDatabase
 };
