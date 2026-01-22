@@ -1,0 +1,371 @@
+{
+  "closed_restaurants": [
+    {
+      "name": "清真肆集 Halalan & Toyyiban Mart",
+      "address": "台北市大同區南芳里迪化街一段347號",
+      "url": "https://s.openrice.com/cHRSm02474700"
+    },
+    {
+      "name": "The Quiet Light 默光咖啡（松山店）",
+      "address": "台北市松山區健康路11-1號1樓",
+      "url": "https://s.openrice.com/cHRSm02BBq700"
+    },
+    {
+      "name": "Fun Fun Cafe 放放咖啡| Coffee",
+      "address": "文山區羅斯福路五段236巷3弄32號1樓",
+      "url": "https://s.openrice.com/cHRSm02RW0700~uN1bRKQ"
+    },
+    {
+      "name": "阿珠嬤 Azhuma 外帶海鮮煲鍋/冠軍牛肉麵/砂鍋粥",
+      "address": "新北市新莊區中正路723-3號",
+      "url": "https://s.openrice.com/cHRSmG2wCK700~dDQbBlr8U"
+    },
+    {
+      "name": "調味品串酒坊-大安聚餐餐廳|酒吧首選|熱門酒吧|必吃餐酒館|網美餐酒館|人氣居酒屋|居酒屋推薦",
+      "address": "大安區忠孝東路三段251巷13弄6號1樓",
+      "url": "https://s.openrice.com/cHRSm02UOC600~uZAvnKQ"
+    },
+    {
+      "name": "EAT PLUS 義式小館/私廚/包場/奢侈早午餐",
+      "address": "台北市士林區忠誠路二段154巷7號1樓",
+      "url": "https://s.openrice.com/cHRSm02y5O3W0~uN1bRKQ"
+    },
+    {
+      "name": "Oie Taipei",
+      "address": "106台北市大安區光復南路346巷21號",
+      "url": "https://s.openrice.com/cHRSm02jyC3W0~dPymXb1bX"
+    },
+    {
+      "name": "醉貓Drunk Cat 餐酒",
+      "address": "106台北市大安區忠孝東路四段181巷40弄11號",
+      "url": "https://s.openrice.com/cHRSm026DK700~dwNHUKdZr"
+    },
+    {
+      "name": "GG's Meeting Bar",
+      "address": "台北市中山區龍江路412巷48號1樓",
+      "url": "https://s.openrice.com/cHRSm02OjO700"
+    },
+    {
+      "name": "麻煮迷你石鍋燒 - 公館店",
+      "address": "台北市中正區汀洲路三段127號",
+      "url": "https://s.openrice.com/cHRSm02niS700"
+    },
+    {
+      "name": "羽SAKE HANESAKE (營業時間請看IG🥸)",
+      "address": "台北市中山區南京東路二段41巷16弄2號",
+      "url": "https://s.openrice.com/cHRSm02fSO700"
+    },
+    {
+      "name": "大富貴美食天團雲端廚房",
+      "address": "台北市大安區和平東路三段228巷7號2樓",
+      "url": "https://s.openrice.com/cHRSm02UTy3W0"
+    },
+    {
+      "name": "Salotto 客廳",
+      "address": "台北市松山區民權東路三段106巷3弄51號1樓",
+      "url": "https://s.openrice.com/cHRSm028zC3W0"
+    },
+    {
+      "name": "WAREHOUSE倉庫餐酒吧",
+      "address": "中清路一段146號",
+      "url": "https://s.openrice.com/cHRSmW2qeS300"
+    },
+    {
+      "name": "沐澄螺螄粉鴛鴦鍋",
+      "address": "臺北市松山區光復北路98號2樓",
+      "url": "https://s.openrice.com/cHRSm02jUu700"
+    },
+    {
+      "name": "TheSquare方閣",
+      "address": "台北市松山區光復南路13巷5號",
+      "url": "https://s.openrice.com/cHRSm02dWW800"
+    },
+    {
+      "name": "心情吐司/創意吐司/厚片帕尼尼/棉花糖厚片/公司下午茶/內用外帶外送/ 下午茶團購/中山區晴光商圈/下午茶外送/Toast-gather",
+      "address": "臺北市中山區農安街2巷20-2號",
+      "url": "https://s.openrice.com/cHRSm02eGW800"
+    },
+    {
+      "name": "沐森林 （簡餐&咖啡廳）",
+      "address": "10491台北市中山區大直街20巷24號",
+      "url": "https://s.openrice.com/cHRSm02gnW800"
+    },
+    {
+      "name": "川串兒四川麻辣串串鍋",
+      "address": "105台北市松山區延吉街30巷11號1樓",
+      "url": "https://s.openrice.com/cHRSm02jOW700"
+    },
+    {
+      "name": "No. 55號, Chongyang Rd",
+      "address": "115台北市南港區重陽路55號",
+      "url": "https://s.openrice.com/cHRSm02ed8700"
+    },
+    {
+      "name": "原乍酥酥 Uncle Fried/鹽酥雞/炸雞/炸物/中和美食/ 永和美食/宵夜/下午茶/party/內用/外帶",
+      "address": "235新北市中和區廣福路12之2號",
+      "url": "https://s.openrice.com/cHRSmG2aYe800"
+    },
+    {
+      "name": "MR. Oak",
+      "address": "106台北市大安區忠孝東路三段217巷3弄22號1樓",
+      "url": "https://s.openrice.com/cHRSm02Joi800"
+    },
+    {
+      "name": "攝食 串炸專門店",
+      "address": "300新竹市香山區香村路300巷95弄6號",
+      "url": "https://s.openrice.com/cHRSnW2DK0800"
+    },
+    {
+      "name": "飛驒牛釧井海鮮鍋物",
+      "address": "106台北市大安區敦化南路二段81巷31號",
+      "url": "https://s.openrice.com/cHRSm02bJO800"
+    },
+    {
+      "name": "老巷弄",
+      "address": "243新北市泰山區新生路1號",
+      "url": "https://s.openrice.com/cHRSmG2WKK800"
+    },
+    {
+      "name": "豚屋",
+      "address": "大安區復興南路一段107巷5弄19號1樓",
+      "url": "https://s.openrice.com/cHRSm02dne800"
+    },
+    {
+      "name": "港點大師 台中店",
+      "address": "后里區福容路201號2樓",
+      "url": "https://s.openrice.com/cHRSmW2oRS700"
+    },
+    {
+      "name": "My Coffee",
+      "address": "700台南市中西區海安路二段125號1樓",
+      "url": "https://s.openrice.com/cHRSmm205S800"
+    },
+    {
+      "name": "燈亮有酒 Light Up Bar-西門酒吧推薦｜特色酒吧｜平價酒吧｜萬華酒吧",
+      "address": "108台北市萬華區康定路46-3號1樓",
+      "url": "https://s.openrice.com/cHRSm022di800"
+    },
+    {
+      "name": "義饗世界",
+      "address": "220新北市板橋區文化路一段270巷3弄40號",
+      "url": "https://s.openrice.com/cHRSmG25aS800"
+    }
+  ],
+  "error_404_restaurants": [
+    {
+      "name": "The Golden Pot",
+      "address": "台北市士林區中山北路六段175號",
+      "url": "https://s.openrice.com/cHRSm02CY8700~uFUPYKQ"
+    },
+    {
+      "name": "Find Alley",
+      "address": "台北市信義區光復南路587號",
+      "url": "https://s.openrice.com/cHRSm02KB8400"
+    },
+    {
+      "name": "尬聊夫婦 餐酒館",
+      "address": "106台北市大安區大安路一段51巷34號",
+      "url": "https://s.openrice.com/cHRSm02UEa700"
+    },
+    {
+      "name": "Love HoMe",
+      "address": "台北市信義區中坡北路13號",
+      "url": "https://s.openrice.com/cHRSm02eka700"
+    },
+    {
+      "name": "食研｜金花弄",
+      "address": "新北市中和區連城路256之1號",
+      "url": "https://s.openrice.com/cHRSmG2KzY3W0"
+    },
+    {
+      "name": "朝食x夕食",
+      "address": "新北市三重區忠孝路一段77號1樓",
+      "url": "https://s.openrice.com/cHRSmG2GzO3W0"
+    },
+    {
+      "name": "赤野居酒屋板橋國光店",
+      "address": "220新北市板橋區國光路174號",
+      "url": "https://s.openrice.com/cHRSmG2z963W0"
+    },
+    {
+      "name": "Wo Le Hotpot",
+      "address": "106臺北市大安區基隆路2段150號1樓",
+      "url": "https://s.openrice.com/cHRSm02SmC800"
+    },
+    {
+      "name": "CHIN Angel Cloud Kitchen 瀞天使雲端廚房",
+      "address": "台北市信義區松光里忠孝東路五段524巷1弄2號1樓",
+      "url": "https://s.openrice.com/cHRSm02oWK800"
+    },
+    {
+      "name": "霸氣食堂",
+      "address": "臺北市文山區興隆路1段291號",
+      "url": "https://s.openrice.com/cHRSm02cmW800"
+    },
+    {
+      "name": "我就爛",
+      "address": "104台北市中山區民生東路二段115巷4號",
+      "url": "https://s.openrice.com/cHRSm02J0u800"
+    },
+    {
+      "name": "Major Tom 湯姆大調 fusion 酒食",
+      "address": "106臺北市大安區大安路1段51巷17號1樓",
+      "url": "https://s.openrice.com/cHRSm02LGu800"
+    },
+    {
+      "name": "Old Bridge 飛鏢吧",
+      "address": "116台北市文山區景美街158號",
+      "url": "https://s.openrice.com/cHRSm02m0y400"
+    },
+    {
+      "name": "孫悟空 SUN WUKONG",
+      "address": "100台北市中正區鎮江街7-2號",
+      "url": "https://s.openrice.com/cHRSm02foG800"
+    },
+    {
+      "name": "窩客咖啡WorkCoffee 忠孝店",
+      "address": "106台北市大安區忠孝東路四段216巷33弄16號1樓",
+      "url": "https://s.openrice.com/cHRSm02GoK800"
+    },
+    {
+      "name": "胖肚肚燒肉-基隆店/基隆美食/基隆燒肉/基隆餐廳/基隆燒烤/附近美食/基隆吃到飽",
+      "address": "105台北市松山區八德路四段108號2樓(八德店地址)",
+      "url": "https://s.openrice.com/cHRSmG2OoO800"
+    },
+    {
+      "name": "School of Black 咖啡會館 民生店",
+      "address": "104台北市中山區民生東路二段107號2樓",
+      "url": "https://s.openrice.com/cHRSm024oi800"
+    },
+    {
+      "name": "峯川咖啡雪綿冰",
+      "address": "11260台北市北投區知行路323號",
+      "url": "https://s.openrice.com/cHRSm026Ii800"
+    },
+    {
+      "name": "DACELO café",
+      "address": "106台北市大安區復興南路二段148巷32弄2號",
+      "url": "https://s.openrice.com/cHRSm02LVq700"
+    },
+    {
+      "name": "靚湯鍋",
+      "address": "10491台北市中山區林森北路107巷55號",
+      "url": "https://s.openrice.com/cHRSm02V34800"
+    },
+    {
+      "name": "築崎相撲鍋物(愛買復興殿) -自助蔬食吃到飽|蒙古烤肉|宵夜美食|兒童免低消140公分以下|團體聚會",
+      "address": "402台中市南區復興路一段359號主題餐廳一樓",
+      "url": "https://s.openrice.com/cHRSmW2Yp4800"
+    },
+    {
+      "name": "炙上海鮮燒烤",
+      "address": "100台北市中正區懷寧街16號2樓",
+      "url": "https://s.openrice.com/cHRSm02V3G800"
+    },
+    {
+      "name": "金炭火燒肉餐廳(土城中央店)",
+      "address": "236新北市土城區中央路一段124號",
+      "url": "https://s.openrice.com/cHRSmG203i800"
+    },
+    {
+      "name": "ZAC ZAG",
+      "address": "臺北市中正區南陽街21號",
+      "url": "https://s.openrice.com/cHRSm02TZu800"
+    },
+    {
+      "name": "In Bottle 平玖餐酒館《餐酒館推薦》信義區聚會餐酒館｜聚會酒吧｜熱門餐酒館｜調酒推薦",
+      "address": "110台北市信義區基隆路一段420號1 樓",
+      "url": "https://s.openrice.com/cHRSm02Jqe800"
+    },
+    {
+      "name": "一味難求",
+      "address": "106台北市大安區大安路一段51巷29號",
+      "url": "https://s.openrice.com/cHRSm02Y4q800"
+    },
+    {
+      "name": "寶膳坊",
+      "address": "106台北市大安區大安路一段157巷1-1號",
+      "url": "https://s.openrice.com/cHRSm02iKi800"
+    },
+    {
+      "name": "The Traders Club",
+      "address": "106台北市大安區光復南路240巷50號",
+      "url": "https://s.openrice.com/cHRSm02vam800"
+    },
+    {
+      "name": "西施特柒捌 串燒吧小餐酒 ｜最後內用為打烊前一小時",
+      "address": "105台北市松山區民權東路三段103巷5弄1號1樓",
+      "url": "https://s.openrice.com/cHRSm02x4m800"
+    },
+    {
+      "name": "蛹 Sanagi (不定時公休，請參考粉絲專頁）《赤峰街推薦咖啡廳》大同區手沖咖啡｜精品咖啡｜下午茶點心｜特色咖啡｜外帶咖啡｜手工甜點｜巴西咖啡",
+      "address": "103台北市大同區赤峰街44巷8號1樓",
+      "url": "https://s.openrice.com/cHRSm02C54800"
+    },
+    {
+      "name": "巴蜀傳奇",
+      "address": "108台北市萬華區峨眉街74號",
+      "url": "https://s.openrice.com/cHRSm02fr8800"
+    },
+    {
+      "name": "試營運雅典鑄鐵鍋燒意麵🥘 / Life Bar 💈/DARTSLIVE2飛鏢店🎯",
+      "address": "402台中市南區三民西路343號",
+      "url": "https://s.openrice.com/cHRSmW2E5K800"
+    },
+    {
+      "name": "Buzzin Bistro 東區餐酒館",
+      "address": "106台北市大安區市民大道四段118號",
+      "url": "https://s.openrice.com/cHRSm02n5O800"
+    },
+    {
+      "name": "懂鮮 竹籠海鮮",
+      "address": "106台北市大安區文昌街132號",
+      "url": "https://s.openrice.com/cHRSm02wNi800"
+    },
+    {
+      "name": "Cycle Bar",
+      "address": "704台南市北區成功路68巷14之3號",
+      "url": "https://s.openrice.com/cHRSmm2qsK800"
+    },
+    {
+      "name": "御串燒",
+      "address": "811高雄市楠梓區大學26街109號",
+      "url": "https://s.openrice.com/cHRSn02qeC800"
+    },
+    {
+      "name": "御串燒 （中山）",
+      "address": "800高雄市新興區中山一路6之18號",
+      "url": "https://s.openrice.com/cHRSn02rOC800"
+    },
+    {
+      "name": "酒狐居酒屋-板橋居酒",
+      "address": "220新北市板橋區文化路二段320號2樓",
+      "url": "https://s.openrice.com/cHRSmG2ptG800"
+    },
+    {
+      "name": "奉餐館複合式餐廳",
+      "address": "407台中市西屯區文華路127巷26號",
+      "url": "https://s.openrice.com/cHRSmW2HP8800"
+    },
+    {
+      "name": "內湖北勢湖郵局",
+      "address": "114957台北市內湖區(內湖北勢湖郵局第23號信箱)",
+      "url": "https://s.openrice.com/cHRSmW2EP8800"
+    }
+  ],
+  "error_other_restaurants": [
+    {
+      "name": "桐生日式可麗餅 台中一中店",
+      "address": "40444台中市北區一中街179巷1號",
+      "url": "https://s.openrice.com/cHRSmW2Pfm700",
+      "error": "HTTPSConnectionPool(host='tw.openrice.com', port=443): Read timed out. (read timeout=10)"
+    }
+  ],
+  "summary": {
+    "total": 543,
+    "normal": 472,
+    "closed": 30,
+    "error_404": 40,
+    "error_other": 1
+  }
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今天吃什麼？🍽️</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 標題區域 -->
+        <header class="header">
+            <h1>🍽️ 今天吃什麼？</h1>
+            <p class="subtitle">告訴我你的喜好，我來推薦餐廳給你！</p>
+        </header>
+
+        <!-- 表單區域 -->
+        <main class="main-content">
+            <!-- 交通方式選擇（在表單之前） -->
+            <section class="transport-section">
+                <h2 class="transport-title">🚗 選擇交通方式</h2>
+                <div class="transport-options">
+                    <label class="transport-option">
+                        <input type="radio" name="transport" value="none" checked>
+                        <div class="transport-card">
+                            <span class="transport-icon">🚶</span>
+                            <span class="transport-text">不限距離</span>
+                        </div>
+                    </label>
+                    <label class="transport-option">
+                        <input type="radio" name="transport" value="walking">
+                        <div class="transport-card">
+                            <span class="transport-icon">🚶</span>
+                            <span class="transport-text">走路10分鐘內</span>
+                        </div>
+                    </label>
+                    <label class="transport-option">
+                        <input type="radio" name="transport" value="driving">
+                        <div class="transport-card">
+                            <span class="transport-icon">🚗</span>
+                            <span class="transport-text">開車10分鐘內</span>
+                        </div>
+                    </label>
+                </div>
+                <button type="button" id="getLocationBtn" class="location-btn">
+                    📍 使用我的位置
+                </button>
+                <div id="locationStatus" class="location-status" style="display: none;"></div>
+            </section>
+
+            <form id="recommendationForm" class="recommendation-form">
+                <!-- 料理風格 -->
+                <section class="form-section">
+                    <label class="section-label">
+                        <span class="label-icon">🍜</span>
+                        想吃的料理風格 <span class="required">*</span>
+                    </label>
+                    <div id="cuisineStyleOptions" class="radio-group">
+                        <!-- 動態載入 -->
+                    </div>
+                </section>
+
+                <!-- 餐廳類型 -->
+                <section class="form-section">
+                    <label class="section-label">
+                        <span class="label-icon">🏪</span>
+                        餐廳類型 <span class="required">*</span>
+                    </label>
+                    <div id="restaurantTypeOptions" class="radio-group">
+                        <!-- 動態載入 -->
+                    </div>
+                </section>
+
+                <!-- 預算 -->
+                <section class="form-section">
+                    <label class="section-label">
+                        <span class="label-icon">💰</span>
+                        每人預算
+                    </label>
+                    <div id="budgetOptions" class="radio-group">
+                        <!-- 動態載入 -->
+                    </div>
+                </section>
+
+                <!-- 距離（暫時隱藏，待實作） -->
+                <section class="form-section" style="display: none;">
+                    <label class="section-label">
+                        <span class="label-icon">📍</span>
+                        距離（公里）
+                    </label>
+                    <input type="range" id="distance" min="1" max="20" value="5" class="slider">
+                    <div class="slider-value">
+                        <span id="distanceValue">5</span> 公里
+                    </div>
+                </section>
+
+                <!-- 用餐時段（暫時隱藏，待實作） -->
+                <section class="form-section" style="display: none;">
+                    <label class="section-label">
+                        <span class="label-icon">🕐</span>
+                        用餐時段
+                    </label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="timeSlot" value="lunch">
+                            <span>午餐</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="timeSlot" value="dinner">
+                            <span>晚餐</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="timeSlot" value="any" checked>
+                            <span>都可以</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- 線上訂位（暫時隱藏，待實作） -->
+                <section class="form-section" style="display: none;">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="onlineReservation">
+                        <span>需要線上訂位</span>
+                    </label>
+                </section>
+
+                <!-- 提交按鈕 -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>🎲 推薦我</span>
+                </button>
+            </form>
+
+            <!-- 載入中 -->
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>正在為你尋找餐廳...</p>
+            </div>
+
+            <!-- 結果區域 -->
+            <div id="results" class="results" style="display: none;">
+                <h2 class="results-title">
+                    <span>✨</span> 為你推薦
+                    <span id="resultCount" class="result-count"></span>
+                </h2>
+                <div id="restaurantList" class="restaurant-list">
+                    <!-- 動態載入餐廳卡片 -->
+                </div>
+                <button id="resetBtn" class="reset-btn">重新選擇</button>
+            </div>
+
+            <!-- 錯誤訊息 -->
+            <div id="error" class="error" style="display: none;">
+                <p id="errorMessage"></p>
+            </div>
+        </main>
+
+        <!-- 頁尾 -->
+        <footer class="footer">
+            <p class="footer-line1">OpenRice 訂位回饋網</p>
+            <p class="footer-line2">每一次訂位，都回饋現金</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

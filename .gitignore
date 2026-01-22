@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+*.txt
+!README.md
+
+# Environment variables
+.env
+.env.local
+
+# API Keys (if stored separately)
+config.json
+secrets.json
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*_backup.json
+*_backup.csv
+
+# Test files
+test_*.html
