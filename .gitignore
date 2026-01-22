@@ -32,6 +32,8 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+.env.*
+!.env.example
 
 # API Keys (if stored separately)
 config.json

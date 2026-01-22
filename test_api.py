@@ -9,7 +9,16 @@ import json
 import requests
 import time
 
-API_KEY = "AIzaSyCtMM-KM8Y-m7JiBZRFLpqsnvGnNcTd9fs"
+import os
+from dotenv import load_dotenv
+
+# 載入環境變數
+load_dotenv()
+
+API_KEY = os.getenv('GOOGLE_API_KEY')
+if not API_KEY:
+    raise ValueError("請設定環境變數 GOOGLE_API_KEY，或在 .env 文件中配置")
+
 API_URL = "https://places.googleapis.com/v1/places/{place_id}"
 HEADERS = {
     "Content-Type": "application/json",
