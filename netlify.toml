@@ -3,7 +3,7 @@
   publish = "frontend"
   
   # 構建命令：將數據庫文件複製到函數目錄，確保函數可以訪問
-  command = "cp restaurants_database.json netlify/functions/restaurants_database.json || echo 'Warning: Could not copy database file'"
+  command = "bash netlify-build.sh"
 
 # Netlify Functions 配置
 [functions]

@@ -1,5 +1,45 @@
 // Netlify Function for restaurant API
-const { recommendRestaurants, getFilterOptions, getLocationOptions, loadRestaurantDatabase } = require('../../backend/utils/recommendation');
+const fs = require('fs');
+const path = require('path');
+
+// 先導入 recommendation 模組
+const recommendationModule = require('../../backend/utils/recommendation');
+
+// 覆蓋 loadRestaurantDatabase 函數以使用正確的路徑
+// 在 Netlify Functions 中，數據庫文件應該在函數目錄中
+function loadRestaurantDatabase() {
+  // 優先查找函數目錄中的數據庫文件（構建時複製的）
+  const functionDbPath = path.join(__dirname, 'restaurants_database.json');
+  
+  if (fs.existsSync(functionDbPath)) {
+    console.log(`Found database at function directory: ${functionDbPath}`);
+    const data = fs.readFileSync(functionDbPath, 'utf-8');
+    return JSON.parse(data);
+  }
+  
+  // 如果函數目錄中沒有，嘗試其他路徑
+  const possiblePaths = [
+    path.join(__dirname, '../../../restaurants_database.json'), // 項目根目錄
+    path.join(process.cwd(), 'restaurants_database.json'), // 當前工作目錄
+    path.join('/opt/build/repo', 'restaurants_database.json'), // Netlify 構建目錄
+  ];
+  
+  for (const dbPath of possiblePaths) {
+    if (fs.existsSync(dbPath)) {
+      console.log(`Found database at: ${dbPath}`);
+      const data = fs.readFileSync(dbPath, 'utf-8');
+      return JSON.parse(data);
+    }
+  }
+  
+  throw new Error(`Database file not found. Tried: ${functionDbPath}, ${possiblePaths.join(', ')}`);
+}
+
+// 覆蓋 recommendation 模組中的 loadRestaurantDatabase
+recommendationModule.loadRestaurantDatabase = loadRestaurantDatabase;
+
+// 導出函數
+const { recommendRestaurants, getFilterOptions, getLocationOptions } = recommendationModule;
 
 exports.handler = async (event, context) => {
   // 設置 CORS headers
