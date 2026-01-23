@@ -7,26 +7,38 @@ const path = require('path');
 function loadRestaurantDatabase() {
   // 嘗試多個可能的路徑（支持本地開發和 Netlify Functions）
   const possiblePaths = [
+    path.join(__dirname, 'restaurants_database.json'), // Netlify Functions (複製到函數目錄)
     path.join(__dirname, '../../restaurants_database.json'), // 本地開發
-    path.join(__dirname, '../../../restaurants_database.json'), // Netlify Functions
+    path.join(__dirname, '../../../restaurants_database.json'), // Netlify Functions (從函數目錄向上)
+    path.join(__dirname, '../../../../restaurants_database.json'), // Netlify Functions (更深層)
     path.join(process.cwd(), 'restaurants_database.json'), // 當前工作目錄
-    path.resolve('./restaurants_database.json') // 絕對路徑
+    path.resolve('./restaurants_database.json'), // 絕對路徑
+    path.join('/opt/build/repo', 'restaurants_database.json'), // Netlify 構建目錄
+    path.join(process.cwd(), '..', 'restaurants_database.json'), // 上一級目錄
+    path.join(process.cwd(), '..', '..', 'restaurants_database.json') // 上兩級目錄
   ];
   
+  const errors = [];
   for (const dbPath of possiblePaths) {
     try {
       if (fs.existsSync(dbPath)) {
+        console.log(`Found database at: ${dbPath}`);
         const data = fs.readFileSync(dbPath, 'utf-8');
         return JSON.parse(data);
+      } else {
+        errors.push(`Path does not exist: ${dbPath}`);
       }
     } catch (err) {
+      errors.push(`Error reading ${dbPath}: ${err.message}`);
       // 繼續嘗試下一個路徑
       continue;
     }
   }
   
-  // 如果所有路徑都失敗，拋出錯誤
-  throw new Error(`Database file not found. Tried paths: ${possiblePaths.join(', ')}`);
+  // 如果所有路徑都失敗，拋出詳細錯誤
+  const errorMsg = `Database file not found.\n__dirname: ${__dirname}\nprocess.cwd(): ${process.cwd()}\nTried paths:\n${errors.join('\n')}`;
+  console.error(errorMsg);
+  throw new Error(errorMsg);
 }
 
 /**

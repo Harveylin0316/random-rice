@@ -27,6 +27,8 @@ Thumbs.db
 
 # Netlify
 .netlify/
+# 允許 Netlify Functions 目錄中的數據庫文件（構建時複製）
+!netlify/functions/restaurants_database.json
 
 # Python
 __pycache__/
