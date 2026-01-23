@@ -98,85 +98,95 @@ function getFilterOptions() {
 }
 
 function getLocationOptions() {
-  const data = loadRestaurantDatabase();
-  const cities = new Set();
-  const districtsByCity = {};
-  
-  data.restaurants.forEach(restaurant => {
-    const city = restaurant.city;
-    const district = restaurant.district;
+  try {
+    console.log('getLocationOptions: Loading database...');
+    const data = loadRestaurantDatabase();
+    console.log('getLocationOptions: Database loaded, restaurants count:', data.restaurants?.length || 0);
     
-    if (city) {
-      cities.add(city);
+    const cities = new Set();
+    const districtsByCity = {};
+    
+    data.restaurants.forEach(restaurant => {
+      const city = restaurant.city;
+      const district = restaurant.district;
       
-      if (!districtsByCity[city]) {
-        districtsByCity[city] = new Set();
+      if (city) {
+        cities.add(city);
+        
+        if (!districtsByCity[city]) {
+          districtsByCity[city] = new Set();
+        }
+        
+        if (district) {
+          districtsByCity[city].add(district);
+        }
+      }
+    });
+    
+    // 台灣縣市從北到南的排序順序
+    const cityOrder = [
+      '基隆市',
+      '台北市',
+      '新北市',
+      '桃園市',
+      '新竹縣',
+      '新竹市',
+      '苗栗縣',
+      '台中市',
+      '彰化縣',
+      '南投縣',
+      '雲林縣',
+      '嘉義縣',
+      '嘉義市',
+      '台南市',
+      '高雄市',
+      '屏東縣',
+      '宜蘭縣',
+      '花蓮縣',
+      '台東縣',
+      '澎湖縣',
+      '金門縣',
+      '連江縣'
+    ];
+    
+    // 按照從北到南的順序排序
+    const citiesArray = Array.from(cities).sort((a, b) => {
+      const indexA = cityOrder.indexOf(a);
+      const indexB = cityOrder.indexOf(b);
+      
+      // 如果都在排序列表中，按照列表順序
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
       }
       
-      if (district) {
-        districtsByCity[city].add(district);
+      // 如果只有一個在列表中，在列表中的排在前面
+      if (indexA !== -1) return -1;
+      if (indexB !== -1) return 1;
+      
+      // 如果都不在列表中，按照字母順序
+      return a.localeCompare(b);
+    });
+    
+    const districtsObject = {};
+    
+    citiesArray.forEach(city => {
+      if (districtsByCity[city]) {
+        districtsObject[city] = Array.from(districtsByCity[city]).sort();
+      } else {
+        districtsObject[city] = [];
       }
-    }
-  });
-  
-  // 台灣縣市從北到南的排序順序
-  const cityOrder = [
-    '基隆市',
-    '台北市',
-    '新北市',
-    '桃園市',
-    '新竹縣',
-    '新竹市',
-    '苗栗縣',
-    '台中市',
-    '彰化縣',
-    '南投縣',
-    '雲林縣',
-    '嘉義縣',
-    '嘉義市',
-    '台南市',
-    '高雄市',
-    '屏東縣',
-    '宜蘭縣',
-    '花蓮縣',
-    '台東縣',
-    '澎湖縣',
-    '金門縣',
-    '連江縣'
-  ];
-  
-  // 按照從北到南的順序排序
-  const citiesArray = Array.from(cities).sort((a, b) => {
-    const indexA = cityOrder.indexOf(a);
-    const indexB = cityOrder.indexOf(b);
+    });
     
-    // 如果都在排序列表中，按照列表順序
-    if (indexA !== -1 && indexB !== -1) {
-      return indexA - indexB;
-    }
-    
-    // 如果只有一個在列表中，在列表中的排在前面
-    if (indexA !== -1) return -1;
-    if (indexB !== -1) return 1;
-    
-    // 如果都不在列表中，按照字母順序
-    return a.localeCompare(b);
-  });
-  
-  const districtsObject = {};
-  
-  citiesArray.forEach(city => {
-    if (districtsByCity[city]) {
-      districtsObject[city] = Array.from(districtsByCity[city]).sort();
-    } else {
-      districtsObject[city] = [];
-    }
-  });
-  
-  return {
-    cities: citiesArray,
-    districts: districtsObject
-  };
+    console.log('getLocationOptions: Returning options, cities count:', citiesArray.length);
+    return {
+      cities: citiesArray,
+      districts: districtsObject
+    };
+  } catch (error) {
+    console.error('getLocationOptions error:', error);
+    console.error('Stack:', error.stack);
+    throw error;
+  }
 }
 
 // 設置環境變數，讓 recommendation.js 知道數據庫文件的位置
@@ -314,15 +324,32 @@ exports.handler = async (event, context) => {
       };
     } else if (apiPath === '/location-options') {
       // 獲取地區選項
-      const options = getLocationOptions();
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          success: true,
-          options: options
-        })
-      };
+      try {
+        console.log('Getting location options...');
+        const options = getLocationOptions();
+        console.log('Location options retrieved successfully');
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            success: true,
+            options: options
+          })
+        };
+      } catch (error) {
+        console.error('Error in getLocationOptions:', error);
+        console.error('Stack:', error.stack);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: 'Internal server error',
+            message: error.message,
+            stack: error.stack
+          })
+        };
+      }
     } else if (apiPath === '/all') {
       // 獲取所有餐廳
       const data = loadRestaurantDatabase();
