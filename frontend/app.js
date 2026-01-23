@@ -24,6 +24,26 @@ let userLocation = null;
 // 記錄已顯示的餐廳名稱（用於排除重複）
 let displayedRestaurants = [];
 
+// 前端只顯示的7個料理風格分類
+const FRONTEND_CUISINE_CATEGORIES = [
+    '台式料理',
+    '中式/港粵',
+    '日式料理',
+    '韓式料理',
+    '美式料理',
+    '東南亞料理',
+    '多國料理'
+];
+
+// 前端只顯示的5個餐廳類型分類
+const FRONTEND_TYPE_CATEGORIES = [
+    '燒肉',
+    '火鍋',
+    '吃到飽',
+    '餐酒館',
+    '咖啡廳'
+];
+
 // 篩選選項資料
 let filterOptions = {
     cuisine_style: [],
@@ -69,11 +89,30 @@ async function loadFilterOptions() {
         const data = await response.json();
         if (data.success) {
             filterOptions = data.options;
+            // 確保料理風格只包含前端定義的7個分類
+            filterOptions.cuisine_style = filterOptions.cuisine_style.filter(
+                cuisine => FRONTEND_CUISINE_CATEGORIES.includes(cuisine)
+            );
+            // 如果API返回的分類不完整，使用前端定義的完整列表
+            if (filterOptions.cuisine_style.length !== FRONTEND_CUISINE_CATEGORIES.length) {
+                filterOptions.cuisine_style = [...FRONTEND_CUISINE_CATEGORIES];
+            }
+            // 確保餐廳類型只包含前端定義的5個分類
+            filterOptions.type = filterOptions.type.filter(
+                type => FRONTEND_TYPE_CATEGORIES.includes(type)
+            );
+            // 如果API返回的分類不完整，使用前端定義的完整列表
+            if (filterOptions.type.length !== FRONTEND_TYPE_CATEGORIES.length) {
+                filterOptions.type = [...FRONTEND_TYPE_CATEGORIES];
+            }
         } else {
             throw new Error('篩選選項資料格式錯誤');
         }
     } catch (err) {
         console.error('載入篩選選項錯誤:', err);
+        // 如果API載入失敗，使用前端定義的分類
+        filterOptions.cuisine_style = [...FRONTEND_CUISINE_CATEGORIES];
+        filterOptions.type = [...FRONTEND_TYPE_CATEGORIES];
         throw err;
     }
 }
@@ -187,17 +226,13 @@ function setupLocationModeHandlers() {
 
 // 料理風格圖示映射
 const cuisineIcons = {
-    '中式': '🥢',
-    '台式': '🍜',
-    '日式': '🍱',
-    '韓式': '🥘',
-    '美式': '🍔',
-    '義式': '🍝',
-    '法式': '🥖',
-    '泰式': '🍲',
-    '印度': '🍛',
-    '素食': '🥗',
-    '其他': '🍽️'
+    '台式料理': '🍜',
+    '中式/港粵': '🥢',
+    '日式料理': '🍱',
+    '韓式料理': '🥘',
+    '美式料理': '🍔',
+    '東南亞料理': '🍲',
+    '多國料理': '🌍'
 };
 
 // 餐廳類型圖示映射
@@ -206,11 +241,7 @@ const typeIcons = {
     '火鍋': '🍲',
     '吃到飽': '🍱',
     '餐酒館': '🍷',
-    '酒吧': '🍷',
-    '鐵板燒': '🔥',
-    '牛排': '🥩',
-    '定食': '🍱',
-    '其他': '🍴'
+    '咖啡廳': '☕'
 };
 
 // 渲染表單
@@ -318,9 +349,12 @@ form.addEventListener('submit', async (e) => {
     try {
         // 收集表單資料
         const formData = collectFormData();
+        console.log('表單資料:', formData);
         
         // 發送 API 請求（不排除任何餐廳，因為這是新的搜尋）
         const restaurants = await fetchRecommendations(formData, []);
+        console.log('API 返回的餐廳數量:', restaurants.length);
+        console.log('API 返回的餐廳:', restaurants);
         
         // 記錄已顯示的餐廳名稱（重置列表，因為這是新的搜尋）
         displayedRestaurants = restaurants.map(r => r.name);
@@ -453,27 +487,36 @@ async function fetchRecommendations(formData, excludeNames = []) {
     params.append('limit', formData.limit);
     
     // 發送請求
-    const response = await fetch(`${API_BASE_URL}/restaurants/recommend?${params.toString()}`);
+    const url = `${API_BASE_URL}/restaurants/recommend?${params.toString()}`;
+    console.log('API 請求 URL:', url);
+    
+    const response = await fetch(url);
     
     if (!response.ok) {
         throw new Error(`API 請求失敗: ${response.status}`);
     }
     
     const data = await response.json();
+    console.log('API 響應:', data);
     
     if (!data.success) {
         throw new Error(data.error || '獲取推薦餐廳失敗');
     }
     
-    return data.restaurants;
+    return data.restaurants || [];
 }
 
 // 顯示結果
 function displayResults(restaurants) {
+    console.log('displayResults 被調用，餐廳數量:', restaurants.length);
+    
     if (restaurants.length === 0) {
-        showError('沒有找到符合條件的餐廳，請調整篩選條件');
+        console.warn('沒有找到餐廳，顯示錯誤訊息');
+        showError('沒有找到符合條件的餐廳，請調整篩選條件（例如：擴大距離範圍或選擇「選擇地區」模式）');
         return;
     }
+    
+    console.log('準備顯示餐廳列表');
     
     resultCount.textContent = `${restaurants.length} 間餐廳`;
     
@@ -537,14 +580,18 @@ function displayResults(restaurants) {
                 </p>
                 <div class="restaurant-tags">
                     ${restaurant.cuisine_style && restaurant.cuisine_style.length > 0 ? 
-                        restaurant.cuisine_style.map(cuisine => 
-                            `<span class="tag cuisine">${cuisine}</span>`
-                        ).join('') : ''
+                        restaurant.cuisine_style
+                            .filter(cuisine => cuisine !== '一般')  // 過濾掉「一般」標籤
+                            .map(cuisine => 
+                                `<span class="tag cuisine">${cuisine}</span>`
+                            ).join('') : ''
                     }
                     ${restaurant.type && restaurant.type.length > 0 ? 
-                        restaurant.type.map(type => 
-                            `<span class="tag type">${type}</span>`
-                        ).join('') : ''
+                        restaurant.type
+                            .filter(type => type !== '一般')  // 過濾掉「一般」標籤
+                            .map(type => 
+                                `<span class="tag type">${type}</span>`
+                            ).join('') : ''
                     }
                     ${restaurant.budget ? 
                         `<span class="tag budget">${restaurant.budget} 元</span>` : 
@@ -601,16 +648,16 @@ resetBtn.addEventListener('click', async () => {
         // 收集當前表單資料（使用相同條件）
         const formData = collectFormData();
         
-        // 發送 API 請求（排除已顯示的餐廳）
-        const restaurants = await fetchRecommendations(formData, displayedRestaurants);
+        // 發送 API 請求（不排除任何餐廳，允許重複）
+        const restaurants = await fetchRecommendations(formData, []);
         
         if (restaurants.length === 0) {
-            showError('沒有更多符合條件的餐廳了，請調整篩選條件');
+            showError('沒有找到符合條件的餐廳，請調整篩選條件');
             return;
         }
         
-        // 更新已顯示的餐廳列表（累加）
-        displayedRestaurants = displayedRestaurants.concat(restaurants.map(r => r.name));
+        // 更新已顯示的餐廳列表（重置為新的餐廳，因為允許重複）
+        displayedRestaurants = restaurants.map(r => r.name);
         
         // 顯示結果
         displayResults(restaurants);
@@ -654,11 +701,34 @@ function hideResults() {
 }
 
 // 獲取用戶位置的函數
+let locationRequestInProgress = false;
+
 function getUserLocation() {
-    if (!navigator.geolocation) {
-        showLocationStatus('您的瀏覽器不支援地理位置功能', 'error');
+    // 防止重複調用
+    if (locationRequestInProgress) {
+        console.log('定位請求進行中，跳過重複調用');
         return;
     }
+    
+    if (!navigator.geolocation) {
+        showLocationStatus('您的瀏覽器不支援地理位置功能', 'error');
+        console.error('瀏覽器不支援 navigator.geolocation');
+        return;
+    }
+    
+    // 檢查是否在安全環境下（HTTPS 或 localhost）
+    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isSecure) {
+        console.warn('地理位置 API 建議在 HTTPS 環境下使用');
+    }
+    
+    console.log('開始獲取位置...', {
+        protocol: window.location.protocol,
+        hostname: window.location.hostname,
+        isSecure: isSecure
+    });
+    
+    locationRequestInProgress = true;
     
     if (getLocationBtn) {
         getLocationBtn.disabled = true;
@@ -666,8 +736,16 @@ function getUserLocation() {
     }
     showLocationStatus('正在獲取您的位置...', 'loading');
     
+    // 添加定位選項以提高成功率
+    const options = {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000  // 允許使用5分鐘內的緩存位置
+    };
+    
     navigator.geolocation.getCurrentPosition(
         (position) => {
+            locationRequestInProgress = false;
             userLocation = {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
@@ -678,35 +756,75 @@ function getUserLocation() {
                 getLocationBtn.style.background = '#4caf50';
             }
             showLocationStatus(`已獲取位置 (${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)})`, 'success');
+            console.log('位置獲取成功:', userLocation);
         },
         (error) => {
+            locationRequestInProgress = false;
+            
             if (getLocationBtn) {
                 getLocationBtn.disabled = false;
                 getLocationBtn.textContent = '📍 使用我的位置';
             }
+            
+            // 詳細的錯誤日誌
+            console.error('地理位置錯誤詳情:', {
+                code: error.code,
+                message: error.message,
+                PERMISSION_DENIED: error.PERMISSION_DENIED,
+                POSITION_UNAVAILABLE: error.POSITION_UNAVAILABLE,
+                TIMEOUT: error.TIMEOUT,
+                errorCode: error.code,
+                errorMessage: error.message
+            });
+            
+            // 特別處理 POSITION_UNAVAILABLE 錯誤
+            if (error.code === error.POSITION_UNAVAILABLE) {
+                console.warn('位置資訊不可用，可能的原因：');
+                console.warn('1. macOS 定位服務未開啟');
+                console.warn('2. 瀏覽器沒有位置權限');
+                console.warn('3. GPS 信號弱或無法取得');
+                console.warn('4. 網路連線問題');
+                console.warn('請檢查：系統設定 > 隱私權與安全性 > 定位服務');
+            }
+            
             let errorMsg = '無法獲取位置';
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    errorMsg = '位置權限被拒絕，請允許瀏覽器存取您的位置';
+                    errorMsg = '位置權限被拒絕，請在瀏覽器設定中允許存取位置，或選擇「選擇地區」模式';
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    errorMsg = '無法取得位置資訊';
+                    errorMsg = '無法取得位置資訊。請確認：\n1. 裝置定位服務已開啟\n2. 瀏覽器有位置權限\n3. 網路連線正常\n或選擇「選擇地區」模式';
                     break;
                 case error.TIMEOUT:
-                    errorMsg = '定位請求逾時';
+                    errorMsg = '定位請求逾時，請重試或選擇「選擇地區」模式';
+                    break;
+                default:
+                    errorMsg = `定位失敗 (錯誤代碼: ${error.code})，請重試或選擇「選擇地區」模式`;
                     break;
             }
             showLocationStatus(errorMsg, 'error');
-        }
+        },
+        options
     );
 }
 
 // 自動獲取用戶位置（頁面載入時）
 function autoGetUserLocation() {
+    // 如果已經有位置或正在獲取，不需要重新獲取
+    if (userLocation || locationRequestInProgress) {
+        return;
+    }
+    
     // 檢查是否選擇了「附近餐廳」模式
     const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');
     if (locationModeRadio && locationModeRadio.value === 'nearby') {
-        getUserLocation();
+        // 延遲一點再獲取，確保頁面完全載入
+        setTimeout(() => {
+            // 再次檢查，避免重複調用
+            if (!userLocation && !locationRequestInProgress) {
+                getUserLocation();
+            }
+        }, 500);
     }
 }
 

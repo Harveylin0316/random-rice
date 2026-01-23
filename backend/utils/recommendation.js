@@ -93,9 +93,22 @@ function matchesBudget(restaurant, userBudget) {
 }
 
 /**
+ * 前端分類到資料庫料理風格的映射
+ */
+const CUISINE_CATEGORY_MAP = {
+  '台式料理': ['taiwanese', '台灣原住民料理', '台灣料理', '客家料理'],
+  '中式/港粵': ['上海菜', '四川菜', '廣東菜-港式', '東北菜', '江浙菜', '湖南菜-湖北菜'],
+  '日式料理': ['日式料理'],
+  '韓式料理': ['韓式料理'],
+  '美式料理': ['美國料理'],
+  '東南亞料理': ['印尼料理', '星馬料理', '泰式料理'],
+  '多國料理': ['多國料理']
+};
+
+/**
  * 檢查餐廳是否符合料理風格條件
  * @param {Object} restaurant - 餐廳物件
- * @param {Array<string>} userCuisines - 使用者選擇的料理風格陣列
+ * @param {Array<string>} userCuisines - 使用者選擇的料理風格分類陣列（前端7個分類）
  * @returns {boolean}
  */
 function matchesCuisineStyle(restaurant, userCuisines) {
@@ -103,14 +116,36 @@ function matchesCuisineStyle(restaurant, userCuisines) {
   
   const restaurantCuisines = restaurant.cuisine_style || [];
   
-  // 檢查是否有任何一個使用者選擇的料理風格符合
-  return userCuisines.some(cuisine => restaurantCuisines.includes(cuisine));
+  // 如果餐廳只有「一般」，只匹配「不限」（即沒有選擇料理風格）
+  // 如果用戶選擇了特定的料理風格，則不匹配
+  if (restaurantCuisines.length === 1 && restaurantCuisines[0] === '一般') {
+    return false; // 不匹配任何特定的料理風格選擇
+  }
+  
+  // 檢查用戶選擇的分類是否匹配餐廳的料理風格
+  return userCuisines.some(category => {
+    // 獲取該分類對應的所有資料庫料理風格
+    const mappedStyles = CUISINE_CATEGORY_MAP[category] || [];
+    // 檢查餐廳的料理風格是否包含該分類對應的任何一個風格
+    return mappedStyles.some(style => restaurantCuisines.includes(style));
+  });
 }
+
+/**
+ * 前端分類到資料庫餐廳類型的映射
+ */
+const TYPE_CATEGORY_MAP = {
+  '燒肉': ['燒肉店'],
+  '火鍋': ['火鍋店'],
+  '吃到飽': ['燒肉店', '火鍋店'], // 吃到飽可能同時是燒肉或火鍋
+  '餐酒館': ['餐酒館'],
+  '咖啡廳': ['咖啡廳(店)']
+};
 
 /**
  * 檢查餐廳是否符合類型條件
  * @param {Object} restaurant - 餐廳物件
- * @param {Array<string>} userTypes - 使用者選擇的餐廳類型陣列
+ * @param {Array<string>} userTypes - 使用者選擇的餐廳類型陣列（前端5個分類）
  * @returns {boolean}
  */
 function matchesType(restaurant, userTypes) {
@@ -118,8 +153,45 @@ function matchesType(restaurant, userTypes) {
   
   const restaurantTypes = restaurant.type || [];
   
-  // 檢查是否有任何一個使用者選擇的類型符合
-  return userTypes.some(type => restaurantTypes.includes(type));
+  // 特殊處理「吃到飽」：只匹配 type 中有「吃到飽」的餐廳
+  if (userTypes.includes('吃到飽')) {
+    const isBuffetMatch = restaurantTypes.includes('吃到飽');
+    if (!isBuffetMatch) {
+      // 如果用戶選擇了「吃到飽」但餐廳 type 中沒有「吃到飽」，則不匹配
+      // 但需要檢查是否同時選擇了其他類型
+      const otherTypes = userTypes.filter(t => t !== '吃到飽');
+      if (otherTypes.length === 0) {
+        return false; // 只選擇了「吃到飽」，但餐廳 type 中沒有
+      }
+      // 如果還選擇了其他類型，繼續檢查其他類型
+      return matchesType(restaurant, otherTypes);
+    }
+  }
+  
+  // 如果餐廳只有「一般」，匹配所有選擇（除了「吃到飽」已在上面處理）
+  if (restaurantTypes.length === 1 && restaurantTypes[0] === '一般') {
+    // 如果用戶選擇了「吃到飽」，已經在上面處理過了
+    if (userTypes.includes('吃到飽')) {
+      const isBuffetMatch = restaurantTypes.includes('吃到飽');
+      if (!isBuffetMatch) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  // 檢查用戶選擇的分類是否匹配餐廳的類型
+  return userTypes.some(category => {
+    // 「吃到飽」已在上面特殊處理
+    if (category === '吃到飽') {
+      return restaurantTypes.includes('吃到飽');
+    }
+    
+    // 獲取該分類對應的所有資料庫類型
+    const mappedTypes = TYPE_CATEGORY_MAP[category] || [];
+    // 檢查餐廳的類型是否包含該分類對應的任何一個類型
+    return mappedTypes.some(type => restaurantTypes.includes(type));
+  });
 }
 
 /**
@@ -132,26 +204,38 @@ function recommendRestaurants(filters = {}, limit = 5) {
   const data = loadRestaurantDatabase();
   let restaurants = [...data.restaurants];
   
+  // 調試：記錄初始數量
+  console.log('推薦餐廳 - 初始數量:', restaurants.length);
+  console.log('篩選條件:', filters);
+  
   // 篩選：料理風格
   if (filters.cuisine_style) {
+    const beforeCount = restaurants.length;
     restaurants = restaurants.filter(r => matchesCuisineStyle(r, filters.cuisine_style));
+    console.log(`料理風格篩選: ${beforeCount} -> ${restaurants.length} (條件: ${filters.cuisine_style.join(', ')})`);
   }
   
   // 篩選：餐廳類型
   if (filters.type) {
+    const beforeCount = restaurants.length;
     restaurants = restaurants.filter(r => matchesType(r, filters.type));
+    console.log(`餐廳類型篩選: ${beforeCount} -> ${restaurants.length} (條件: ${filters.type.join(', ')})`);
   }
   
   // 篩選：預算
   if (filters.budget) {
+    const beforeCount = restaurants.length;
     restaurants = restaurants.filter(r => matchesBudget(r, filters.budget));
+    console.log(`預算篩選: ${beforeCount} -> ${restaurants.length} (條件: ${filters.budget})`);
   }
   
   // 距離篩選（需要座標資料）- 附近餐廳模式
   if (filters.userLocation && filters.maxDistance) {
+    const beforeCount = restaurants.length;
     restaurants = restaurants.filter(r => {
+      // 如果餐廳沒有座標，無法計算距離，應該排除
       if (!r.coordinates || !r.coordinates.lat || !r.coordinates.lng) {
-        return true; // 如果餐廳沒有座標，不進行距離篩選
+        return false;
       }
       const distance = calculateDistance(
         filters.userLocation.lat,
@@ -161,10 +245,12 @@ function recommendRestaurants(filters = {}, limit = 5) {
       );
       return distance <= filters.maxDistance;
     });
+    console.log(`距離篩選: ${beforeCount} -> ${restaurants.length} (距離: ${filters.maxDistance}km)`);
   }
   
   // 地區篩選（縣市和行政區）- 選擇地區模式
   if (filters.city) {
+    const beforeCount = restaurants.length;
     restaurants = restaurants.filter(r => {
       const restaurantCity = r.city;
       const restaurantDistrict = r.district;
@@ -185,11 +271,14 @@ function recommendRestaurants(filters = {}, limit = 5) {
       // 只指定縣市，匹配該縣市的所有餐廳（包括沒有行政區的）
       return true;
     });
+    console.log(`地區篩選: ${beforeCount} -> ${restaurants.length} (條件: ${filters.city}${filters.district ? ' ' + filters.district : ''})`);
   }
   
   // 排除已顯示的餐廳
   if (filters.exclude && filters.exclude.length > 0) {
+    const beforeCount = restaurants.length;
     restaurants = restaurants.filter(r => !filters.exclude.includes(r.name));
+    console.log(`排除已顯示: ${beforeCount} -> ${restaurants.length} (排除: ${filters.exclude.length} 間)`);
   }
   
   // TODO: 用餐時段篩選（需要營業時間資料）
@@ -206,22 +295,33 @@ function recommendRestaurants(filters = {}, limit = 5) {
  */
 function getFilterOptions() {
   const data = loadRestaurantDatabase();
-  const cuisines = new Set();
   const types = new Set();
   const budgets = new Set();
   
   data.restaurants.forEach(restaurant => {
-    (restaurant.cuisine_style || []).forEach(c => cuisines.add(c));
     (restaurant.type || []).forEach(t => types.add(t));
     if (restaurant.budget) budgets.add(restaurant.budget);
   });
   
-  // 過濾掉「其他」選項，以及從料理風格中移除「火鍋」、「燒肉」、「酒吧」（這些應該在餐廳類型中）
-  const excludedCuisines = ['其他', '火鍋', '燒肉', '酒吧'];
-  const filteredCuisines = Array.from(cuisines).filter(c => !excludedCuisines.includes(c)).sort();
-  // 過濾掉「其他」和「一般餐廳」選項
-  const excludedTypes = ['其他', '一般餐廳'];
-  const filteredTypes = Array.from(types).filter(t => !excludedTypes.includes(t)).sort();
+  // 前端只顯示7個料理風格分類
+  const frontendCuisineCategories = [
+    '台式料理',
+    '中式/港粵',
+    '日式料理',
+    '韓式料理',
+    '美式料理',
+    '東南亞料理',
+    '多國料理'
+  ];
+  
+  // 前端只顯示5個餐廳類型分類
+  const frontendTypeCategories = [
+    '燒肉',
+    '火鍋',
+    '吃到飽',
+    '餐酒館',
+    '咖啡廳'
+  ];
   
   // 預算排序：按照價格從低到高
   const sortedBudgets = Array.from(budgets).sort((a, b) => {
@@ -248,8 +348,8 @@ function getFilterOptions() {
   });
   
   return {
-    cuisine_style: filteredCuisines,
-    type: filteredTypes,
+    cuisine_style: frontendCuisineCategories,
+    type: frontendTypeCategories,
     budget: sortedBudgets
   };
 }
@@ -280,8 +380,50 @@ function getLocationOptions() {
     }
   });
   
-  // 轉換為陣列並排序
-  const citiesArray = Array.from(cities).sort();
+  // 台灣縣市從北到南的排序順序
+  const cityOrder = [
+    '基隆市',
+    '台北市',
+    '新北市',
+    '桃園市',
+    '新竹縣',
+    '新竹市',
+    '苗栗縣',
+    '台中市',
+    '彰化縣',
+    '南投縣',
+    '雲林縣',
+    '嘉義縣',
+    '嘉義市',
+    '台南市',
+    '高雄市',
+    '屏東縣',
+    '宜蘭縣',
+    '花蓮縣',
+    '台東縣',
+    '澎湖縣',
+    '金門縣',
+    '連江縣'
+  ];
+  
+  // 按照從北到南的順序排序
+  const citiesArray = Array.from(cities).sort((a, b) => {
+    const indexA = cityOrder.indexOf(a);
+    const indexB = cityOrder.indexOf(b);
+    
+    // 如果都在排序列表中，按照列表順序
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+    
+    // 如果只有一個在列表中，在列表中的排在前面
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    
+    // 如果都不在列表中，按照字母順序
+    return a.localeCompare(b);
+  });
+  
   const districtsObject = {};
   
   citiesArray.forEach(city => {

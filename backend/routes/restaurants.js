@@ -17,11 +17,14 @@ const { recommendRestaurants, getFilterOptions } = require('../utils/recommendat
  */
 router.get('/recommend', (req, res) => {
   try {
+    console.log('API 請求 - 原始查詢參數:', req.query);
+    
     const filters = {};
     
     // 解析料理風格（可多選）
     if (req.query.cuisine_style) {
       filters.cuisine_style = req.query.cuisine_style.split(',').map(s => s.trim());
+      console.log('解析後的 cuisine_style:', filters.cuisine_style);
     }
     
     // 解析餐廳類型（可多選）
@@ -41,6 +44,7 @@ router.get('/recommend', (req, res) => {
         lng: parseFloat(req.query.userLng)
       };
       filters.maxDistance = parseFloat(req.query.maxDistance);
+      console.log('解析後的距離篩選:', filters.userLocation, 'maxDistance:', filters.maxDistance);
     }
     
     // 地區篩選（縣市和行政區）- 選擇地區模式
@@ -59,8 +63,13 @@ router.get('/recommend', (req, res) => {
     // 返回數量
     const limit = parseInt(req.query.limit) || 5;
     
+    console.log('最終 filters:', filters);
+    console.log('limit:', limit);
+    
     // 獲取推薦餐廳
     const recommendations = recommendRestaurants(filters, limit);
+    
+    console.log('API 返回的餐廳數量:', recommendations.length);
     
     res.json({
       success: true,
