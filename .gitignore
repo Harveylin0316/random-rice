@@ -1,17 +1,22 @@
 # Dependencies
 node_modules/
-package-lock.json
+backend/node_modules/
+netlify/functions/node_modules/
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-.venv
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
@@ -20,32 +25,15 @@ ENV/
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
+# Netlify
+.netlify/
 
-# Logs
-*.log
-*.txt
-!README.md
-
-# Environment variables
-.env
-.env.local
-.env.*
-!.env.example
-
-# API Keys (if stored separately)
-config.json
-secrets.json
-
-# Temporary files
-*.tmp
-*.temp
-
-# Backup files
-*_backup.json
-*_backup.csv
-
-# Test files
-test_*.html
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/

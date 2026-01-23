@@ -1,5 +1,8 @@
 // API 基礎 URL
-const API_BASE_URL = 'http://localhost:3000/api';
+// 在 Netlify 上使用相對路徑，本地開發時使用 localhost
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api'
+  : '/api';
 
 // DOM 元素
 const form = document.getElementById('recommendationForm');

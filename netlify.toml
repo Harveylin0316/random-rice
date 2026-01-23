@@ -1,0 +1,28 @@
+[build]
+  # 發布目錄（前端文件）
+  publish = "frontend"
+  
+  # 構建命令（如果需要構建步驟，這裡可以留空或添加構建命令）
+  command = ""
+
+# Netlify Functions 配置
+[functions]
+  # Functions 目錄
+  directory = "netlify/functions"
+  
+  # Node.js 版本
+  node_bootstrap = "18"
+
+# 重定向規則（將 API 請求重定向到 Functions）
+# 將所有 /api/restaurants/* 請求重定向到 Netlify Function
+[[redirects]]
+  from = "/api/restaurants/*"
+  to = "/.netlify/functions/restaurants"
+  status = 200
+  force = true
+
+# SPA 路由支持（所有非 API 請求都返回 index.html）
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
