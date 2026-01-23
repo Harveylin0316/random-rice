@@ -1,5 +1,29 @@
 // Netlify Function for restaurant API
-const { recommendRestaurants, getFilterOptions, getLocationOptions, loadRestaurantDatabase } = require('../../backend/utils/recommendation');
+const fs = require('fs');
+const path = require('path');
+const { recommendRestaurants, getFilterOptions, getLocationOptions } = require('../../backend/utils/recommendation');
+
+// 覆蓋 loadRestaurantDatabase 函數以使用正確的路徑
+// 在 Netlify Functions 環境中，需要從函數文件位置計算相對路徑
+function loadRestaurantDatabase() {
+  // 在 Netlify Functions 中，__dirname 指向函數文件所在目錄
+  // 需要向上兩級到達項目根目錄
+  const dbPath = path.join(__dirname, '../../../restaurants_database.json');
+  
+  // 如果找不到，嘗試其他可能的路徑
+  if (!fs.existsSync(dbPath)) {
+    // 嘗試從當前目錄向上查找
+    const altPath = path.join(process.cwd(), 'restaurants_database.json');
+    if (fs.existsSync(altPath)) {
+      const data = fs.readFileSync(altPath, 'utf-8');
+      return JSON.parse(data);
+    }
+    throw new Error(`Database file not found. Tried: ${dbPath}, ${altPath}`);
+  }
+  
+  const data = fs.readFileSync(dbPath, 'utf-8');
+  return JSON.parse(data);
+}
 
 exports.handler = async (event, context) => {
   // 設置 CORS headers

@@ -5,9 +5,28 @@ const path = require('path');
  * 載入餐廳資料庫
  */
 function loadRestaurantDatabase() {
-  const dbPath = path.join(__dirname, '../../restaurants_database.json');
-  const data = fs.readFileSync(dbPath, 'utf-8');
-  return JSON.parse(data);
+  // 嘗試多個可能的路徑（支持本地開發和 Netlify Functions）
+  const possiblePaths = [
+    path.join(__dirname, '../../restaurants_database.json'), // 本地開發
+    path.join(__dirname, '../../../restaurants_database.json'), // Netlify Functions
+    path.join(process.cwd(), 'restaurants_database.json'), // 當前工作目錄
+    path.resolve('./restaurants_database.json') // 絕對路徑
+  ];
+  
+  for (const dbPath of possiblePaths) {
+    try {
+      if (fs.existsSync(dbPath)) {
+        const data = fs.readFileSync(dbPath, 'utf-8');
+        return JSON.parse(data);
+      }
+    } catch (err) {
+      // 繼續嘗試下一個路徑
+      continue;
+    }
+  }
+  
+  // 如果所有路徑都失敗，拋出錯誤
+  throw new Error(`Database file not found. Tried paths: ${possiblePaths.join(', ')}`);
 }
 
 /**
