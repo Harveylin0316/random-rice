@@ -69,9 +69,50 @@ function parseBudgetRange(budgetStr) {
 }
 
 /**
+ * 將資料庫的預算格式映射到前端的分類
+ * @param {string} dbBudget - 資料庫中的預算格式
+ * @returns {string|null} 前端預算分類
+ */
+function mapBudgetToCategory(dbBudget) {
+  if (!dbBudget) return null;
+  
+  const range = parseBudgetRange(dbBudget);
+  if (!range) return null;
+  
+  // 使用範圍的中心點來判斷分類
+  const center = range.max === Infinity 
+    ? range.min + 500  // 如果是「XXX以上」，假設範圍較大
+    : (range.min + range.max) / 2;
+  
+  // 新的預算分類映射
+  // 200元內：0-200（包含200）
+  if (center <= 200) {
+    return '200元內';
+  }
+  
+  // 200-500元：200-500（包含200和500）
+  if (center <= 500) {
+    return '200-500元';
+  }
+  
+  // 500-1000元：500-1000（包含500和1000）
+  if (center <= 1000) {
+    return '500-1000元';
+  }
+  
+  // 1000-1500元：1000-1500（包含1000和1500）
+  if (center <= 1500) {
+    return '1000-1500元';
+  }
+  
+  // 1500以上：1500以上
+  return '1500以上';
+}
+
+/**
  * 檢查餐廳是否符合預算條件
  * @param {Object} restaurant - 餐廳物件
- * @param {string} userBudget - 使用者選擇的預算區間
+ * @param {string} userBudget - 使用者選擇的預算區間（前端分類）
  * @returns {boolean}
  */
 function matchesBudget(restaurant, userBudget) {
@@ -83,13 +124,14 @@ function matchesBudget(restaurant, userBudget) {
   // 如果使用者沒有選擇預算，不篩選
   if (!userBudget || userBudget === 'all') return true;
   
-  const restaurantRange = parseBudgetRange(restaurantBudget);
-  const userRange = parseBudgetRange(userBudget);
+  // 將資料庫的預算格式映射到前端分類
+  const restaurantCategory = mapBudgetToCategory(restaurantBudget);
   
-  if (!restaurantRange || !userRange) return true;
+  // 如果無法映射，跳過篩選
+  if (!restaurantCategory) return true;
   
-  // 檢查兩個範圍是否有重疊
-  return restaurantRange.min <= userRange.max && restaurantRange.max >= userRange.min;
+  // 檢查是否匹配用戶選擇的分類
+  return restaurantCategory === userBudget;
 }
 
 /**
@@ -168,16 +210,10 @@ function matchesType(restaurant, userTypes) {
     }
   }
   
-  // 如果餐廳只有「一般」，匹配所有選擇（除了「吃到飽」已在上面處理）
+  // 如果餐廳只有「一般」，只匹配「不限」（即沒有選擇餐廳類型）
+  // 如果用戶選擇了特定的餐廳類型，則不匹配
   if (restaurantTypes.length === 1 && restaurantTypes[0] === '一般') {
-    // 如果用戶選擇了「吃到飽」，已經在上面處理過了
-    if (userTypes.includes('吃到飽')) {
-      const isBuffetMatch = restaurantTypes.includes('吃到飽');
-      if (!isBuffetMatch) {
-        return false;
-      }
-    }
-    return true;
+    return false; // 不匹配任何特定的餐廳類型選擇
   }
   
   // 檢查用戶選擇的分類是否匹配餐廳的類型
@@ -323,34 +359,19 @@ function getFilterOptions() {
     '咖啡廳'
   ];
   
-  // 預算排序：按照價格從低到高
-  const sortedBudgets = Array.from(budgets).sort((a, b) => {
-    const rangeA = parseBudgetRange(a);
-    const rangeB = parseBudgetRange(b);
-    
-    // 如果無法解析，放在最後
-    if (!rangeA && !rangeB) return 0;
-    if (!rangeA) return 1;
-    if (!rangeB) return -1;
-    
-    // 按照最小值排序
-    if (rangeA.min !== rangeB.min) {
-      return rangeA.min - rangeB.min;
-    }
-    
-    // 如果最小值相同，按照最大值排序
-    // 處理 Infinity 的情況
-    if (rangeA.max === Infinity && rangeB.max === Infinity) return 0;
-    if (rangeA.max === Infinity) return 1; // Infinity 放在最後
-    if (rangeB.max === Infinity) return -1;
-    
-    return rangeA.max - rangeB.max;
-  });
+  // 前端只顯示5個預算分類（按價格從低到高）
+  const frontendBudgetCategories = [
+    '200元內',
+    '200-500元',
+    '500-1000元',
+    '1000-1500元',
+    '1500以上'
+  ];
   
   return {
     cuisine_style: frontendCuisineCategories,
     type: frontendTypeCategories,
-    budget: sortedBudgets
+    budget: frontendBudgetCategories
   };
 }
 
