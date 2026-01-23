@@ -125,6 +125,27 @@ async function loadLocationOptions() {
     try {
         const response = await fetch(`${API_BASE_URL}/restaurants/location-options`);
         if (!response.ok) {
+            // 嘗試解析錯誤響應以獲取調試信息
+            let errorData = null;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                // 如果無法解析 JSON，使用默認錯誤
+            }
+            
+            console.error('載入地區選項錯誤 - 響應狀態:', response.status);
+            console.error('載入地區選項錯誤 - 響應數據:', errorData);
+            
+            // 如果有調試信息，顯示它
+            if (errorData && errorData.debug) {
+                console.error('調試信息:', errorData.debug);
+                console.error('__dirname:', errorData.debug.__dirname);
+                console.error('process.cwd():', errorData.debug.processCwd);
+                console.error('目錄文件:', errorData.debug.dirFiles);
+                console.error('數據庫路徑:', errorData.debug.dbPath);
+                console.error('數據庫存在?', errorData.debug.dbExists);
+            }
+            
             throw new Error('無法載入地區選項');
         }
         const data = await response.json();
