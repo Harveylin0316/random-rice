@@ -6,11 +6,20 @@ const path = require('path');
 const recommendationModule = require('../../backend/utils/recommendation');
 
 // 覆蓋 loadRestaurantDatabase 函數以使用正確的路徑
-// 在 Netlify Functions 中，數據庫文件應該在函數目錄中
+// 在 Netlify Functions 中，嘗試從模組導入數據庫
 function loadRestaurantDatabase() {
   console.log('loadRestaurantDatabase called');
   console.log('__dirname:', __dirname);
   console.log('process.cwd():', process.cwd());
+  
+  // 首先嘗試從模組導入（如果 database.js 存在）
+  try {
+    const database = require('./database');
+    console.log('Database loaded from module, restaurants count:', database.restaurants?.length || 0);
+    return database;
+  } catch (err) {
+    console.log('Failed to load from module, trying file system...', err.message);
+  }
   
   // 列出 __dirname 目錄中的所有文件（用於調試）
   try {
