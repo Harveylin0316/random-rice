@@ -8,13 +8,26 @@ const recommendationModule = require('../../backend/utils/recommendation');
 // 覆蓋 loadRestaurantDatabase 函數以使用正確的路徑
 // 在 Netlify Functions 中，數據庫文件應該在函數目錄中
 function loadRestaurantDatabase() {
+  console.log('loadRestaurantDatabase called');
+  console.log('__dirname:', __dirname);
+  console.log('process.cwd():', process.cwd());
+  
   // 優先查找函數目錄中的數據庫文件（構建時複製的）
   const functionDbPath = path.join(__dirname, 'restaurants_database.json');
+  console.log('Checking function directory path:', functionDbPath);
+  console.log('File exists?', fs.existsSync(functionDbPath));
   
   if (fs.existsSync(functionDbPath)) {
     console.log(`Found database at function directory: ${functionDbPath}`);
-    const data = fs.readFileSync(functionDbPath, 'utf-8');
-    return JSON.parse(data);
+    try {
+      const data = fs.readFileSync(functionDbPath, 'utf-8');
+      const parsed = JSON.parse(data);
+      console.log('Database loaded successfully, restaurants count:', parsed.restaurants?.length || 0);
+      return parsed;
+    } catch (err) {
+      console.error('Error reading database file:', err);
+      throw new Error(`Failed to read database file: ${err.message}`);
+    }
   }
   
   // 如果函數目錄中沒有，嘗試其他路徑
@@ -24,55 +37,76 @@ function loadRestaurantDatabase() {
     path.join('/opt/build/repo', 'restaurants_database.json'), // Netlify 構建目錄
   ];
   
+  console.log('Trying alternative paths...');
   for (const dbPath of possiblePaths) {
+    console.log('Checking:', dbPath, 'exists?', fs.existsSync(dbPath));
     if (fs.existsSync(dbPath)) {
       console.log(`Found database at: ${dbPath}`);
-      const data = fs.readFileSync(dbPath, 'utf-8');
-      return JSON.parse(data);
+      try {
+        const data = fs.readFileSync(dbPath, 'utf-8');
+        const parsed = JSON.parse(data);
+        console.log('Database loaded successfully, restaurants count:', parsed.restaurants?.length || 0);
+        return parsed;
+      } catch (err) {
+        console.error('Error reading database file:', err);
+        throw new Error(`Failed to read database file: ${err.message}`);
+      }
     }
   }
   
-  throw new Error(`Database file not found. Tried: ${functionDbPath}, ${possiblePaths.join(', ')}`);
+  const errorMsg = `Database file not found. Tried: ${functionDbPath}, ${possiblePaths.join(', ')}`;
+  console.error(errorMsg);
+  throw new Error(errorMsg);
 }
 
 // 重新實現 getFilterOptions 和 getLocationOptions，使用我們自己的 loadRestaurantDatabase
 function getFilterOptions() {
-  const data = loadRestaurantDatabase();
-  
-  // 前端只顯示7個料理風格分類
-  const frontendCuisineCategories = [
-    '台式料理',
-    '中式/港粵',
-    '日式料理',
-    '韓式料理',
-    '美式料理',
-    '東南亞料理',
-    '多國料理'
-  ];
-  
-  // 前端只顯示5個餐廳類型分類
-  const frontendTypeCategories = [
-    '燒肉',
-    '火鍋',
-    '吃到飽',
-    '餐酒館',
-    '咖啡廳'
-  ];
-  
-  // 前端只顯示5個預算分類（按價格從低到高）
-  const frontendBudgetCategories = [
-    '200元內',
-    '200-500元',
-    '500-1000元',
-    '1000-1500元',
-    '1500以上'
-  ];
-  
-  return {
-    cuisine_style: frontendCuisineCategories,
-    type: frontendTypeCategories,
-    budget: frontendBudgetCategories
-  };
+  try {
+    console.log('getFilterOptions: Loading database...');
+    const data = loadRestaurantDatabase();
+    console.log('getFilterOptions: Database loaded, restaurants count:', data.restaurants?.length || 0);
+    
+    // 前端只顯示7個料理風格分類
+    const frontendCuisineCategories = [
+      '台式料理',
+      '中式/港粵',
+      '日式料理',
+      '韓式料理',
+      '美式料理',
+      '東南亞料理',
+      '多國料理'
+    ];
+    
+    // 前端只顯示5個餐廳類型分類
+    const frontendTypeCategories = [
+      '燒肉',
+      '火鍋',
+      '吃到飽',
+      '餐酒館',
+      '咖啡廳'
+    ];
+    
+    // 前端只顯示5個預算分類（按價格從低到高）
+    const frontendBudgetCategories = [
+      '200元內',
+      '200-500元',
+      '500-1000元',
+      '1000-1500元',
+      '1500以上'
+    ];
+    
+    const result = {
+      cuisine_style: frontendCuisineCategories,
+      type: frontendTypeCategories,
+      budget: frontendBudgetCategories
+    };
+    
+    console.log('getFilterOptions: Returning options:', Object.keys(result));
+    return result;
+  } catch (error) {
+    console.error('getFilterOptions error:', error);
+    throw error;
+  }
 }
 
 function getLocationOptions() {
@@ -281,15 +315,37 @@ exports.handler = async (event, context) => {
       };
     } else if (apiPath === '/filter-options') {
       // 獲取篩選選項
-      const options = getFilterOptions();
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          success: true,
-          options: options
-        })
-      };
+      try {
+        console.log('Getting filter options...');
+        console.log('RESTAURANT_DB_PATH:', process.env.RESTAURANT_DB_PATH);
+        console.log('__dirname:', __dirname);
+        console.log('process.cwd():', process.cwd());
+        
+        const options = getFilterOptions();
+        console.log('Filter options retrieved successfully:', Object.keys(options));
+        
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            success: true,
+            options: options
+          })
+        };
+      } catch (error) {
+        console.error('Error in getFilterOptions:', error);
+        console.error('Stack:', error.stack);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: 'Internal server error',
+            message: error.message,
+            stack: error.stack
+          })
+        };
+      }
     } else if (apiPath === '/location-options') {
       // 獲取地區選項
       const options = getLocationOptions();
