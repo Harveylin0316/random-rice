@@ -12,6 +12,14 @@ function loadRestaurantDatabase() {
   console.log('__dirname:', __dirname);
   console.log('process.cwd():', process.cwd());
   
+  // 列出 __dirname 目錄中的所有文件（用於調試）
+  try {
+    const dirFiles = fs.readdirSync(__dirname);
+    console.log('Files in __dirname:', dirFiles);
+  } catch (err) {
+    console.error('Error reading __dirname:', err);
+  }
+  
   // 優先查找函數目錄中的數據庫文件（構建時複製的）
   const functionDbPath = path.join(__dirname, 'restaurants_database.json');
   console.log('Checking function directory path:', functionDbPath);
@@ -20,21 +28,28 @@ function loadRestaurantDatabase() {
   if (fs.existsSync(functionDbPath)) {
     console.log(`Found database at function directory: ${functionDbPath}`);
     try {
+      const stats = fs.statSync(functionDbPath);
+      console.log('File size:', stats.size, 'bytes');
       const data = fs.readFileSync(functionDbPath, 'utf-8');
       const parsed = JSON.parse(data);
       console.log('Database loaded successfully, restaurants count:', parsed.restaurants?.length || 0);
       return parsed;
     } catch (err) {
       console.error('Error reading database file:', err);
+      console.error('Error stack:', err.stack);
       throw new Error(`Failed to read database file: ${err.message}`);
     }
   }
   
   // 如果函數目錄中沒有，嘗試其他路徑
   const possiblePaths = [
+    path.join(__dirname, '../restaurants_database.json'), // 上一級目錄
+    path.join(__dirname, '../../restaurants_database.json'), // 上兩級目錄
     path.join(__dirname, '../../../restaurants_database.json'), // 項目根目錄
     path.join(process.cwd(), 'restaurants_database.json'), // 當前工作目錄
+    path.join(process.cwd(), 'netlify/functions/restaurants_database.json'), // 從工作目錄的函數目錄
     path.join('/opt/build/repo', 'restaurants_database.json'), // Netlify 構建目錄
+    path.join('/opt/build/repo', 'netlify/functions/restaurants_database.json'), // Netlify 構建目錄的函數目錄
   ];
   
   console.log('Trying alternative paths...');
@@ -43,12 +58,15 @@ function loadRestaurantDatabase() {
     if (fs.existsSync(dbPath)) {
       console.log(`Found database at: ${dbPath}`);
       try {
+        const stats = fs.statSync(dbPath);
+        console.log('File size:', stats.size, 'bytes');
         const data = fs.readFileSync(dbPath, 'utf-8');
         const parsed = JSON.parse(data);
         console.log('Database loaded successfully, restaurants count:', parsed.restaurants?.length || 0);
         return parsed;
       } catch (err) {
         console.error('Error reading database file:', err);
+        console.error('Error stack:', err.stack);
         throw new Error(`Failed to read database file: ${err.message}`);
       }
     }
