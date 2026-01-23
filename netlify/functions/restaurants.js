@@ -35,11 +35,133 @@ function loadRestaurantDatabase() {
   throw new Error(`Database file not found. Tried: ${functionDbPath}, ${possiblePaths.join(', ')}`);
 }
 
-// 覆蓋 recommendation 模組中的 loadRestaurantDatabase
-recommendationModule.loadRestaurantDatabase = loadRestaurantDatabase;
+// 重新實現 getFilterOptions 和 getLocationOptions，使用我們自己的 loadRestaurantDatabase
+function getFilterOptions() {
+  const data = loadRestaurantDatabase();
+  
+  // 前端只顯示7個料理風格分類
+  const frontendCuisineCategories = [
+    '台式料理',
+    '中式/港粵',
+    '日式料理',
+    '韓式料理',
+    '美式料理',
+    '東南亞料理',
+    '多國料理'
+  ];
+  
+  // 前端只顯示5個餐廳類型分類
+  const frontendTypeCategories = [
+    '燒肉',
+    '火鍋',
+    '吃到飽',
+    '餐酒館',
+    '咖啡廳'
+  ];
+  
+  // 前端只顯示5個預算分類（按價格從低到高）
+  const frontendBudgetCategories = [
+    '200元內',
+    '200-500元',
+    '500-1000元',
+    '1000-1500元',
+    '1500以上'
+  ];
+  
+  return {
+    cuisine_style: frontendCuisineCategories,
+    type: frontendTypeCategories,
+    budget: frontendBudgetCategories
+  };
+}
 
-// 導出函數
-const { recommendRestaurants, getFilterOptions, getLocationOptions } = recommendationModule;
+function getLocationOptions() {
+  const data = loadRestaurantDatabase();
+  const cities = new Set();
+  const districtsByCity = {};
+  
+  data.restaurants.forEach(restaurant => {
+    const city = restaurant.city;
+    const district = restaurant.district;
+    
+    if (city) {
+      cities.add(city);
+      
+      if (!districtsByCity[city]) {
+        districtsByCity[city] = new Set();
+      }
+      
+      if (district) {
+        districtsByCity[city].add(district);
+      }
+    }
+  });
+  
+  // 台灣縣市從北到南的排序順序
+  const cityOrder = [
+    '基隆市',
+    '台北市',
+    '新北市',
+    '桃園市',
+    '新竹縣',
+    '新竹市',
+    '苗栗縣',
+    '台中市',
+    '彰化縣',
+    '南投縣',
+    '雲林縣',
+    '嘉義縣',
+    '嘉義市',
+    '台南市',
+    '高雄市',
+    '屏東縣',
+    '宜蘭縣',
+    '花蓮縣',
+    '台東縣',
+    '澎湖縣',
+    '金門縣',
+    '連江縣'
+  ];
+  
+  // 按照從北到南的順序排序
+  const citiesArray = Array.from(cities).sort((a, b) => {
+    const indexA = cityOrder.indexOf(a);
+    const indexB = cityOrder.indexOf(b);
+    
+    // 如果都在排序列表中，按照列表順序
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+    
+    // 如果只有一個在列表中，在列表中的排在前面
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    
+    // 如果都不在列表中，按照字母順序
+    return a.localeCompare(b);
+  });
+  
+  const districtsObject = {};
+  
+  citiesArray.forEach(city => {
+    if (districtsByCity[city]) {
+      districtsObject[city] = Array.from(districtsByCity[city]).sort();
+    } else {
+      districtsObject[city] = [];
+    }
+  });
+  
+  return {
+    cities: citiesArray,
+    districts: districtsObject
+  };
+}
+
+// 設置環境變數，讓 recommendation.js 知道數據庫文件的位置
+process.env.RESTAURANT_DB_PATH = path.join(__dirname, 'restaurants_database.json');
+
+// 使用 recommendation 模組中的函數
+const { recommendRestaurants } = recommendationModule;
 
 exports.handler = async (event, context) => {
   // 設置 CORS headers

@@ -5,9 +5,15 @@ const path = require('path');
  * 載入餐廳資料庫
  */
 function loadRestaurantDatabase() {
+  // 如果設置了環境變數，優先使用它（Netlify Functions）
+  if (process.env.RESTAURANT_DB_PATH && fs.existsSync(process.env.RESTAURANT_DB_PATH)) {
+    console.log(`Found database via env var: ${process.env.RESTAURANT_DB_PATH}`);
+    const data = fs.readFileSync(process.env.RESTAURANT_DB_PATH, 'utf-8');
+    return JSON.parse(data);
+  }
+  
   // 嘗試多個可能的路徑（支持本地開發和 Netlify Functions）
   const possiblePaths = [
-    path.join(__dirname, 'restaurants_database.json'), // Netlify Functions (複製到函數目錄)
     path.join(__dirname, '../../restaurants_database.json'), // 本地開發
     path.join(__dirname, '../../../restaurants_database.json'), // Netlify Functions (從函數目錄向上)
     path.join(__dirname, '../../../../restaurants_database.json'), // Netlify Functions (更深層)
