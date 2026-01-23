@@ -59,54 +59,42 @@ function loadRestaurantDatabase() {
   throw new Error(errorMsg);
 }
 
-// 重新實現 getFilterOptions 和 getLocationOptions，使用我們自己的 loadRestaurantDatabase
+// 重新實現 getFilterOptions - 不需要數據庫，直接返回固定分類
 function getFilterOptions() {
-  try {
-    console.log('getFilterOptions: Loading database...');
-    const data = loadRestaurantDatabase();
-    console.log('getFilterOptions: Database loaded, restaurants count:', data.restaurants?.length || 0);
-    
-    // 前端只顯示7個料理風格分類
-    const frontendCuisineCategories = [
-      '台式料理',
-      '中式/港粵',
-      '日式料理',
-      '韓式料理',
-      '美式料理',
-      '東南亞料理',
-      '多國料理'
-    ];
-    
-    // 前端只顯示5個餐廳類型分類
-    const frontendTypeCategories = [
-      '燒肉',
-      '火鍋',
-      '吃到飽',
-      '餐酒館',
-      '咖啡廳'
-    ];
-    
-    // 前端只顯示5個預算分類（按價格從低到高）
-    const frontendBudgetCategories = [
-      '200元內',
-      '200-500元',
-      '500-1000元',
-      '1000-1500元',
-      '1500以上'
-    ];
-    
-    const result = {
-      cuisine_style: frontendCuisineCategories,
-      type: frontendTypeCategories,
-      budget: frontendBudgetCategories
-    };
-    
-    console.log('getFilterOptions: Returning options:', Object.keys(result));
-    return result;
-  } catch (error) {
-    console.error('getFilterOptions error:', error);
-    throw error;
-  }
+  // 前端只顯示7個料理風格分類
+  const frontendCuisineCategories = [
+    '台式料理',
+    '中式/港粵',
+    '日式料理',
+    '韓式料理',
+    '美式料理',
+    '東南亞料理',
+    '多國料理'
+  ];
+  
+  // 前端只顯示5個餐廳類型分類
+  const frontendTypeCategories = [
+    '燒肉',
+    '火鍋',
+    '吃到飽',
+    '餐酒館',
+    '咖啡廳'
+  ];
+  
+  // 前端只顯示5個預算分類（按價格從低到高）
+  const frontendBudgetCategories = [
+    '200元內',
+    '200-500元',
+    '500-1000元',
+    '1000-1500元',
+    '1500以上'
+  ];
+  
+  return {
+    cuisine_style: frontendCuisineCategories,
+    type: frontendTypeCategories,
+    budget: frontendBudgetCategories
+  };
 }
 
 function getLocationOptions() {
@@ -314,38 +302,16 @@ exports.handler = async (event, context) => {
         })
       };
     } else if (apiPath === '/filter-options') {
-      // 獲取篩選選項
-      try {
-        console.log('Getting filter options...');
-        console.log('RESTAURANT_DB_PATH:', process.env.RESTAURANT_DB_PATH);
-        console.log('__dirname:', __dirname);
-        console.log('process.cwd():', process.cwd());
-        
-        const options = getFilterOptions();
-        console.log('Filter options retrieved successfully:', Object.keys(options));
-        
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            success: true,
-            options: options
-          })
-        };
-      } catch (error) {
-        console.error('Error in getFilterOptions:', error);
-        console.error('Stack:', error.stack);
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({
-            success: false,
-            error: 'Internal server error',
-            message: error.message,
-            stack: error.stack
-          })
-        };
-      }
+      // 獲取篩選選項 - 不需要數據庫
+      const options = getFilterOptions();
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          options: options
+        })
+      };
     } else if (apiPath === '/location-options') {
       // 獲取地區選項
       const options = getLocationOptions();
