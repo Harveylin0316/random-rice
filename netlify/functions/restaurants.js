@@ -344,6 +344,17 @@ exports.handler = async (event, context) => {
       // 獲取地區選項
       try {
         console.log('Getting location options...');
+        console.log('__dirname:', __dirname);
+        console.log('process.cwd():', process.cwd());
+        
+        // 列出 __dirname 目錄中的所有文件
+        try {
+          const dirFiles = fs.readdirSync(__dirname);
+          console.log('Files in __dirname:', dirFiles);
+        } catch (err) {
+          console.error('Error reading __dirname:', err);
+        }
+        
         const options = getLocationOptions();
         console.log('Location options retrieved successfully');
         return {
@@ -357,6 +368,27 @@ exports.handler = async (event, context) => {
       } catch (error) {
         console.error('Error in getLocationOptions:', error);
         console.error('Stack:', error.stack);
+        
+        // 收集調試信息
+        const debugInfo = {
+          __dirname: __dirname,
+          processCwd: process.cwd(),
+          errorMessage: error.message,
+          errorStack: error.stack
+        };
+        
+        // 嘗試列出目錄文件
+        try {
+          debugInfo.dirFiles = fs.readdirSync(__dirname);
+        } catch (err) {
+          debugInfo.dirFilesError = err.message;
+        }
+        
+        // 檢查數據庫文件是否存在
+        const dbPath = path.join(__dirname, 'restaurants_database.json');
+        debugInfo.dbPath = dbPath;
+        debugInfo.dbExists = fs.existsSync(dbPath);
+        
         return {
           statusCode: 500,
           headers,
@@ -364,7 +396,7 @@ exports.handler = async (event, context) => {
             success: false,
             error: 'Internal server error',
             message: error.message,
-            stack: error.stack
+            debug: debugInfo
           })
         };
       }
