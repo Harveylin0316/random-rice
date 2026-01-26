@@ -1212,14 +1212,116 @@ body::before {
     color: var(--text-secondary);
 }
 
+/* LINE LIFF 特定按鈕樣式 */
+.liff-share-btn,
+.liff-close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: white;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.liff-share-btn:hover,
+.liff-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.liff-share-btn:active,
+.liff-close-btn:active {
+    transform: scale(0.95);
+}
+
+.liff-share-btn {
+    font-size: 1rem;
+    padding: 0;
+    line-height: 1;
+}
+
+.liff-close-btn {
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* LINE 內瀏覽器優化 */
+@supports (-webkit-touch-callout: none) {
+    /* iOS Safari 優化 */
+    body {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    input, textarea, select {
+        -webkit-user-select: auto;
+        user-select: auto;
+    }
+}
+
+/* 防止 LINE 內瀏覽器的橡皮筋效果 */
+body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 優化觸摸體驗 */
+button, .radio-label, .checkbox-label, .location-mode-option, .transport-option {
+    -webkit-tap-highlight-color: rgba(255, 107, 53, 0.2);
+    tap-highlight-color: rgba(255, 107, 53, 0.2);
+}
+
 /* 響應式設計 */
 @media (max-width: 768px) {
+    .header {
+        padding: 40px 20px 30px;
+    }
+    
     .header h1 {
         font-size: 2.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .liff-share-btn,
+    .liff-close-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .liff-share-btn {
+        top: 8px;
+        right: 8px;
+    }
+    
+    .liff-close-btn {
+        top: 8px;
+        left: 8px;
     }
 
     .main-content {
-        padding: 25px;
+        padding: 20px 15px;
+    }
+    
+    body {
+        padding: 10px;
     }
 
     .checkbox-group,
@@ -1229,22 +1331,22 @@ body::before {
 
     .checkbox-label,
     .radio-label {
-        padding: 12px 20px;
-        font-size: 0.95rem;
+        padding: 12px 16px;
+        font-size: 0.9rem;
     }
 
     .submit-btn {
-        padding: 18px 35px;
-        font-size: 1.2rem;
+        padding: 16px 30px;
+        font-size: 1.1rem;
     }
 
     .transport-card {
-        min-width: 120px;
-        padding: 20px 25px;
+        min-width: 110px;
+        padding: 18px 20px;
     }
 
     .transport-icon {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .restaurant-actions {
@@ -1254,5 +1356,38 @@ body::before {
     .restaurant-btn {
         width: 100%;
         min-width: auto;
+    }
+    
+    .location-mode-options {
+        gap: 10px;
+        padding: 15px;
+    }
+    
+    .location-options {
+        padding: 20px 15px;
+    }
+}
+
+/* 超小螢幕優化 */
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .main-content {
+        padding: 15px 10px;
+    }
+    
+    .location-title {
+        font-size: 1rem;
+        padding: 12px 15px;
+    }
+    
+    .section-label {
+        font-size: 1rem;
     }
 }

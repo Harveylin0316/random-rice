@@ -2,6 +2,7 @@
 // 負責根據 URL 參數切換不同的頁面
 
 import { initHomePage } from './home.js';
+import { initLiffFeatures } from './components/liff-features.js';
 
 // 頁面路由映射
 const routes = {
@@ -20,6 +21,9 @@ let currentPage = null;
  */
 export function initRouter() {
     console.log('初始化路由系統');
+    
+    // 初始化 LINE 特定功能（分享、關閉等）
+    initLiffFeatures();
     
     // 獲取當前頁面參數
     const urlParams = new URLSearchParams(window.location.search);
