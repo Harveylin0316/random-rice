@@ -32,7 +32,7 @@ if [ -d "frontend/shared" ]; then
   fi
 fi
 
-# 確保共享模組被複製到 liff 目錄
+# 確保共享模組被複製到 liff 目錄（在複製 LIFF App 之前）
 if [ -d "frontend/shared" ]; then
   echo "複製共享模組到 liff 目錄..."
   cp -r frontend/shared frontend/liff/shared
@@ -55,6 +55,15 @@ if [ -d "frontend/liff" ]; then
   else
     echo "❌ LIFF App 複製失敗"
     exit 1
+  fi
+fi
+
+# 確保 web/liff/shared 也是最新的（覆蓋確保）
+if [ -d "frontend/shared" ] && [ -d "frontend/web/liff/shared" ]; then
+  echo "確保 web/liff/shared 是最新的..."
+  cp -r frontend/shared/* frontend/web/liff/shared/
+  if [ $? -eq 0 ]; then
+    echo "✅ web/liff/shared 更新成功"
   fi
 fi
 
