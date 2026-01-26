@@ -18,7 +18,9 @@
   status = 200
   force = true
 
-# SPA 路由支持（所有非 API 請求都返回 index.html）
+# SPA 路由支持（所有非 API 和非靜態資源請求都返回 index.html）
+# 注意：Netlify 會按照順序匹配規則，所以靜態資源會自動被正確處理
+# 只有不匹配其他規則的路徑才會被重定向到 index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
