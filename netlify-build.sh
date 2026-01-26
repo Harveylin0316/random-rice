@@ -25,9 +25,21 @@ if [ -d "frontend/shared" ]; then
   echo "複製共享模組到 web 目錄..."
   cp -r frontend/shared frontend/web/shared
   if [ $? -eq 0 ]; then
-    echo "✅ 共享模組複製成功"
+    echo "✅ Web 共享模組複製成功"
   else
-    echo "❌ 共享模組複製失敗"
+    echo "❌ Web 共享模組複製失敗"
+    exit 1
+  fi
+fi
+
+# 確保共享模組被複製到 liff 目錄
+if [ -d "frontend/shared" ]; then
+  echo "複製共享模組到 liff 目錄..."
+  cp -r frontend/shared frontend/liff/shared
+  if [ $? -eq 0 ]; then
+    echo "✅ LIFF 共享模組複製成功"
+  else
+    echo "❌ LIFF 共享模組複製失敗"
     exit 1
   fi
 fi
