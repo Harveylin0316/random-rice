@@ -20,13 +20,8 @@ function getLiffId() {
         return window.LIFF_ID;
     }
     
-    // 默認值（需要替換為實際的 LIFF ID）
-    const defaultLiffId = 'YOUR_LIFF_ID_HERE';
-    if (defaultLiffId === 'YOUR_LIFF_ID_HERE') {
-        console.warn('⚠️ 請設置 LIFF ID！');
-        console.warn('方式 1: 在 URL 中添加 ?liffId=你的LIFF_ID');
-        console.warn('方式 2: 在 LINE Developers Console 創建 LIFF App 後，將 LIFF ID 設置到這裡');
-    }
+    // 默認值（已設置 LIFF ID）
+    const defaultLiffId = '2008944358-649rLhGj';
     
     return defaultLiffId;
 }
