@@ -44,4 +44,18 @@ if [ -d "frontend/shared" ]; then
   fi
 fi
 
+# 將 LIFF App 複製到 web 目錄，以便部署到 Netlify
+if [ -d "frontend/liff" ]; then
+  echo "複製 LIFF App 到 web 目錄..."
+  mkdir -p frontend/web/liff
+  cp -r frontend/liff/* frontend/web/liff/
+  if [ $? -eq 0 ]; then
+    echo "✅ LIFF App 複製成功"
+    echo "LIFF App 將可通過 /liff 路徑訪問"
+  else
+    echo "❌ LIFF App 複製失敗"
+    exit 1
+  fi
+fi
+
 echo "構建完成"

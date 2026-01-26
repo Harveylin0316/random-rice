@@ -53,9 +53,11 @@
 ```
 https://random-rice.netlify.app/liff
 ```
-- 替換 `random-rice` 為你的 Netlify 網站名稱
-- 如果還沒部署，可以先填寫，之後再更新
+- **重要**：替換 `random-rice` 為你的 Netlify 網站名稱
+- 格式：`https://你的網站名稱.netlify.app/liff`
+- 如果還沒部署，可以先填寫，部署後再更新
 - **必須是 HTTPS**（Netlify 自動提供）
+- 這個 URL 會指向 LIFF App 的 `index.html`
 
 #### 4. **Scope**（權限範圍）
 勾選以下選項：
