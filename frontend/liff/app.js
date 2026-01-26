@@ -366,6 +366,457 @@ function hideResults() {
     if (results) results.style.display = 'none';
 }
 
+// 表單提交處理
+if (form) {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // 隱藏錯誤和結果
+        hideError();
+        hideResults();
+        
+        // 檢查地區模式選擇
+        const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');
+        if (!locationModeRadio) {
+            showError('請選擇搜尋方式（附近餐廳或選擇地區）');
+            return;
+        }
+        
+        // 檢查距離篩選
+        if (locationModeRadio.value === 'nearby') {
+            const transportRadio = document.querySelector('input[name="transport"]:checked');
+            if (!transportRadio) {
+                showError('請選擇交通方式（走路或開車）');
+                return;
+            }
+            if (!userLocation) {
+                showError('請先點擊「📍 使用我的位置」按鈕獲取您的位置');
+                showLocationStatus('請先獲取位置才能使用距離篩選', 'error');
+                return;
+            }
+        }
+        
+        // 檢查地區選擇
+        if (locationModeRadio.value === 'area') {
+            if (!citySelect || !citySelect.value) {
+                showError('請選擇縣市');
+                return;
+            }
+        }
+        
+        // 顯示載入中
+        showLoading();
+        if (submitBtn) submitBtn.disabled = true;
+        
+        try {
+            // 收集表單資料
+            const formData = collectFormData();
+            console.log('表單資料:', formData);
+            
+            // 發送 API 請求
+            const restaurants = await fetchRecommendations(formData, []);
+            console.log('API 返回的餐廳數量:', restaurants.length);
+            
+            // 記錄已顯示的餐廳名稱
+            displayedRestaurants = restaurants.map(r => r.name);
+            
+            // 顯示結果
+            displayResults(restaurants);
+            
+        } catch (err) {
+            showError(err.message || '獲取推薦餐廳失敗，請稍後再試');
+            console.error('推薦餐廳錯誤:', err);
+        } finally {
+            hideLoading();
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    });
+}
+
+// 收集表單資料
+function collectFormData() {
+    const formData = {
+        cuisine_style: [],
+        type: [],
+        budget: null,
+        userLocation: null,
+        transportMode: null,
+        maxDistance: null,
+        limit: 5
+    };
+    
+    // 收集料理風格
+    const cuisineRadio = form.querySelector('input[name="cuisine_style"]:checked');
+    if (cuisineRadio && cuisineRadio.value !== 'none') {
+        formData.cuisine_style.push(cuisineRadio.value);
+    }
+    
+    // 收集餐廳類型
+    const typeRadio = form.querySelector('input[name="type"]:checked');
+    if (typeRadio && typeRadio.value !== 'none') {
+        formData.type.push(typeRadio.value);
+    }
+    
+    // 收集預算
+    const budgetRadio = form.querySelector('input[name="budget"]:checked');
+    if (budgetRadio && budgetRadio.value !== 'all') {
+        formData.budget = budgetRadio.value;
+    }
+    
+    // 收集地區模式
+    const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');
+    if (!locationModeRadio) {
+        throw new Error('請選擇搜尋方式（附近餐廳或選擇地區）');
+    }
+    
+    const locationMode = locationModeRadio.value;
+    
+    if (locationMode === 'nearby') {
+        const transportRadio = document.querySelector('input[name="transport"]:checked');
+        if (!transportRadio) {
+            throw new Error('請選擇交通方式（走路或開車）');
+        }
+        if (!userLocation) {
+            throw new Error('請先點擊「📍 使用我的位置」按鈕獲取您的位置');
+        }
+        
+        formData.userLocation = userLocation;
+        formData.transportMode = transportRadio.value;
+        
+        if (transportRadio.value === 'walking') {
+            formData.maxDistance = 0.5;
+        } else if (transportRadio.value === 'driving') {
+            formData.maxDistance = 3.0;
+        }
+    } else if (locationMode === 'area') {
+        const city = citySelect ? citySelect.value : '';
+        if (!city) {
+            throw new Error('請選擇縣市');
+        }
+        
+        formData.city = city;
+        const district = districtSelect ? districtSelect.value : '';
+        if (district) {
+            formData.district = district;
+        }
+    }
+    
+    return formData;
+}
+
+// 顯示結果
+function displayResults(restaurants) {
+    console.log('displayResults 被調用，餐廳數量:', restaurants.length);
+    
+    if (restaurants.length === 0) {
+        showError('沒有找到符合條件的餐廳，請調整篩選條件');
+        return;
+    }
+    
+    if (resultCount) resultCount.textContent = `${restaurants.length} 間餐廳`;
+    
+    if (restaurantList) {
+        restaurantList.innerHTML = restaurants.map((restaurant, cardIndex) => {
+            const images = (restaurant.images || []).slice(0, 8);
+            const hasImages = images.length > 0;
+            const canSlide = images.length > 1;
+            
+            return `
+            <div class="restaurant-card">
+                ${hasImages ? `
+                    <div class="restaurant-image-container" data-card-index="${cardIndex}">
+                        <div class="image-carousel" data-carousel="${cardIndex}">
+                            ${images.map((img, imgIndex) => `
+                                <div class="carousel-slide ${imgIndex === 0 ? 'active' : ''}" data-slide="${imgIndex}">
+                                    <img src="${img}" alt="${restaurant.name}" class="carousel-image"
+                                         onerror="this.style.display='none';">
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${canSlide ? `
+                            <div class="carousel-controls">
+                                <button class="carousel-btn carousel-prev" data-carousel="${cardIndex}">
+                                    <span>‹</span>
+                                </button>
+                                <button class="carousel-btn carousel-next" data-carousel="${cardIndex}">
+                                    <span>›</span>
+                                </button>
+                            </div>
+                            <div class="carousel-indicators" data-carousel="${cardIndex}">
+                                ${images.map((_, imgIndex) => `
+                                    <span class="indicator ${imgIndex === 0 ? 'active' : ''}" data-slide="${imgIndex}"></span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : `
+                    <div class="restaurant-image-placeholder">
+                        <span class="placeholder-icon">🍽️</span>
+                        <span>無照片</span>
+                    </div>
+                `}
+                <div class="restaurant-info">
+                    <h3 class="restaurant-name">${restaurant.name}</h3>
+                    <p class="restaurant-address">📍 ${restaurant.address}</p>
+                    <div class="restaurant-tags">
+                        ${restaurant.cuisine_style && restaurant.cuisine_style.length > 0 ? 
+                            filterGeneralTags(restaurant.cuisine_style)
+                                .map(cuisine => `<span class="tag cuisine">${cuisine}</span>`).join('') : ''
+                        }
+                        ${restaurant.type && restaurant.type.length > 0 ? 
+                            filterGeneralTags(restaurant.type)
+                                .map(type => `<span class="tag type">${type}</span>`).join('') : ''
+                        }
+                        ${restaurant.budget ? 
+                            `<span class="tag budget">${restaurant.budget} 元</span>` : 
+                            '<span class="tag">預算未標示</span>'
+                        }
+                    </div>
+                    <div class="restaurant-actions">
+                        ${restaurant.url ? 
+                            `<a href="${restaurant.url}" target="_blank" class="restaurant-btn booking-btn">📅 訂位</a>` : ''
+                        }
+                        ${restaurant.coordinates && restaurant.coordinates.lat && restaurant.coordinates.lng ? 
+                            `<a href="https://www.google.com/maps/dir/?api=1&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}" 
+                               target="_blank" class="restaurant-btn navigation-btn">🗺️ 導航</a>` : 
+                            restaurant.address ? 
+                            `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address)}" 
+                               target="_blank" class="restaurant-btn navigation-btn">🗺️ 導航</a>` : ''
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+        }).join('');
+    }
+    
+    // 初始化照片輪播功能
+    initImageCarousels();
+    
+    if (results) {
+        results.style.display = 'block';
+        results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+// 重新選擇按鈕
+if (resetBtn) {
+    resetBtn.addEventListener('click', async () => {
+        if (displayedRestaurants.length === 0) return;
+        
+        hideError();
+        showLoading();
+        resetBtn.disabled = true;
+        
+        try {
+            const formData = collectFormData();
+            const restaurants = await fetchRecommendations(formData, []);
+            
+            if (restaurants.length === 0) {
+                showError('沒有找到符合條件的餐廳，請調整篩選條件');
+                return;
+            }
+            
+            displayedRestaurants = restaurants.map(r => r.name);
+            displayResults(restaurants);
+            
+        } catch (err) {
+            showError(err.message || '獲取推薦餐廳失敗，請稍後再試');
+            console.error('推薦餐廳錯誤:', err);
+        } finally {
+            hideLoading();
+            resetBtn.disabled = false;
+        }
+    });
+}
+
+// 獲取用戶位置
+let locationRequestInProgress = false;
+
+function getUserLocation() {
+    if (locationRequestInProgress) return;
+    
+    if (!navigator.geolocation) {
+        showLocationStatus('您的瀏覽器不支援地理位置功能', 'error');
+        return;
+    }
+    
+    locationRequestInProgress = true;
+    
+    if (getLocationBtn) {
+        getLocationBtn.disabled = true;
+        getLocationBtn.textContent = '📍 定位中...';
+    }
+    showLocationStatus('正在獲取您的位置...', 'loading');
+    
+    const options = {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+    };
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            locationRequestInProgress = false;
+            userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            if (getLocationBtn) {
+                getLocationBtn.disabled = false;
+                getLocationBtn.textContent = '✅ 位置已獲取';
+                getLocationBtn.style.background = '#4caf50';
+            }
+            showLocationStatus(`已獲取位置`, 'success');
+            console.log('位置獲取成功:', userLocation);
+        },
+        (error) => {
+            locationRequestInProgress = false;
+            
+            if (getLocationBtn) {
+                getLocationBtn.disabled = false;
+                getLocationBtn.textContent = '📍 使用我的位置';
+            }
+            
+            let errorMsg = '無法獲取位置';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMsg = '位置權限被拒絕，請允許存取位置，或選擇「選擇地區」模式';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMsg = '無法取得位置資訊，請確認定位服務已開啟，或選擇「選擇地區」模式';
+                    break;
+                case error.TIMEOUT:
+                    errorMsg = '定位請求逾時，請重試或選擇「選擇地區」模式';
+                    break;
+                default:
+                    errorMsg = `定位失敗，請重試或選擇「選擇地區」模式`;
+                    break;
+            }
+            showLocationStatus(errorMsg, 'error');
+        },
+        options
+    );
+}
+
+// 自動獲取用戶位置
+function autoGetUserLocation() {
+    if (userLocation || locationRequestInProgress) return;
+    
+    const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');
+    if (locationModeRadio && locationModeRadio.value === 'nearby') {
+        setTimeout(() => {
+            if (!userLocation && !locationRequestInProgress) {
+                getUserLocation();
+            }
+        }, 500);
+    }
+}
+
+// 按鈕點擊事件
+if (getLocationBtn) {
+    getLocationBtn.addEventListener('click', getUserLocation);
+}
+
+function showLocationStatus(message, type) {
+    if (!locationStatus) return;
+    locationStatus.textContent = message;
+    locationStatus.style.display = 'block';
+    locationStatus.className = `location-status ${type}`;
+    
+    if (type === 'success') {
+        setTimeout(() => {
+            locationStatus.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// 初始化照片輪播功能
+function initImageCarousels() {
+    const carousels = document.querySelectorAll('.image-carousel');
+    
+    carousels.forEach(carousel => {
+        const carouselId = carousel.getAttribute('data-carousel');
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        const prevBtn = document.querySelector(`.carousel-prev[data-carousel="${carouselId}"]`);
+        const nextBtn = document.querySelector(`.carousel-next[data-carousel="${carouselId}"]`);
+        const indicators = document.querySelectorAll(`.carousel-indicators[data-carousel="${carouselId}"] .indicator`);
+        
+        if (slides.length === 0) return;
+        
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        
+        function showSlide(index) {
+            if (index < 0) {
+                currentSlide = 0;
+                return;
+            } else if (index >= totalSlides) {
+                currentSlide = totalSlides - 1;
+                return;
+            } else {
+                currentSlide = index;
+            }
+            
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === currentSlide);
+            });
+            
+            if (prevBtn) {
+                prevBtn.style.opacity = currentSlide === 0 ? '0.5' : '1';
+                prevBtn.style.pointerEvents = currentSlide === 0 ? 'none' : 'all';
+            }
+            if (nextBtn) {
+                nextBtn.style.opacity = currentSlide === totalSlides - 1 ? '0.5' : '1';
+                nextBtn.style.pointerEvents = currentSlide === totalSlides - 1 ? 'none' : 'all';
+            }
+        }
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+        }
+        
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => showSlide(index));
+        });
+        
+        if (prevBtn && totalSlides > 1) {
+            prevBtn.style.opacity = '0.5';
+            prevBtn.style.pointerEvents = 'none';
+        }
+        
+        // 觸摸滑動支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        carousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            const swipeThreshold = 50;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentSlide < totalSlides - 1) {
+                    showSlide(currentSlide + 1);
+                } else if (diff < 0 && currentSlide > 0) {
+                    showSlide(currentSlide - 1);
+                }
+            }
+        }, { passive: true });
+    });
+}
+
 // 頁面載入時初始化 LIFF
 document.addEventListener('DOMContentLoaded', () => {
     // 檢查 LIFF SDK 是否已載入
