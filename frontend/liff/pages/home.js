@@ -240,12 +240,16 @@ function renderForm() {
                 <input type="radio" name="budget" value="all" checked>
                 <span>不限</span>
             </label>
-            ${filterOptions.budget.map(budget => `
+            ${filterOptions.budget.map(budget => {
+                // 如果預算選項已經包含「元」，就不再加「元」
+                const displayText = budget.includes('元') ? budget : `${budget} 元`;
+                return `
                 <label class="radio-label">
                     <input type="radio" name="budget" value="${budget}">
-                    <span>${budget} 元</span>
+                    <span>${displayText}</span>
                 </label>
-            `).join('')}
+            `;
+            }).join('')}
         `;
     }
 }
