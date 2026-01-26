@@ -38,3 +38,91 @@ export function formatDistance(distance) {
 export function filterGeneralTags(tags) {
     return (tags || []).filter(tag => tag !== '一般');
 }
+
+/**
+ * 初始化照片輪播功能
+ */
+export function initImageCarousels() {
+    const carousels = document.querySelectorAll('.image-carousel');
+    
+    carousels.forEach(carousel => {
+        const carouselId = carousel.getAttribute('data-carousel');
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        const prevBtn = document.querySelector(`.carousel-prev[data-carousel="${carouselId}"]`);
+        const nextBtn = document.querySelector(`.carousel-next[data-carousel="${carouselId}"]`);
+        const indicators = document.querySelectorAll(`.carousel-indicators[data-carousel="${carouselId}"] .indicator`);
+        
+        if (slides.length === 0) return;
+        
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        
+        function showSlide(index) {
+            if (index < 0) {
+                currentSlide = 0;
+                return;
+            } else if (index >= totalSlides) {
+                currentSlide = totalSlides - 1;
+                return;
+            } else {
+                currentSlide = index;
+            }
+            
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === currentSlide);
+            });
+            
+            if (prevBtn) {
+                prevBtn.style.opacity = currentSlide === 0 ? '0.5' : '1';
+                prevBtn.style.pointerEvents = currentSlide === 0 ? 'none' : 'all';
+            }
+            if (nextBtn) {
+                nextBtn.style.opacity = currentSlide === totalSlides - 1 ? '0.5' : '1';
+                nextBtn.style.pointerEvents = currentSlide === totalSlides - 1 ? 'none' : 'all';
+            }
+        }
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+        }
+        
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => showSlide(index));
+        });
+        
+        if (prevBtn && totalSlides > 1) {
+            prevBtn.style.opacity = '0.5';
+            prevBtn.style.pointerEvents = 'none';
+        }
+        
+        // 觸摸滑動支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        carousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            const swipeThreshold = 50;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentSlide < totalSlides - 1) {
+                    showSlide(currentSlide + 1);
+                } else if (diff < 0 && currentSlide > 0) {
+                    showSlide(currentSlide - 1);
+                }
+            }
+        }, { passive: true });
+    });
+}
