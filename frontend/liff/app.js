@@ -15,8 +15,34 @@ import {
 import { filterGeneralTags } from './shared/utils.js';
 
 // LINE LIFF ID（需要在 LINE Developers Console 獲取）
-// 暫時使用環境變數或配置，實際部署時需要設置
-const LIFF_ID = window.LIFF_ID || 'YOUR_LIFF_ID_HERE';
+// 優先順序：1. URL 參數 2. 環境變數 3. 默認值
+function getLiffId() {
+    // 從 URL 參數獲取（方便測試）
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLiffId = urlParams.get('liffId');
+    if (urlLiffId) {
+        console.log('從 URL 參數獲取 LIFF ID:', urlLiffId);
+        return urlLiffId;
+    }
+    
+    // 從環境變數獲取（如果設置了）
+    if (window.LIFF_ID) {
+        console.log('從環境變數獲取 LIFF ID');
+        return window.LIFF_ID;
+    }
+    
+    // 默認值（需要替換為實際的 LIFF ID）
+    const defaultLiffId = 'YOUR_LIFF_ID_HERE';
+    if (defaultLiffId === 'YOUR_LIFF_ID_HERE') {
+        console.warn('⚠️ 請設置 LIFF ID！');
+        console.warn('方式 1: 在 URL 中添加 ?liffId=你的LIFF_ID');
+        console.warn('方式 2: 在 LINE Developers Console 創建 LIFF App 後，將 LIFF ID 設置到這裡');
+    }
+    
+    return defaultLiffId;
+}
+
+const LIFF_ID = getLiffId();
 
 // API 基礎 URL
 const API_BASE_URL = getApiBaseUrl();
