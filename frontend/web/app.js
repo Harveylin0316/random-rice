@@ -5,13 +5,13 @@ import {
     cuisineIcons,
     typeIcons,
     getApiBaseUrl
-} from '../shared/constants.js';
+} from './shared/constants.js';
 import { 
     loadFilterOptions as apiLoadFilterOptions,
     loadLocationOptions as apiLoadLocationOptions,
     fetchRecommendations
-} from '../shared/api.js';
-import { filterGeneralTags } from '../shared/utils.js';
+} from './shared/api.js';
+import { filterGeneralTags } from './shared/utils.js';
 
 // API 基礎 URL
 const API_BASE_URL = getApiBaseUrl();
