@@ -291,8 +291,13 @@ function setupFormSubmit() {
                 return;
             }
             if (!userLocation) {
-                showError('請先點擊「📍 使用我的位置」按鈕獲取您的位置');
-                showLocationStatus('請先獲取位置才能使用距離篩選', 'error');
+                if (locationRequestInProgress) {
+                    showError('正在獲取位置資訊，請稍候...');
+                    showLocationStatus('正在獲取位置，請稍候', 'info');
+                } else {
+                    showError('無法取得位置資訊。請點擊「📍 使用我的位置」重試，或選擇「選擇地區」模式');
+                    showLocationStatus('請獲取位置才能使用距離篩選', 'error');
+                }
                 return;
             }
         }

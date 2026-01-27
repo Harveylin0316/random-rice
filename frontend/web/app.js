@@ -291,18 +291,23 @@ form.addEventListener('submit', async (e) => {
     }
     
     // 檢查距離篩選：如果選擇了附近餐廳但沒有位置或交通方式，提示用戶
-    if (locationModeRadio.value === 'nearby') {
-        const transportRadio = document.querySelector('input[name="transport"]:checked');
-        if (!transportRadio) {
-            showError('請選擇交通方式（走路或開車）');
-            return;
+        if (locationModeRadio.value === 'nearby') {
+            const transportRadio = document.querySelector('input[name="transport"]:checked');
+            if (!transportRadio) {
+                showError('請選擇交通方式（走路或開車）');
+                return;
+            }
+            if (!userLocation) {
+                if (locationRequestInProgress) {
+                    showError('正在獲取位置資訊，請稍候...');
+                    showLocationStatus('正在獲取位置，請稍候', 'info');
+                } else {
+                    showError('無法取得位置資訊。請點擊「📍 使用我的位置」重試，或選擇「選擇地區」模式');
+                    showLocationStatus('請獲取位置才能使用距離篩選', 'error');
+                }
+                return;
+            }
         }
-        if (!userLocation) {
-            showError('請先點擊「📍 使用我的位置」按鈕獲取您的位置');
-            showLocationStatus('請先獲取位置才能使用距離篩選', 'error');
-            return;
-        }
-    }
     
     // 檢查地區選擇：如果選擇了選擇地區但沒有選擇縣市，提示用戶
     if (locationModeRadio.value === 'area') {
