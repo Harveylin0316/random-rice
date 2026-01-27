@@ -153,6 +153,12 @@ function setupLocationModeHandlers() {
             if (mode === 'nearby' && nearbyOptions) {
                 nearbyOptions.style.display = 'block';
                 if (areaOptions) areaOptions.style.display = 'none';
+                
+                // 用戶選擇「附近餐廳」時，自動請求位置權限
+                // 如果還沒有位置，自動獲取
+                if (!userLocation && !locationRequestInProgress) {
+                    getUserLocation();
+                }
             } else if (mode === 'area' && areaOptions) {
                 areaOptions.style.display = 'block';
                 if (nearbyOptions) nearbyOptions.style.display = 'none';
@@ -641,22 +647,28 @@ function getUserLocation() {
                 getLocationBtn.textContent = '📍 使用我的位置';
             }
             
-            let errorMsg = '無法獲取位置';
+            // 友好的錯誤提示（簡短、明確、提供解決方案）
+            let errorMsg = '';
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    errorMsg = '位置權限被拒絕，請允許存取位置，或選擇「選擇地區」模式';
+                    errorMsg = '需要位置權限才能使用「附近餐廳」功能。請允許位置權限，或選擇「選擇地區」模式';
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    errorMsg = '無法取得位置資訊，請確認定位服務已開啟，或選擇「選擇地區」模式';
+                    errorMsg = '無法取得位置資訊。請確認定位服務已開啟，或選擇「選擇地區」模式';
                     break;
                 case error.TIMEOUT:
-                    errorMsg = '定位請求逾時，請重試或選擇「選擇地區」模式';
+                    errorMsg = '定位請求逾時。請重試或選擇「選擇地區」模式';
                     break;
                 default:
-                    errorMsg = `定位失敗，請重試或選擇「選擇地區」模式`;
+                    errorMsg = '無法取得位置。請選擇「選擇地區」模式，或點擊「使用我的位置」重試';
                     break;
             }
+            
+            // 顯示錯誤提示（但不要讓用戶覺得系統不穩定）
             showLocationStatus(errorMsg, 'error');
+            
+            // 如果獲取位置失敗，建議用戶切換到「選擇地區」模式
+            // 但不強制，讓用戶自己決定
         },
         options
     );

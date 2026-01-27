@@ -165,6 +165,12 @@ function setupLocationModeHandlers() {
             if (mode === 'nearby' && nearbyOptions) {
                 nearbyOptions.style.display = 'block';
                 if (areaOptions) areaOptions.style.display = 'none';
+                
+                // 用戶選擇「附近餐廳」時，自動請求位置權限
+                // 如果還沒有位置，自動獲取
+                if (!userLocation && !locationRequestInProgress) {
+                    getUserLocation();
+                }
             } else if (mode === 'area' && areaOptions) {
                 areaOptions.style.display = 'block';
                 if (nearbyOptions) nearbyOptions.style.display = 'none';
