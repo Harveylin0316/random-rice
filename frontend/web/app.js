@@ -60,14 +60,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderForm();
         setupLocationModeHandlers();
         
-        // 初始化顯示「附近餐廳」選項（預設選項）
+        // 初始化顯示「選擇地區」選項（預設選項，避免自動獲取位置導致的錯誤）
         const areaOptions = document.getElementById('areaOptions');
         const nearbyOptions = document.getElementById('nearbyOptions');
-        if (areaOptions) areaOptions.style.display = 'none';
-        if (nearbyOptions) nearbyOptions.style.display = 'block';
+        if (areaOptions) areaOptions.style.display = 'block';
+        if (nearbyOptions) nearbyOptions.style.display = 'none';
         
-        // 自動獲取用戶位置
-        autoGetUserLocation();
+        // 不再自動獲取用戶位置，讓用戶主動選擇
+        // 這樣可以避免間歇性的地理位置錯誤，提升用戶體驗
+        // autoGetUserLocation(); // 已移除自動獲取
     } catch (err) {
         showError('載入篩選選項失敗，請重新整理頁面');
         console.error('載入篩選選項錯誤:', err);
@@ -711,24 +712,13 @@ function getUserLocation() {
     );
 }
 
-// 自動獲取用戶位置（頁面載入時）
+// 自動獲取用戶位置（已停用）
+// 為了避免間歇性的地理位置錯誤影響用戶體驗，已移除自動獲取功能
+// 用戶需要主動點擊「使用我的位置」按鈕才會獲取位置
 function autoGetUserLocation() {
-    // 如果已經有位置或正在獲取，不需要重新獲取
-    if (userLocation || locationRequestInProgress) {
-        return;
-    }
-    
-    // 檢查是否選擇了「附近餐廳」模式
-    const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');
-    if (locationModeRadio && locationModeRadio.value === 'nearby') {
-        // 延遲一點再獲取，確保頁面完全載入
-        setTimeout(() => {
-            // 再次檢查，避免重複調用
-            if (!userLocation && !locationRequestInProgress) {
-                getUserLocation();
-            }
-        }, 500);
-    }
+    // 已停用自動獲取，避免間歇性錯誤
+    // 用戶可以主動選擇「附近餐廳」模式並點擊「使用我的位置」按鈕
+    return;
 }
 
 // 按鈕點擊事件

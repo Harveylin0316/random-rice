@@ -29,14 +29,14 @@
                 <h2 class="location-title">下面選一個</h2>
                 <div class="location-mode-options">
                     <label class="location-mode-option">
-                        <input type="radio" name="locationMode" value="nearby" checked>
+                        <input type="radio" name="locationMode" value="nearby">
                         <div class="location-mode-card">
                             <span class="location-mode-icon">📍</span>
                             <span class="location-mode-text">附近餐廳</span>
                         </div>
                     </label>
                     <label class="location-mode-option">
-                        <input type="radio" name="locationMode" value="area">
+                        <input type="radio" name="locationMode" value="area" checked>
                         <div class="location-mode-card">
                             <span class="location-mode-icon">🗺️</span>
                             <span class="location-mode-text">選擇地區</span>
@@ -45,7 +45,7 @@
                 </div>
                 
                 <!-- 附近餐廳選項 -->
-                <div id="nearbyOptions" class="location-options">
+                <div id="nearbyOptions" class="location-options" style="display: none;">
                     <button type="button" id="getLocationBtn" class="location-btn">
                         📍 使用我的位置
                     </button>
@@ -69,7 +69,7 @@
                 </div>
                 
                 <!-- 選擇地區選項 -->
-                <div id="areaOptions" class="location-options" style="display: none;">
+                <div id="areaOptions" class="location-options">
                     <div class="area-select-group">
                         <label class="area-select-label">
                             <span>縣市：</span>
