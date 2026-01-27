@@ -30,13 +30,66 @@ let userLocation = null;
 let displayedRestaurants = [];
 let locationRequestInProgress = false;
 
+// 顯示初始化進度
+function showInitProgress(message) {
+    const initLoading = document.getElementById('initLoading');
+    const initLoadingText = document.getElementById('initLoadingText');
+    if (initLoading) initLoading.style.display = 'block';
+    if (initLoadingText) initLoadingText.textContent = message;
+}
+
+// 隱藏初始化進度
+function hideInitProgress() {
+    const initLoading = document.getElementById('initLoading');
+    const mainContent = document.getElementById('mainContent');
+    if (initLoading) initLoading.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'block';
+}
+
 // 初始化首頁
 export async function initHomePage() {
     console.log('初始化首頁：今天吃什麼');
     
     try {
-        await loadFilterOptions();
-        await loadLocationOptions();
+        // 顯示初始化進度（確保 mainContent 隱藏）
+        const mainContent = document.getElementById('mainContent');
+        if (mainContent) mainContent.style.display = 'none';
+        
+        showInitProgress('正在載入篩選選項...');
+        
+        // 並行載入兩個 API，減少總等待時間
+        // 使用 Promise.all 同時發起兩個請求，總時間 = max(API1時間, API2時間)
+        const loadPromises = [
+            loadFilterOptions(),
+            loadLocationOptions()
+        ];
+        
+        // 監控載入進度
+        let filterLoaded = false;
+        let locationLoaded = false;
+        
+        const filterPromise = loadPromises[0].then(result => {
+            filterLoaded = true;
+            if (!locationLoaded) {
+                showInitProgress('正在載入地區選項...');
+            }
+            return result;
+        });
+        
+        const locationPromise = loadPromises[1].then(result => {
+            locationLoaded = true;
+            if (!filterLoaded) {
+                showInitProgress('正在載入篩選選項...');
+            }
+            return result;
+        });
+        
+        // 等待兩個 API 都完成
+        await Promise.all([filterPromise, locationPromise]);
+        
+        showInitProgress('正在初始化表單...');
+        
+        // 渲染表單
         renderForm();
         setupLocationModeHandlers();
         
@@ -46,17 +99,21 @@ export async function initHomePage() {
         if (areaOptions) areaOptions.style.display = 'block';
         if (nearbyOptions) nearbyOptions.style.display = 'none';
         
-        // 不再自動獲取用戶位置，讓用戶主動選擇
-        // 這樣可以避免間歇性的地理位置錯誤，提升用戶體驗
-        // autoGetUserLocation(); // 已移除自動獲取
-        
         // 設置表單提交事件
         setupFormSubmit();
         
         // 設置重新選擇按鈕
         setupResetButton();
         
+        // 隱藏載入進度，顯示主要內容
+        hideInitProgress();
+        
+        // 不再自動獲取用戶位置，讓用戶主動選擇
+        // 這樣可以避免間歇性的地理位置錯誤，提升用戶體驗
+        // autoGetUserLocation(); // 已移除自動獲取
+        
     } catch (err) {
+        hideInitProgress();
         console.error('初始化首頁錯誤:', err);
         throw err;
     }

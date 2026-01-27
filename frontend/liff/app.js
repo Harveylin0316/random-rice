@@ -72,11 +72,11 @@ async function initLiff() {
             console.log('用戶未登入');
         }
         
-        // 隱藏載入畫面，顯示主要內容
+        // 隱藏 LIFF 載入畫面
         if (liffLoading) liffLoading.style.display = 'none';
-        if (mainContent) mainContent.style.display = 'block';
         
         // 初始化路由系統（路由系統會載入對應的頁面）
+        // 注意：mainContent 的顯示會在頁面初始化完成後由頁面自己控制
         initRouter();
         
     } catch (error) {
