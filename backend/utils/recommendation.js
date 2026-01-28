@@ -363,7 +363,8 @@ function recommendRestaurants(filters = {}, limit = 5) {
     const currentMinute = now.getMinutes();
     const currentTime = currentHour * 60 + currentMinute; // 轉換為分鐘數
     
-    console.log(`用餐時段篩選 - 當前時間: ${currentHour}:${currentMinute.toString().padStart(2, '0')}, 當前日期: ${currentDay}, 當前時間（分鐘）: ${currentTime}`);
+    const minuteStr = currentMinute < 10 ? '0' + currentMinute : currentMinute.toString();
+    console.log(`用餐時段篩選 - 當前時間: ${currentHour}:${minuteStr}, 當前日期: ${currentDay}, 當前時間（分鐘）: ${currentTime}`);
     
     restaurants = restaurants.filter(r => {
       const openingHours = r.opening_hours;
