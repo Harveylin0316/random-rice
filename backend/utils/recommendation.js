@@ -425,13 +425,13 @@ function recommendRestaurants(filters = {}, limit = 5) {
         
         return isOpen;
       } else if (filters.diningTime === 'lunch') {
-        // 午餐：12:00-13:00
+        // 午餐：11:00-14:30
         const dayTimes = openingHours[currentDay] || [];
         if (dayTimes.length === 0) return false;
         
-        // 檢查是否有任何營業時段包含 12:00-13:00
-        const lunchStart = 12 * 60; // 12:00
-        const lunchEnd = 13 * 60; // 13:00
+        // 檢查是否有任何營業時段包含 11:00-14:30
+        const lunchStart = 11 * 60; // 11:00
+        const lunchEnd = 14 * 60 + 30; // 14:30
         
         return dayTimes.some(timeRange => {
           const [start, end] = timeRange.split('-');
@@ -449,13 +449,13 @@ function recommendRestaurants(filters = {}, limit = 5) {
           return lunchStart < endTime && lunchEnd > startTime;
         });
       } else if (filters.diningTime === 'dinner') {
-        // 晚餐：19:00-20:00
+        // 晚餐：17:30-21:00
         const dayTimes = openingHours[currentDay] || [];
         if (dayTimes.length === 0) return false;
         
-        // 檢查是否有任何營業時段包含 19:00-20:00
-        const dinnerStart = 19 * 60; // 19:00
-        const dinnerEnd = 20 * 60; // 20:00
+        // 檢查是否有任何營業時段包含 17:30-21:00
+        const dinnerStart = 17 * 60 + 30; // 17:30
+        const dinnerEnd = 21 * 60; // 21:00
         
         return dayTimes.some(timeRange => {
           const [start, end] = timeRange.split('-');
