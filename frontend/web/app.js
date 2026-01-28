@@ -407,7 +407,7 @@ function collectFormData() {
         cuisine_style: [],
         type: [],
         budget: null,
-        diningTime: 'now', // 預設為「現在」
+        diningTime: 'all', // 預設為「不限」
         userLocation: null,
         transportMode: null,
         maxDistance: null,

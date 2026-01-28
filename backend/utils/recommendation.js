@@ -355,7 +355,7 @@ function recommendRestaurants(filters = {}, limit = 5) {
   }
   
   // 用餐時段篩選
-  if (filters.diningTime) {
+  if (filters.diningTime && filters.diningTime !== 'all') {
     const beforeCount = restaurants.length;
     const now = new Date();
     const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
