@@ -37,6 +37,12 @@ router.get('/recommend', (req, res) => {
       filters.budget = req.query.budget;
     }
     
+    // 用餐時段篩選
+    if (req.query.diningTime) {
+      filters.diningTime = req.query.diningTime;
+      console.log('解析後的 diningTime:', filters.diningTime);
+    }
+    
     // 距離篩選（需要使用者位置和最大距離）- 附近餐廳模式
     if (req.query.userLat && req.query.userLng && req.query.maxDistance) {
       filters.userLocation = {

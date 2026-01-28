@@ -306,6 +306,10 @@ exports.handler = async (event, context) => {
         filters.budget = queryParams.budget;
       }
       
+      if (queryParams.diningTime) {
+        filters.diningTime = queryParams.diningTime;
+      }
+      
       if (queryParams.userLat && queryParams.userLng && queryParams.maxDistance) {
         filters.userLocation = {
           lat: parseFloat(queryParams.userLat),
