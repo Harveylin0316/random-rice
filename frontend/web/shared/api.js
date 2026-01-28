@@ -87,6 +87,11 @@ export async function fetchRecommendations(formData, excludeNames = []) {
         params.append('budget', formData.budget);
     }
     
+    // 用餐時段篩選參數（只有不是「不限」時才傳遞）
+    if (formData.diningTime && formData.diningTime !== 'all') {
+        params.append('diningTime', formData.diningTime);
+    }
+    
     // 距離篩選參數（附近餐廳模式）
     if (formData.userLocation && formData.maxDistance) {
         params.append('locationMode', 'nearby');

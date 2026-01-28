@@ -367,14 +367,28 @@ function recommendRestaurants(filters = {}, limit = 5) {
       const openingHours = r.opening_hours;
       if (!openingHours) return false; // 沒有營業時間資料，排除
       
-      // 24 小時營業的餐廳，所有時段都符合
-      if (openingHours.is_24h) {
-        return true;
-      }
-      
       // 根據選擇的時段進行篩選
       if (filters.diningTime === 'now') {
         // 現在：檢查當前時間是否在營業時間內
+        
+        // 24 小時營業的餐廳，需要檢查是否有實際的營業時間資料
+        // 如果 is_24h 為 true，但所有天的列表都是空的，可能是資料錯誤
+        if (openingHours.is_24h) {
+          // 檢查是否至少有一天的列表不是空的
+          const hasAnyTime = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+            .some(day => openingHours[day] && openingHours[day].length > 0);
+          
+          // 如果至少有一天的列表不是空的，或者所有天的列表都是空的（可能是資料錯誤，但標記為 24 小時）
+          // 為了安全起見，如果所有天的列表都是空的，我們不認為它是 24 小時營業
+          if (hasAnyTime) {
+            return true; // 24 小時營業且有實際時間資料
+          } else {
+            // 所有天的列表都是空的，可能是資料錯誤，不應該顯示
+            return false;
+          }
+        }
+        
+        // 非 24 小時營業：檢查當前時間是否在營業時間內
         const dayTimes = openingHours[currentDay] || [];
         if (dayTimes.length === 0) return false; // 今天休息
         
