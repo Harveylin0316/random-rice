@@ -411,7 +411,7 @@ function recommendRestaurants(filters = {}, limit = 5) {
           const inRange = currentTime >= startTime && currentTime <= endTime;
           
           // 調試日誌：只記錄 R77餐酒館的情況
-          if (r.name && 'R77' in r.name) {
+          if (r.name && r.name.includes && r.name.includes('R77')) {
             console.log(`  R77餐酒館 - 時段 ${timeRange}: 開始=${startTime}, 結束=${endTime}, 當前=${currentTime}, 在範圍內=${inRange}`);
           }
           
@@ -419,7 +419,7 @@ function recommendRestaurants(filters = {}, limit = 5) {
         });
         
         // 調試日誌：只記錄 R77餐酒館的情況
-        if (r.name && 'R77' in r.name) {
+        if (r.name && r.name.includes && r.name.includes('R77')) {
           console.log(`  R77餐酒館 - 今天營業時段: ${dayTimes.join(', ')}, 是否營業: ${isOpen}`);
         }
         
