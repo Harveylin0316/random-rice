@@ -429,6 +429,7 @@ function collectFormData() {
         cuisine_style: [],
         type: [],
         budget: null,
+        diningTime: 'now', // 預設為「現在」
         userLocation: null,
         transportMode: null,
         maxDistance: null,
@@ -448,6 +449,11 @@ function collectFormData() {
     const budgetRadio = form.querySelector('input[name="budget"]:checked');
     if (budgetRadio && budgetRadio.value !== 'all') {
         formData.budget = budgetRadio.value;
+    }
+    
+    const diningTimeRadio = form.querySelector('input[name="diningTime"]:checked');
+    if (diningTimeRadio) {
+        formData.diningTime = diningTimeRadio.value;
     }
     
     const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');

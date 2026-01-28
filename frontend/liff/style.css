@@ -667,6 +667,81 @@ body::before {
     margin-top: 10px;
 }
 
+/* 用餐時段選擇 */
+.dining-time-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.dining-time-option {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.dining-time-option input[type="radio"] {
+    display: none;
+}
+
+.dining-time-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 15px;
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    border-radius: 15px;
+    transition: var(--transition);
+    cursor: pointer;
+    text-align: center;
+    min-height: 100px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dining-time-option:hover .dining-time-card {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.15);
+    border-color: var(--primary-color);
+}
+
+.dining-time-option input[type="radio"]:checked + .dining-time-card {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-color: #2196f3;
+    box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+    transform: translateY(-2px);
+}
+
+.dining-time-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.dining-time-option:hover .dining-time-icon {
+    transform: scale(1.1);
+}
+
+.dining-time-option input[type="radio"]:checked + .dining-time-card .dining-time-icon {
+    transform: scale(1.15);
+    animation: iconPulse 1.5s ease-in-out infinite;
+}
+
+.dining-time-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.dining-time-option input[type="radio"]:checked + .dining-time-card .dining-time-text {
+    color: #1976d2;
+    font-weight: 700;
+}
+
 /* 提交按鈕 - 食物風格 */
 .submit-btn {
     background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 50%, #ffa726 100%);

@@ -354,7 +354,100 @@ function recommendRestaurants(filters = {}, limit = 5) {
     console.log(`排除已顯示: ${beforeCount} -> ${restaurants.length} (排除: ${filters.exclude.length} 間)`);
   }
   
-  // TODO: 用餐時段篩選（需要營業時間資料）
+  // 用餐時段篩選
+  if (filters.diningTime) {
+    const beforeCount = restaurants.length;
+    const now = new Date();
+    const currentDay = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const currentTime = currentHour * 60 + currentMinute; // 轉換為分鐘數
+    
+    restaurants = restaurants.filter(r => {
+      const openingHours = r.opening_hours;
+      if (!openingHours) return false; // 沒有營業時間資料，排除
+      
+      // 24 小時營業的餐廳，所有時段都符合
+      if (openingHours.is_24h) {
+        return true;
+      }
+      
+      // 根據選擇的時段進行篩選
+      if (filters.diningTime === 'now') {
+        // 現在：檢查當前時間是否在營業時間內
+        const dayTimes = openingHours[currentDay] || [];
+        if (dayTimes.length === 0) return false; // 今天休息
+        
+        // 檢查當前時間是否在任何一個營業時段內
+        return dayTimes.some(timeRange => {
+          const [start, end] = timeRange.split('-');
+          const [startHour, startMin] = start.split(':').map(Number);
+          const [endHour, endMin] = end.split(':').map(Number);
+          const startTime = startHour * 60 + startMin;
+          let endTime = endHour * 60 + endMin;
+          
+          // 處理跨日情況（如 17:30-00:00）
+          if (endTime < startTime) {
+            endTime += 24 * 60; // 加一天
+          }
+          
+          return currentTime >= startTime && currentTime <= endTime;
+        });
+      } else if (filters.diningTime === 'lunch') {
+        // 午餐：12:00-13:00
+        const dayTimes = openingHours[currentDay] || [];
+        if (dayTimes.length === 0) return false;
+        
+        // 檢查是否有任何營業時段包含 12:00-13:00
+        const lunchStart = 12 * 60; // 12:00
+        const lunchEnd = 13 * 60; // 13:00
+        
+        return dayTimes.some(timeRange => {
+          const [start, end] = timeRange.split('-');
+          const [startHour, startMin] = start.split(':').map(Number);
+          const [endHour, endMin] = end.split(':').map(Number);
+          const startTime = startHour * 60 + startMin;
+          let endTime = endHour * 60 + endMin;
+          
+          // 處理跨日情況
+          if (endTime < startTime) {
+            endTime += 24 * 60;
+          }
+          
+          // 檢查午餐時段是否與營業時段重疊
+          return lunchStart < endTime && lunchEnd > startTime;
+        });
+      } else if (filters.diningTime === 'dinner') {
+        // 晚餐：19:00-20:00
+        const dayTimes = openingHours[currentDay] || [];
+        if (dayTimes.length === 0) return false;
+        
+        // 檢查是否有任何營業時段包含 19:00-20:00
+        const dinnerStart = 19 * 60; // 19:00
+        const dinnerEnd = 20 * 60; // 20:00
+        
+        return dayTimes.some(timeRange => {
+          const [start, end] = timeRange.split('-');
+          const [startHour, startMin] = start.split(':').map(Number);
+          const [endHour, endMin] = end.split(':').map(Number);
+          const startTime = startHour * 60 + startMin;
+          let endTime = endHour * 60 + endMin;
+          
+          // 處理跨日情況
+          if (endTime < startTime) {
+            endTime += 24 * 60;
+          }
+          
+          // 檢查晚餐時段是否與營業時段重疊
+          return dinnerStart < endTime && dinnerEnd > startTime;
+        });
+      }
+      
+      return true;
+    });
+    console.log(`用餐時段篩選: ${beforeCount} -> ${restaurants.length} (時段: ${filters.diningTime})`);
+  }
+  
   // TODO: 線上訂位篩選（需要訂位資料）
   
   // 隨機排序並返回指定數量

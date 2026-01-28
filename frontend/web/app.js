@@ -407,6 +407,7 @@ function collectFormData() {
         cuisine_style: [],
         type: [],
         budget: null,
+        diningTime: 'now', // 預設為「現在」
         userLocation: null,
         transportMode: null,
         maxDistance: null,
@@ -429,6 +430,12 @@ function collectFormData() {
     const budgetRadio = form.querySelector('input[name="budget"]:checked');
     if (budgetRadio && budgetRadio.value !== 'all') {
         formData.budget = budgetRadio.value;
+    }
+    
+    // 收集用餐時段（單選）
+    const diningTimeRadio = form.querySelector('input[name="diningTime"]:checked');
+    if (diningTimeRadio) {
+        formData.diningTime = diningTimeRadio.value;
     }
     
     // 收集地區模式（必須選擇）
