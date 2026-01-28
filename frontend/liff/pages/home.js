@@ -575,7 +575,7 @@ function displayResults(restaurants) {
                     </div>
                     <div class="restaurant-actions">
                         ${restaurant.url ? 
-                            `<a href="${restaurant.url}" target="_blank" class="restaurant-btn booking-btn">📅 訂位</a>` : ''
+                            `<a href="${restaurant.url}" target="_blank" class="restaurant-btn booking-btn">查看餐廳資訊/訂位</a>` : ''
                         }
                         ${restaurant.coordinates && restaurant.coordinates.lat && restaurant.coordinates.lng ? 
                             `<a href="https://www.google.com/maps/dir/?api=1&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}" 

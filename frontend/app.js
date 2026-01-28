@@ -625,7 +625,7 @@ function displayResults(restaurants) {
                 <div class="restaurant-actions">
                     ${restaurant.url ? 
                         `<a href="${restaurant.url}" target="_blank" class="restaurant-btn booking-btn">
-                            📅 訂位
+                            查看餐廳資訊/訂位
                         </a>` : ''
                     }
                     ${restaurant.coordinates && restaurant.coordinates.lat && restaurant.coordinates.lng ? 
