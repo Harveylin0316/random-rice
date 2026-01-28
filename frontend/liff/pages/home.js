@@ -454,6 +454,9 @@ function collectFormData() {
     const diningTimeRadio = form.querySelector('input[name="diningTime"]:checked');
     if (diningTimeRadio) {
         formData.diningTime = diningTimeRadio.value;
+        console.log('收集到的 diningTime:', formData.diningTime, '選中的 radio value:', diningTimeRadio.value);
+    } else {
+        console.warn('未找到選中的 diningTime radio，使用預設值:', formData.diningTime);
     }
     
     const locationModeRadio = document.querySelector('input[name="locationMode"]:checked');

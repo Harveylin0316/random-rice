@@ -119,6 +119,8 @@ export async function fetchRecommendations(formData, excludeNames = []) {
     // 發送請求
     const url = `${API_BASE_URL}/restaurants/recommend?${params.toString()}`;
     console.log('API 請求 URL:', url);
+    console.log('API 請求參數 - diningTime:', formData.diningTime);
+    console.log('API 請求參數 - 完整 params:', params.toString());
     
     const response = await fetch(url);
     

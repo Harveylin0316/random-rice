@@ -363,6 +363,8 @@ function recommendRestaurants(filters = {}, limit = 5) {
     const currentMinute = now.getMinutes();
     const currentTime = currentHour * 60 + currentMinute; // 轉換為分鐘數
     
+    console.log(`用餐時段篩選 - 當前時間: ${currentHour}:${currentMinute.toString().padStart(2, '0')}, 當前日期: ${currentDay}, 當前時間（分鐘）: ${currentTime}`);
+    
     restaurants = restaurants.filter(r => {
       const openingHours = r.opening_hours;
       if (!openingHours) return false; // 沒有營業時間資料，排除
@@ -393,7 +395,7 @@ function recommendRestaurants(filters = {}, limit = 5) {
         if (dayTimes.length === 0) return false; // 今天休息
         
         // 檢查當前時間是否在任何一個營業時段內
-        return dayTimes.some(timeRange => {
+        const isOpen = dayTimes.some(timeRange => {
           const [start, end] = timeRange.split('-');
           const [startHour, startMin] = start.split(':').map(Number);
           const [endHour, endMin] = end.split(':').map(Number);
@@ -405,8 +407,22 @@ function recommendRestaurants(filters = {}, limit = 5) {
             endTime += 24 * 60; // 加一天
           }
           
-          return currentTime >= startTime && currentTime <= endTime;
+          const inRange = currentTime >= startTime && currentTime <= endTime;
+          
+          // 調試日誌：只記錄 R77餐酒館的情況
+          if (r.name && 'R77' in r.name) {
+            console.log(`  R77餐酒館 - 時段 ${timeRange}: 開始=${startTime}, 結束=${endTime}, 當前=${currentTime}, 在範圍內=${inRange}`);
+          }
+          
+          return inRange;
         });
+        
+        // 調試日誌：只記錄 R77餐酒館的情況
+        if (r.name && 'R77' in r.name) {
+          console.log(`  R77餐酒館 - 今天營業時段: ${dayTimes.join(', ')}, 是否營業: ${isOpen}`);
+        }
+        
+        return isOpen;
       } else if (filters.diningTime === 'lunch') {
         // 午餐：12:00-13:00
         const dayTimes = openingHours[currentDay] || [];
