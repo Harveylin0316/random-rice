@@ -145,10 +145,29 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const path = event.path.replace('/.netlify/functions/lottery', '');
+    // 從 event.path 提取路徑，處理不同的路徑格式
+    let path = event.path || '';
+    
+    // 移除 Netlify Functions 前綴和查詢參數
+    if (path.includes('/.netlify/functions/lottery')) {
+      path = path.replace('/.netlify/functions/lottery', '');
+    } else if (path.includes('/api/lottery')) {
+      path = path.replace('/api/lottery', '');
+    }
+    
+    // 移除查詢參數部分
+    if (path.includes('?')) {
+      path = path.split('?')[0];
+    }
+    
+    // 如果路徑為空，設為根路徑
+    if (!path) {
+      path = '/';
+    }
+    
     const method = event.httpMethod;
     
-    console.log(`Lottery API: ${method} ${path}`);
+    console.log(`Lottery API: ${method} ${path} (原始路徑: ${event.path})`);
     
     // 解析請求體
     let body = {};
