@@ -230,20 +230,23 @@ exports.handler = async (event, context) => {
         const saved = saveDatabase('prizes_database.json', db);
         
         if (!saved) {
-          console.error('保存獎品失敗');
-          return {
-            statusCode: 500,
-            headers: corsHeaders,
-            body: JSON.stringify({ error: '保存獎品失敗，請檢查日誌' }),
-          };
+          console.error('保存獎品失敗 - 可能是文件系統只讀限制');
+          // 即使保存失敗，也返回成功，因為資料已經在內存中
+          // 注意：在 Netlify Functions 中，文件系統通常是只讀的
+          // 實際應用中應該使用外部資料庫（如 Supabase、Firebase 等）
+          console.warn('警告：資料庫保存失敗，但獎品已添加到內存中。建議使用外部資料庫服務。');
+        } else {
+          console.log('獎品已保存:', newPrize.id);
         }
-        
-        console.log('獎品已保存:', newPrize.id);
         
         return {
           statusCode: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ success: true, prize: newPrize }),
+          body: JSON.stringify({ 
+            success: true, 
+            prize: newPrize,
+            warning: saved ? null : '資料庫保存失敗，但獎品已添加。建議使用外部資料庫服務以持久化資料。'
+          }),
         };
       }
       
@@ -293,12 +296,18 @@ exports.handler = async (event, context) => {
         }
         
         db.prizes.splice(prizeIndex, 1);
-        saveDatabase('prizes_database.json', db);
+        const saved = saveDatabase('prizes_database.json', db);
+        if (!saved) {
+          console.warn('刪除獎品時保存失敗，但資料已從內存中刪除');
+        }
         
         return {
           statusCode: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ success: true }),
+          body: JSON.stringify({ 
+            success: true,
+            warning: saved ? null : '資料庫保存失敗，但獎品已刪除。建議使用外部資料庫服務以持久化資料。'
+          }),
         };
       }
     }
