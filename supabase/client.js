@@ -196,16 +196,34 @@ const prizes = {
 
   // 創建獎品
   async create(prize) {
-    const result = await supabaseRequest('prizes', {
-      method: 'POST',
-      body: JSON.stringify(prize),
-    });
-    // Supabase 使用 Prefer: return=representation 時，會返回數組
-    // 但我們需要返回單個對象
-    if (Array.isArray(result)) {
-      return result.length > 0 ? result[0] : null;
+    try {
+      console.log('Supabase prizes.create 被調用，獎品數據:', JSON.stringify(prize, null, 2));
+      
+      // 確保 total_quantity 為 null 時不發送（或者發送 null）
+      const prizeData = { ...prize };
+      if (prizeData.total_quantity === null || prizeData.total_quantity === undefined) {
+        // 如果為 null，可以選擇不發送這個欄位，或者明確發送 null
+        // Supabase 通常接受 null 值
+        prizeData.total_quantity = null;
+      }
+      
+      const result = await supabaseRequest('prizes', {
+        method: 'POST',
+        body: JSON.stringify(prizeData),
+      });
+      
+      console.log('Supabase 創建結果:', result);
+      
+      // Supabase 使用 Prefer: return=representation 時，會返回數組
+      // 但我們需要返回單個對象
+      if (Array.isArray(result)) {
+        return result.length > 0 ? result[0] : null;
+      }
+      return result;
+    } catch (error) {
+      console.error('Supabase prizes.create 錯誤:', error);
+      throw error;
     }
-    return result;
   },
 
   // 更新獎品

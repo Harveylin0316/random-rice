@@ -370,23 +370,39 @@ exports.handler = async (event, context) => {
 
           if (supabase) {
             // 使用 Supabase
-            console.log('新增獎品到 Supabase:', newPrize);
-            const prize = await supabase.prizes.create(newPrize);
-            console.log('插入後的獎品:', prize);
+            console.log('新增獎品到 Supabase:', JSON.stringify(newPrize, null, 2));
             
-            const allPrizes = await supabase.prizes.getAll();
-            console.log('所有獎品數量:', allPrizes ? allPrizes.length : 0);
-            console.log('所有獎品:', allPrizes);
-            
-            return {
-              statusCode: 200,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                success: true, 
-                prize,
-                prizes: allPrizes || [],
-              }),
-            };
+            try {
+              const prize = await supabase.prizes.create(newPrize);
+              console.log('插入後的獎品:', prize);
+              
+              const allPrizes = await supabase.prizes.getAll();
+              console.log('所有獎品數量:', allPrizes ? allPrizes.length : 0);
+              
+              return {
+                statusCode: 200,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  success: true, 
+                  prize,
+                  prizes: allPrizes || [],
+                }),
+              };
+            } catch (supabaseError) {
+              console.error('Supabase 插入錯誤:', supabaseError);
+              console.error('錯誤詳情:', supabaseError.message);
+              console.error('錯誤堆疊:', supabaseError.stack);
+              
+              return {
+                statusCode: 500,
+                headers: corsHeaders,
+                body: JSON.stringify({ 
+                  error: '新增獎品失敗', 
+                  message: supabaseError.message,
+                  details: '請確認 Supabase 資料表結構是否已更新（需要 total_quantity 和 used_quantity 欄位）'
+                }),
+              };
+            }
           } else {
             // 後備方案：使用文件系統
             const db = loadDatabase('prizes_database.json');
