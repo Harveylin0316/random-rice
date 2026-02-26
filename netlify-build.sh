@@ -67,7 +67,7 @@ if [ -d "frontend/shared" ] && [ -d "frontend/web/liff/shared" ]; then
   fi
 fi
 
-# 複製抽獎系統資料庫到函數目錄
+# 複製抽獎系統資料庫到函數目錄（後備方案，如果使用 Supabase 則不需要）
 if [ -d "data" ]; then
   echo "複製抽獎系統資料庫到函數目錄..."
   mkdir -p netlify/functions/data
@@ -76,6 +76,18 @@ if [ -d "data" ]; then
     echo "✅ 抽獎系統資料庫複製成功"
   else
     echo "❌ 抽獎系統資料庫複製失敗"
+  fi
+fi
+
+# 複製 Supabase 客戶端到函數目錄
+if [ -d "supabase" ]; then
+  echo "複製 Supabase 客戶端到函數目錄..."
+  mkdir -p netlify/functions/supabase
+  cp -r supabase/* netlify/functions/supabase/
+  if [ $? -eq 0 ]; then
+    echo "✅ Supabase 客戶端複製成功"
+  else
+    echo "❌ Supabase 客戶端複製失敗"
   fi
 fi
 

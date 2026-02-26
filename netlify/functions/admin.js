@@ -2,6 +2,14 @@
 const fs = require('fs');
 const path = require('path');
 
+// 嘗試導入 Supabase 客戶端
+let supabase = null;
+try {
+  supabase = require('../supabase/client');
+} catch (err) {
+  console.log('Supabase 客戶端未找到，將使用文件系統後備方案');
+}
+
 // 資料庫文件路徑（與 lottery.js 相同邏輯）
 function getDatabasePath(filename) {
   const possiblePaths = [
@@ -229,123 +237,174 @@ exports.handler = async (event, context) => {
       
       if (path === '/prizes' && method === 'POST') {
         // 新增獎品
-        const db = loadDatabase('prizes_database.json');
-        const now = new Date().toISOString();
-        const newPrize = {
-          id: `prize_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          name: body.name || '未命名獎品',
-          description: body.description || '',
-          probability: parseFloat(body.probability) || 0,
-          image: body.image || '',
-          enabled: body.enabled !== undefined ? body.enabled : true,
-          createdAt: now,
-          updatedAt: now,
-        };
-        
-        db.prizes.push(newPrize);
-        
-        // 嘗試保存到文件
-        const saved = saveDatabase('prizes_database.json', db);
-        
-        // 同時嘗試保存到環境變數（通過返回提示用戶手動更新）
-        // 注意：Netlify Functions 無法直接修改環境變數，需要通過 Netlify API 或 Dashboard
-        const dbJson = JSON.stringify(db, null, 2);
-        const dbSize = Buffer.byteLength(dbJson, 'utf8');
-        const maxEnvSize = 64 * 1024; // Netlify 環境變數最大約 64KB
-        
-        let envWarning = null;
-        if (dbSize > maxEnvSize) {
-          envWarning = '資料量過大，無法使用環境變數存儲。建議使用外部資料庫服務。';
-        } else {
-          envWarning = `請在 Netlify Dashboard 的環境變數中設定 PRIZES_DATABASE 為以下 JSON（不含換行）:\n${dbJson.replace(/\n/g, '')}`;
+        try {
+          const newPrize = {
+            id: `prize_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            name: body.name || '未命名獎品',
+            description: body.description || '',
+            probability: parseFloat(body.probability) || 0,
+            image: body.image || '',
+            enabled: body.enabled !== undefined ? body.enabled : true,
+          };
+
+          if (supabase) {
+            // 使用 Supabase
+            const prize = await supabase.prizes.create(newPrize);
+            const allPrizes = await supabase.prizes.getAll();
+            
+            return {
+              statusCode: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                success: true, 
+                prize,
+                prizes: allPrizes || [],
+              }),
+            };
+          } else {
+            // 後備方案：使用文件系統
+            const db = loadDatabase('prizes_database.json');
+            const now = new Date().toISOString();
+            newPrize.createdAt = now;
+            newPrize.updatedAt = now;
+            
+            db.prizes.push(newPrize);
+            const saved = saveDatabase('prizes_database.json', db);
+            
+            return {
+              statusCode: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                success: true, 
+                prize: newPrize,
+                prizes: db.prizes,
+                warning: saved ? null : '資料庫保存失敗，請配置 Supabase 以持久化資料。',
+              }),
+            };
+          }
+        } catch (error) {
+          console.error('新增獎品失敗:', error);
+          return {
+            statusCode: 500,
+            headers: corsHeaders,
+            body: JSON.stringify({ error: '新增獎品失敗', message: error.message }),
+          };
         }
-        
-        if (!saved) {
-          console.error('保存獎品失敗 - 可能是文件系統只讀限制');
-          console.warn('警告：資料庫保存失敗。請手動更新環境變數 PRIZES_DATABASE 以持久化資料。');
-        } else {
-          console.log('獎品已保存到文件:', newPrize.id);
-        }
-        
-        return {
-          statusCode: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            success: true, 
-            prize: newPrize,
-            prizes: db.prizes, // 返回完整的獎品列表
-            warning: saved ? null : '資料庫保存失敗，但獎品已添加。請手動更新環境變數以持久化資料。',
-            envUpdate: saved ? null : envWarning
-          }),
-        };
       }
       
       if (path.startsWith('/prizes/') && method === 'PUT') {
         // 更新獎品
         const prizeId = path.replace('/prizes/', '');
-        const db = loadDatabase('prizes_database.json');
-        const prizeIndex = db.prizes.findIndex(p => p.id === prizeId);
         
-        if (prizeIndex === -1) {
+        try {
+          const updates = {};
+          if (body.name !== undefined) updates.name = body.name;
+          if (body.description !== undefined) updates.description = body.description;
+          if (body.probability !== undefined) updates.probability = parseFloat(body.probability);
+          if (body.image !== undefined) updates.image = body.image;
+          if (body.enabled !== undefined) updates.enabled = body.enabled;
+
+          if (supabase) {
+            // 使用 Supabase
+            const prize = await supabase.prizes.update(prizeId, updates);
+            if (!prize) {
+              return {
+                statusCode: 404,
+                headers: corsHeaders,
+                body: JSON.stringify({ error: '獎品不存在' }),
+              };
+            }
+            
+            return {
+              statusCode: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ success: true, prize }),
+            };
+          } else {
+            // 後備方案：使用文件系統
+            const db = loadDatabase('prizes_database.json');
+            const prizeIndex = db.prizes.findIndex(p => p.id === prizeId);
+            
+            if (prizeIndex === -1) {
+              return {
+                statusCode: 404,
+                headers: corsHeaders,
+                body: JSON.stringify({ error: '獎品不存在' }),
+              };
+            }
+            
+            const prize = db.prizes[prizeIndex];
+            Object.assign(prize, updates);
+            prize.updatedAt = new Date().toISOString();
+            
+            const saved = saveDatabase('prizes_database.json', db);
+            
+            return {
+              statusCode: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                success: true, 
+                prize,
+                warning: saved ? null : '資料庫保存失敗，請配置 Supabase 以持久化資料。'
+              }),
+            };
+          }
+        } catch (error) {
+          console.error('更新獎品失敗:', error);
           return {
-            statusCode: 404,
+            statusCode: 500,
             headers: corsHeaders,
-            body: JSON.stringify({ error: '獎品不存在' }),
+            body: JSON.stringify({ error: '更新獎品失敗', message: error.message }),
           };
         }
-        
-        const prize = db.prizes[prizeIndex];
-        if (body.name !== undefined) prize.name = body.name;
-        if (body.description !== undefined) prize.description = body.description;
-        if (body.probability !== undefined) prize.probability = parseFloat(body.probability);
-        if (body.image !== undefined) prize.image = body.image;
-        if (body.enabled !== undefined) prize.enabled = body.enabled;
-        prize.updatedAt = new Date().toISOString();
-        
-        const saved = saveDatabase('prizes_database.json', db);
-        if (!saved) {
-          console.warn('更新獎品時保存失敗，但資料已更新到內存中');
-        }
-        
-        return {
-          statusCode: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            success: true, 
-            prize,
-            warning: saved ? null : '資料庫保存失敗，但獎品已更新。建議使用外部資料庫服務以持久化資料。'
-          }),
-        };
       }
       
       if (path.startsWith('/prizes/') && method === 'DELETE') {
         // 刪除獎品
         const prizeId = path.replace('/prizes/', '');
-        const db = loadDatabase('prizes_database.json');
-        const prizeIndex = db.prizes.findIndex(p => p.id === prizeId);
         
-        if (prizeIndex === -1) {
+        try {
+          if (supabase) {
+            // 使用 Supabase
+            await supabase.prizes.delete(prizeId);
+            return {
+              statusCode: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ success: true }),
+            };
+          } else {
+            // 後備方案：使用文件系統
+            const db = loadDatabase('prizes_database.json');
+            const prizeIndex = db.prizes.findIndex(p => p.id === prizeId);
+            
+            if (prizeIndex === -1) {
+              return {
+                statusCode: 404,
+                headers: corsHeaders,
+                body: JSON.stringify({ error: '獎品不存在' }),
+              };
+            }
+            
+            db.prizes.splice(prizeIndex, 1);
+            const saved = saveDatabase('prizes_database.json', db);
+            
+            return {
+              statusCode: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                success: true,
+                warning: saved ? null : '資料庫保存失敗，請配置 Supabase 以持久化資料。'
+              }),
+            };
+          }
+        } catch (error) {
+          console.error('刪除獎品失敗:', error);
           return {
-            statusCode: 404,
+            statusCode: 500,
             headers: corsHeaders,
-            body: JSON.stringify({ error: '獎品不存在' }),
+            body: JSON.stringify({ error: '刪除獎品失敗', message: error.message }),
           };
         }
-        
-        db.prizes.splice(prizeIndex, 1);
-        const saved = saveDatabase('prizes_database.json', db);
-        if (!saved) {
-          console.warn('刪除獎品時保存失敗，但資料已從內存中刪除');
-        }
-        
-        return {
-          statusCode: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            success: true,
-            warning: saved ? null : '資料庫保存失敗，但獎品已刪除。建議使用外部資料庫服務以持久化資料。'
-          }),
-        };
       }
     }
     
@@ -380,45 +439,88 @@ exports.handler = async (event, context) => {
     
     // 統計資料
     if (path === '/statistics' && method === 'GET') {
-      const usersDb = loadDatabase('users_database.json');
-      const prizesDb = loadDatabase('prizes_database.json');
-      const recordsDb = loadDatabase('lottery_records.json');
-      
-      // 計算統計
-      const totalUsers = usersDb.users.length;
-      const totalDraws = recordsDb.records.filter(r => r.type !== 'invite').length;
-      const totalInvites = recordsDb.records.filter(r => r.type === 'invite').length;
-      
-      // 獎品統計
-      const prizeStats = {};
-      recordsDb.records
-        .filter(r => r.type !== 'invite' && r.prizeId)
-        .forEach(r => {
-          prizeStats[r.prizeId] = (prizeStats[r.prizeId] || 0) + 1;
-        });
-      
-      const prizeStatsWithNames = Object.entries(prizeStats).map(([prizeId, count]) => {
-        const prize = prizesDb.prizes.find(p => p.id === prizeId);
+      try {
+        if (supabase) {
+          // 使用 Supabase
+          // 獲取用戶總數
+          const usersResult = await supabase.users.getAll(1, 1);
+          const totalUsers = usersResult.total || 0;
+          
+          // 獲取記錄統計
+          const recordsStats = await supabase.records.getStatistics();
+          
+          // 獲取獎品列表以匹配名稱
+          const prizes = await supabase.prizes.getAll();
+          const prizeStatsWithNames = recordsStats.prizeStats.map(stat => {
+            const prize = prizes.find(p => p.id === stat.prizeId);
+            return {
+              prizeId: stat.prizeId,
+              prizeName: prize?.name || '未知',
+              count: stat.count,
+            };
+          });
+          
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: true,
+              statistics: {
+                totalUsers,
+                totalDraws: recordsStats.totalDraws,
+                totalInvites: recordsStats.totalInvites,
+                prizeStats: prizeStatsWithNames,
+              },
+            }),
+          };
+        } else {
+          // 後備方案：使用文件系統
+          const usersDb = loadDatabase('users_database.json');
+          const prizesDb = loadDatabase('prizes_database.json');
+          const recordsDb = loadDatabase('lottery_records.json');
+          
+          const totalUsers = usersDb.users.length;
+          const totalDraws = recordsDb.records.filter(r => r.type !== 'invite').length;
+          const totalInvites = recordsDb.records.filter(r => r.type === 'invite').length;
+          
+          const prizeStats = {};
+          recordsDb.records
+            .filter(r => r.type !== 'invite' && r.prizeId)
+            .forEach(r => {
+              prizeStats[r.prizeId] = (prizeStats[r.prizeId] || 0) + 1;
+            });
+          
+          const prizeStatsWithNames = Object.entries(prizeStats).map(([prizeId, count]) => {
+            const prize = prizesDb.prizes.find(p => p.id === prizeId);
+            return {
+              prizeId,
+              prizeName: prize?.name || '未知',
+              count,
+            };
+          });
+          
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: true,
+              statistics: {
+                totalUsers,
+                totalDraws,
+                totalInvites,
+                prizeStats: prizeStatsWithNames,
+              },
+            }),
+          };
+        }
+      } catch (error) {
+        console.error('獲取統計資料失敗:', error);
         return {
-          prizeId,
-          prizeName: prize?.name || '未知',
-          count,
+          statusCode: 500,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '獲取統計資料失敗', message: error.message }),
         };
-      });
-      
-      return {
-        statusCode: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: true,
-          statistics: {
-            totalUsers,
-            totalDraws,
-            totalInvites,
-            prizeStats: prizeStatsWithNames,
-          },
-        }),
-      };
+      }
     }
     
     // 404

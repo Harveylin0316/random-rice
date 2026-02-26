@@ -2,6 +2,14 @@
 const fs = require('fs');
 const path = require('path');
 
+// 嘗試導入 Supabase 客戶端
+let supabase = null;
+try {
+  supabase = require('../supabase/client');
+} catch (err) {
+  console.log('Supabase 客戶端未找到，將使用文件系統後備方案');
+}
+
 // 資料庫文件路徑
 function getDatabasePath(filename) {
   const possiblePaths = [
@@ -96,35 +104,48 @@ function getOrCreateUser(lineId, profile = null) {
 }
 
 // 抽獎邏輯
-function drawLottery() {
-  const db = loadDatabase('prizes_database.json');
-  const enabledPrizes = db.prizes.filter(p => p.enabled);
-  
-  if (enabledPrizes.length === 0) {
-    throw new Error('沒有可用的獎品');
-  }
-  
-  // 計算總機率
-  const totalProbability = enabledPrizes.reduce((sum, p) => sum + p.probability, 0);
-  
-  if (totalProbability <= 0) {
-    throw new Error('獎品機率設定錯誤');
-  }
-  
-  // 生成隨機數
-  const random = Math.random() * totalProbability;
-  
-  // 根據機率分配獎品
-  let cumulative = 0;
-  for (const prize of enabledPrizes) {
-    cumulative += prize.probability;
-    if (random <= cumulative) {
-      return prize;
+async function drawLottery() {
+  try {
+    let enabledPrizes = [];
+    
+    if (supabase) {
+      // 使用 Supabase
+      enabledPrizes = await supabase.prizes.getEnabled();
+    } else {
+      // 後備方案：使用文件系統
+      const db = loadDatabase('prizes_database.json');
+      enabledPrizes = db.prizes.filter(p => p.enabled);
     }
+    
+    if (enabledPrizes.length === 0) {
+      throw new Error('沒有可用的獎品');
+    }
+    
+    // 計算總機率
+    const totalProbability = enabledPrizes.reduce((sum, p) => sum + p.probability, 0);
+    
+    if (totalProbability <= 0) {
+      throw new Error('獎品機率設定錯誤');
+    }
+    
+    // 生成隨機數
+    const random = Math.random() * totalProbability;
+    
+    // 根據機率分配獎品
+    let cumulative = 0;
+    for (const prize of enabledPrizes) {
+      cumulative += prize.probability;
+      if (random <= cumulative) {
+        return prize;
+      }
+    }
+    
+    // 預設返回最後一個獎品
+    return enabledPrizes[enabledPrizes.length - 1];
+  } catch (error) {
+    console.error('抽獎邏輯失敗:', error);
+    throw error;
   }
-  
-  // 預設返回最後一個獎品
-  return enabledPrizes[enabledPrizes.length - 1];
 }
 
 // CORS headers
@@ -195,13 +216,22 @@ exports.handler = async (event, context) => {
         };
       }
       
-      const user = getOrCreateUser(lineId);
-      
-      return {
-        statusCode: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: true, user }),
-      };
+      try {
+        const user = await getOrCreateUser(lineId);
+        
+        return {
+          statusCode: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ success: true, user }),
+        };
+      } catch (error) {
+        console.error('獲取用戶資料失敗:', error);
+        return {
+          statusCode: 500,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '獲取用戶資料失敗', message: error.message }),
+        };
+      }
     }
     
     if (path === '/draw' && method === 'POST') {
@@ -216,64 +246,115 @@ exports.handler = async (event, context) => {
         };
       }
       
-      // 獲取用戶資料
-      const user = getOrCreateUser(lineId);
-      
-      // 檢查是否有剩餘次數
-      if (user.remainingChances <= 0) {
+      try {
+        // 獲取用戶資料
+        const user = await getOrCreateUser(lineId);
+        
+        // 檢查是否有剩餘次數
+        if (user.remainingChances <= 0) {
+          return {
+            statusCode: 400,
+            headers: corsHeaders,
+            body: JSON.stringify({ error: '沒有剩餘抽獎次數' }),
+          };
+        }
+        
+        // 執行抽獎
+        const prize = await drawLottery();
+        
+        // 記錄抽獎結果
+        const recordId = `record_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const record = {
+          id: recordId,
+          line_id: lineId,
+          prize_id: prize.id,
+          prize_name: prize.name,
+          prize_description: prize.description || '',
+          type: 'draw',
+        };
+        
+        if (supabase) {
+          await supabase.records.create(record);
+        } else {
+          const recordsDb = loadDatabase('lottery_records.json');
+          recordsDb.records.push({
+            ...record,
+            lineId: record.line_id,
+            prizeId: record.prize_id,
+            prizeName: record.prize_name,
+            prizeDescription: record.prize_description,
+            drawnAt: new Date().toISOString(),
+          });
+          saveDatabase('lottery_records.json', recordsDb);
+        }
+        
+        // 更新用戶資料
+        const updatedUser = {
+          used_chances: user.usedChances + 1,
+          remaining_chances: user.remainingChances - 1,
+        };
+        
+        if (supabase) {
+          await supabase.users.update(lineId, updatedUser);
+          // 重新獲取用戶資料
+          const freshUser = await supabase.users.get(lineId);
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: true,
+              prize: {
+                id: prize.id,
+                name: prize.name,
+                description: prize.description,
+                image: prize.image,
+              },
+              user: {
+                remainingChances: freshUser.remaining_chances,
+                usedChances: freshUser.used_chances,
+                totalChances: freshUser.total_chances,
+              },
+            }),
+          };
+        } else {
+          user.usedChances += 1;
+          user.remainingChances -= 1;
+          user.lastUpdated = new Date().toISOString();
+          
+          const usersDb = loadDatabase('users_database.json');
+          const userIndex = usersDb.users.findIndex(u => u.lineId === lineId);
+          if (userIndex !== -1) {
+            usersDb.users[userIndex] = user;
+            saveDatabase('users_database.json', usersDb);
+          }
+          
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: true,
+              prize: {
+                id: prize.id,
+                name: prize.name,
+                description: prize.description,
+                image: prize.image,
+              },
+              user: {
+                remainingChances: user.remainingChances,
+                usedChances: user.usedChances,
+                totalChances: user.totalChances,
+              },
+            }),
+          };
+        }
+      } catch (error) {
+        console.error('抽獎失敗:', error);
         return {
-          statusCode: 400,
+          statusCode: 500,
           headers: corsHeaders,
-          body: JSON.stringify({ error: '沒有剩餘抽獎次數' }),
+          body: JSON.stringify({ error: '抽獎失敗', message: error.message }),
         };
       }
-      
-      // 執行抽獎
-      const prize = drawLottery();
-      
-      // 記錄抽獎結果
-      const recordsDb = loadDatabase('lottery_records.json');
-      const record = {
-        id: `record_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        lineId: lineId,
-        prizeId: prize.id,
-        prizeName: prize.name,
-        prizeDescription: prize.description,
-        drawnAt: new Date().toISOString(),
-      };
-      recordsDb.records.push(record);
-      saveDatabase('lottery_records.json', recordsDb);
-      
-      // 更新用戶資料
-      user.usedChances += 1;
-      user.remainingChances -= 1;
-      user.lastUpdated = new Date().toISOString();
-      
-      const usersDb = loadDatabase('users_database.json');
-      const userIndex = usersDb.users.findIndex(u => u.lineId === lineId);
-      if (userIndex !== -1) {
-        usersDb.users[userIndex] = user;
-        saveDatabase('users_database.json', usersDb);
-      }
-      
-      return {
-        statusCode: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: true,
-          prize: {
-            id: prize.id,
-            name: prize.name,
-            description: prize.description,
-            image: prize.image,
-          },
-          user: {
-            remainingChances: user.remainingChances,
-            usedChances: user.usedChances,
-            totalChances: user.totalChances,
-          },
-        }),
-      };
     }
     
     if (path === '/invite' && method === 'POST') {
@@ -298,70 +379,121 @@ exports.handler = async (event, context) => {
         };
       }
       
-      // 獲取邀請者資料
-      const inviter = getOrCreateUser(inviterLineId);
-      
-      // 檢查是否已達到最大邀請次數
-      if (inviter.invitedCount >= 2) {
+      try {
+        // 獲取邀請者資料
+        const inviter = await getOrCreateUser(inviterLineId);
+        
+        // 檢查是否已達到最大邀請次數
+        if (inviter.invitedCount >= 2) {
+          return {
+            statusCode: 400,
+            headers: corsHeaders,
+            body: JSON.stringify({ error: '已達到最大邀請次數' }),
+          };
+        }
+        
+        // 檢查是否已經邀請過這個用戶（防止重複）
+        let existingInvite = false;
+        if (supabase) {
+          existingInvite = await supabase.records.checkInvite(newUserLineId, inviterLineId);
+        } else {
+          const recordsDb = loadDatabase('lottery_records.json');
+          existingInvite = recordsDb.records.some(
+            r => r.lineId === newUserLineId && r.inviterLineId === inviterLineId
+          );
+        }
+        
+        if (existingInvite) {
+          return {
+            statusCode: 400,
+            headers: corsHeaders,
+            body: JSON.stringify({ error: '該用戶已被邀請過' }),
+          };
+        }
+        
+        // 增加邀請次數和抽獎次數
+        const updates = {
+          invited_count: inviter.invitedCount + 1,
+          total_chances: inviter.totalChances + 1,
+          remaining_chances: inviter.remainingChances + 1,
+        };
+        
+        if (supabase) {
+          await supabase.users.update(inviterLineId, updates);
+          
+          // 記錄邀請記錄
+          const inviteRecord = {
+            id: `invite_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            line_id: newUserLineId,
+            inviter_line_id: inviterLineId,
+            type: 'invite',
+            prize_name: '邀請獎勵',
+            prize_description: '',
+          };
+          await supabase.records.create(inviteRecord);
+          
+          // 重新獲取用戶資料
+          const freshUser = await supabase.users.get(inviterLineId);
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: true,
+              user: {
+                invitedCount: freshUser.invited_count,
+                remainingChances: freshUser.remaining_chances,
+                totalChances: freshUser.total_chances,
+              },
+            }),
+          };
+        } else {
+          inviter.invitedCount += 1;
+          inviter.totalChances += 1;
+          inviter.remainingChances += 1;
+          inviter.lastUpdated = new Date().toISOString();
+          
+          const usersDb = loadDatabase('users_database.json');
+          const userIndex = usersDb.users.findIndex(u => u.lineId === inviterLineId);
+          if (userIndex !== -1) {
+            usersDb.users[userIndex] = inviter;
+          } else {
+            usersDb.users.push(inviter);
+          }
+          saveDatabase('users_database.json', usersDb);
+          
+          // 記錄邀請記錄
+          const recordsDb = loadDatabase('lottery_records.json');
+          const inviteRecord = {
+            id: `invite_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            lineId: newUserLineId,
+            inviterLineId: inviterLineId,
+            type: 'invite',
+            createdAt: new Date().toISOString(),
+          };
+          recordsDb.records.push(inviteRecord);
+          saveDatabase('lottery_records.json', recordsDb);
+          
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: true,
+              user: {
+                invitedCount: inviter.invitedCount,
+                remainingChances: inviter.remainingChances,
+                totalChances: inviter.totalChances,
+              },
+            }),
+          };
+        }
+      } catch (error) {
+        console.error('記錄邀請失敗:', error);
         return {
-          statusCode: 400,
+          statusCode: 500,
           headers: corsHeaders,
-          body: JSON.stringify({ error: '已達到最大邀請次數' }),
+          body: JSON.stringify({ error: '記錄邀請失敗', message: error.message }),
         };
       }
-      
-      // 檢查是否已經邀請過這個用戶（防止重複）
-      const recordsDb = loadDatabase('lottery_records.json');
-      const existingInvite = recordsDb.records.find(
-        r => r.lineId === newUserLineId && r.inviterLineId === inviterLineId
-      );
-      
-      if (existingInvite) {
-        return {
-          statusCode: 400,
-          headers: corsHeaders,
-          body: JSON.stringify({ error: '該用戶已被邀請過' }),
-        };
-      }
-      
-      // 增加邀請次數和抽獎次數
-      inviter.invitedCount += 1;
-      inviter.totalChances += 1;
-      inviter.remainingChances += 1;
-      inviter.lastUpdated = new Date().toISOString();
-      
-      const usersDb = loadDatabase('users_database.json');
-      const userIndex = usersDb.users.findIndex(u => u.lineId === inviterLineId);
-      if (userIndex !== -1) {
-        usersDb.users[userIndex] = inviter;
-      } else {
-        usersDb.users.push(inviter);
-      }
-      saveDatabase('users_database.json', usersDb);
-      
-      // 記錄邀請記錄（在 lottery_records 中標記）
-      const inviteRecord = {
-        id: `invite_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        lineId: newUserLineId,
-        inviterLineId: inviterLineId,
-        type: 'invite',
-        createdAt: new Date().toISOString(),
-      };
-      recordsDb.records.push(inviteRecord);
-      saveDatabase('lottery_records.json', recordsDb);
-      
-      return {
-        statusCode: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: true,
-          user: {
-            invitedCount: inviter.invitedCount,
-            remainingChances: inviter.remainingChances,
-            totalChances: inviter.totalChances,
-          },
-        }),
-      };
     }
     
     if (path === '/records' && method === 'GET') {
