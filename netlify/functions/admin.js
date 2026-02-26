@@ -277,6 +277,12 @@ exports.handler = async (event, context) => {
             }
           } else {
             // 後備方案：從文件系統或環境變數讀取
+            console.log('使用文件系統後備方案（Supabase 未初始化）');
+            console.log('Supabase 客戶端狀態:', supabase ? '已初始化' : '未初始化');
+            console.log('檢查 Supabase 環境變數:');
+            console.log('  SUPABASE_URL:', process.env.SUPABASE_URL ? `已設定 (${process.env.SUPABASE_URL.substring(0, 20)}...)` : '未設定');
+            console.log('  SUPABASE_KEY:', process.env.SUPABASE_KEY ? `已設定 (${process.env.SUPABASE_KEY.substring(0, 20)}...)` : '未設定');
+            
             let db = null;
             const envPrizes = process.env.PRIZES_DATABASE;
             if (envPrizes) {
@@ -296,7 +302,17 @@ exports.handler = async (event, context) => {
             return {
               statusCode: 200,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ success: true, prizes: db.prizes || [] }),
+              body: JSON.stringify({ 
+                success: true, 
+                prizes: db.prizes || [],
+                debug: {
+                  supabaseConnected: false,
+                  envUrlSet: !!process.env.SUPABASE_URL,
+                  envKeySet: !!process.env.SUPABASE_KEY,
+                  usingFileSystem: true,
+                  resultCount: db.prizes ? db.prizes.length : 0
+                }
+              }),
             };
           }
         } catch (error) {
