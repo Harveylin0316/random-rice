@@ -373,12 +373,23 @@
         // 載入獎品列表
         async function loadPrizes() {
             if (!apiKey) {
-                alert('請先設定 API Key');
+                document.getElementById('prizesList').innerHTML = '<p style="color: #999;">請先設定 API Key</p>';
                 return;
             }
             
             try {
                 const response = await fetch(`/api/admin/prizes?apiKey=${encodeURIComponent(apiKey)}`);
+                
+                // 檢查 HTTP 狀態碼
+                if (response.status === 401) {
+                    alert('認證失敗：API Key 不正確或未設定。請檢查：\n1. Netlify 環境變數 ADMIN_API_KEY 是否已設定\n2. API Key 是否與環境變數值一致\n3. 網站是否已重新部署');
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -564,10 +575,23 @@
         
         // 載入用戶列表
         async function loadUsers() {
-            if (!apiKey) return;
+            if (!apiKey) {
+                document.getElementById('usersList').innerHTML = '<p style="color: #999;">請先設定 API Key</p>';
+                return;
+            }
             
             try {
                 const response = await fetch(`/api/admin/users?apiKey=${encodeURIComponent(apiKey)}`);
+                
+                if (response.status === 401) {
+                    document.getElementById('usersList').innerHTML = '<p style="color: #f44336;">認證失敗：請檢查 API Key</p>';
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -575,6 +599,7 @@
                 }
             } catch (error) {
                 console.error('載入用戶失敗:', error);
+                document.getElementById('usersList').innerHTML = `<p style="color: #f44336;">載入失敗: ${error.message}</p>`;
             }
         }
         

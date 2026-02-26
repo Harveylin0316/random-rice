@@ -71,10 +71,25 @@ function checkAuth(event) {
   // 從查詢參數或請求頭獲取 API Key
   const apiKey = event.queryStringParameters?.apiKey || 
                  event.headers['x-api-key'] || 
-                 (event.body ? JSON.parse(event.body).apiKey : null);
+                 (event.body ? (() => {
+                   try {
+                     return JSON.parse(event.body).apiKey;
+                   } catch (e) {
+                     return null;
+                   }
+                 })() : null);
   
   // 這裡可以設置環境變數 ADMIN_API_KEY
   const validApiKey = process.env.ADMIN_API_KEY || 'default_admin_key_change_me';
+  
+  // 調試日誌（僅在開發環境）
+  if (process.env.NETLIFY_DEV) {
+    console.log('API Key 檢查:', {
+      provided: apiKey ? '已提供' : '未提供',
+      validKey: validApiKey ? '已設定' : '未設定',
+      match: apiKey === validApiKey
+    });
+  }
   
   return apiKey === validApiKey;
 }
