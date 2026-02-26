@@ -47,6 +47,8 @@ async function supabaseRequest(endpoint, options = {}) {
   if (!response.ok) {
     const error = await response.text();
     console.error('Supabase API 錯誤:', response.status, error);
+    console.error('請求 URL:', url);
+    console.error('請求 headers:', headers);
     throw new Error(`Supabase API 錯誤: ${response.status} - ${error}`);
   }
 
@@ -58,6 +60,14 @@ async function supabaseRequest(endpoint, options = {}) {
 
   const result = await response.json();
   console.log('Supabase 響應內容:', result);
+  console.log('響應類型:', Array.isArray(result) ? '數組' : typeof result);
+  console.log('響應長度:', Array.isArray(result) ? result.length : 'N/A');
+  
+  // 如果結果不是數組，記錄警告
+  if (!Array.isArray(result)) {
+    console.warn('警告：Supabase 響應不是數組，類型為:', typeof result);
+  }
+  
   return result;
 }
 
