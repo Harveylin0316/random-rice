@@ -560,15 +560,30 @@
                     });
                 }
                 
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch (e) {
+                        errorData = { error: errorText || `HTTP ${response.status}` };
+                    }
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
                     closePrizeModal();
-                    loadPrizes();
+                    // 稍微延遲一下確保後端已保存
+                    setTimeout(() => {
+                        loadPrizes();
+                    }, 100);
                 } else {
                     document.getElementById('prizeFormError').textContent = data.error || '儲存失敗';
                 }
             } catch (error) {
+                console.error('儲存錯誤:', error);
                 document.getElementById('prizeFormError').textContent = '儲存失敗: ' + error.message;
             }
         });

@@ -51,7 +51,41 @@ function saveDatabase(filename, data) {
       fs.mkdirSync(dir, { recursive: true });
     }
     
-    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf-8');
+    // 在 Netlify Functions 中，嘗試多個可能的路徑
+    const possiblePaths = [
+      path.join(__dirname, 'data', filename), // Functions 目錄下的 data 子目錄
+      path.join(__dirname, filename), // Functions 目錄
+      path.join(process.cwd(), 'data', filename), // 當前工作目錄
+      path.join('/tmp', filename), // Netlify Functions 的臨時目錄（可寫）
+      dbPath, // 原始路徑
+    ];
+    
+    let saved = false;
+    let savedPath = null;
+    
+    for (const savePath of possiblePaths) {
+      try {
+        const saveDir = path.dirname(savePath);
+        if (!fs.existsSync(saveDir)) {
+          fs.mkdirSync(saveDir, { recursive: true });
+        }
+        
+        fs.writeFileSync(savePath, JSON.stringify(data, null, 2), 'utf-8');
+        saved = true;
+        savedPath = savePath;
+        console.log(`資料庫已保存到: ${savePath}`);
+        break;
+      } catch (err) {
+        console.log(`嘗試保存到 ${savePath} 失敗:`, err.message);
+        continue;
+      }
+    }
+    
+    if (!saved) {
+      console.error(`無法保存 ${filename} 到任何路徑`);
+      return false;
+    }
+    
     return true;
   } catch (err) {
     console.error(`Error saving ${filename}:`, err);
@@ -178,7 +212,18 @@ exports.handler = async (event, context) => {
         };
         
         db.prizes.push(newPrize);
-        saveDatabase('prizes_database.json', db);
+        const saved = saveDatabase('prizes_database.json', db);
+        
+        if (!saved) {
+          console.error('保存獎品失敗');
+          return {
+            statusCode: 500,
+            headers: corsHeaders,
+            body: JSON.stringify({ error: '保存獎品失敗，請檢查日誌' }),
+          };
+        }
+        
+        console.log('獎品已保存:', newPrize.id);
         
         return {
           statusCode: 200,
