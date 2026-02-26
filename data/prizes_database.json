@@ -1,0 +1,34 @@
+{
+  "prizes": [
+    {
+      "id": "prize_1",
+      "name": "100元折價券",
+      "description": "可於指定餐廳使用",
+      "probability": 0.5,
+      "image": "",
+      "enabled": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prize_2",
+      "name": "500元折價券",
+      "description": "可於指定餐廳使用",
+      "probability": 0.3,
+      "image": "",
+      "enabled": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prize_3",
+      "name": "謝謝參與",
+      "description": "感謝您的參與",
+      "probability": 0.2,
+      "image": "",
+      "enabled": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ]
+}

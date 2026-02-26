@@ -18,6 +18,27 @@
   status = 200
   force = true
 
+# 將所有 /api/lottery/* 請求重定向到 Netlify Function
+[[redirects]]
+  from = "/api/lottery/*"
+  to = "/.netlify/functions/lottery"
+  status = 200
+  force = true
+
+# 將所有 /api/admin/* 請求重定向到 Netlify Function
+[[redirects]]
+  from = "/api/admin/*"
+  to = "/.netlify/functions/admin"
+  status = 200
+  force = true
+
+# LINE Webhook
+[[redirects]]
+  from = "/api/webhook"
+  to = "/.netlify/functions/webhook"
+  status = 200
+  force = true
+
 # LIFF App SPA 路由支持
 # 將所有 /liff/* 請求重定向到 /liff/index.html，以支持子目錄路由
 # 例如：/liff/home, /liff/favorites 等都會返回 /liff/index.html

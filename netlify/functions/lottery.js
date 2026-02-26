@@ -1,0 +1,393 @@
+// Netlify Function for lottery API
+const fs = require('fs');
+const path = require('path');
+
+// 資料庫文件路徑
+function getDatabasePath(filename) {
+  const possiblePaths = [
+    path.join(__dirname, filename), // 函數目錄
+    path.join(__dirname, '../../data', filename), // 項目根目錄的 data 目錄
+    path.join(process.cwd(), 'data', filename), // 當前工作目錄
+    path.join('/opt/build/repo', 'data', filename), // Netlify 構建目錄
+  ];
+  
+  for (const dbPath of possiblePaths) {
+    if (fs.existsSync(dbPath)) {
+      return dbPath;
+    }
+  }
+  
+  // 如果找不到，返回預期路徑（用於創建新文件）
+  return path.join(__dirname, '../../data', filename);
+}
+
+// 載入資料庫
+function loadDatabase(filename) {
+  const dbPath = getDatabasePath(filename);
+  try {
+    if (fs.existsSync(dbPath)) {
+      const data = fs.readFileSync(dbPath, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error(`Error loading ${filename}:`, err);
+  }
+  
+  // 返回空資料結構
+  if (filename === 'users_database.json') {
+    return { users: [] };
+  } else if (filename === 'prizes_database.json') {
+    return { prizes: [] };
+  } else if (filename === 'lottery_records.json') {
+    return { records: [] };
+  }
+  return {};
+}
+
+// 保存資料庫
+function saveDatabase(filename, data) {
+  const dbPath = getDatabasePath(filename);
+  try {
+    // 確保目錄存在
+    const dir = path.dirname(dbPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf-8');
+    return true;
+  } catch (err) {
+    console.error(`Error saving ${filename}:`, err);
+    return false;
+  }
+}
+
+// 獲取或創建用戶
+function getOrCreateUser(lineId, profile = null) {
+  const db = loadDatabase('users_database.json');
+  let user = db.users.find(u => u.lineId === lineId);
+  
+  if (!user) {
+    // 創建新用戶
+    const now = new Date().toISOString();
+    user = {
+      lineId: lineId,
+      displayName: profile?.displayName || '用戶',
+      pictureUrl: profile?.pictureUrl || '',
+      totalChances: 1,
+      usedChances: 0,
+      remainingChances: 1,
+      invitedCount: 0,
+      createdAt: now,
+      lastUpdated: now
+    };
+    
+    db.users.push(user);
+    saveDatabase('users_database.json', db);
+  } else if (profile) {
+    // 更新用戶資料
+    user.displayName = profile.displayName || user.displayName;
+    user.pictureUrl = profile.pictureUrl || user.pictureUrl;
+    user.lastUpdated = new Date().toISOString();
+    saveDatabase('users_database.json', db);
+  }
+  
+  return user;
+}
+
+// 抽獎邏輯
+function drawLottery() {
+  const db = loadDatabase('prizes_database.json');
+  const enabledPrizes = db.prizes.filter(p => p.enabled);
+  
+  if (enabledPrizes.length === 0) {
+    throw new Error('沒有可用的獎品');
+  }
+  
+  // 計算總機率
+  const totalProbability = enabledPrizes.reduce((sum, p) => sum + p.probability, 0);
+  
+  if (totalProbability <= 0) {
+    throw new Error('獎品機率設定錯誤');
+  }
+  
+  // 生成隨機數
+  const random = Math.random() * totalProbability;
+  
+  // 根據機率分配獎品
+  let cumulative = 0;
+  for (const prize of enabledPrizes) {
+    cumulative += prize.probability;
+    if (random <= cumulative) {
+      return prize;
+    }
+  }
+  
+  // 預設返回最後一個獎品
+  return enabledPrizes[enabledPrizes.length - 1];
+}
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+};
+
+exports.handler = async (event, context) => {
+  // 處理 OPTIONS 請求
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: '',
+    };
+  }
+
+  try {
+    const path = event.path.replace('/.netlify/functions/lottery', '');
+    const method = event.httpMethod;
+    
+    console.log(`Lottery API: ${method} ${path}`);
+    
+    // 解析請求體
+    let body = {};
+    if (event.body) {
+      try {
+        body = JSON.parse(event.body);
+      } catch (e) {
+        // 如果不是 JSON，可能是查詢參數
+      }
+    }
+    
+    // 解析查詢參數
+    const queryParams = event.queryStringParameters || {};
+    
+    // 路由處理
+    if (path === '/user' && method === 'GET') {
+      // 獲取用戶資料
+      const lineId = queryParams.lineId || body.lineId;
+      
+      if (!lineId) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '缺少 lineId 參數' }),
+        };
+      }
+      
+      const user = getOrCreateUser(lineId);
+      
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: true, user }),
+      };
+    }
+    
+    if (path === '/draw' && method === 'POST') {
+      // 執行抽獎
+      const lineId = body.lineId;
+      
+      if (!lineId) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '缺少 lineId 參數' }),
+        };
+      }
+      
+      // 獲取用戶資料
+      const user = getOrCreateUser(lineId);
+      
+      // 檢查是否有剩餘次數
+      if (user.remainingChances <= 0) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '沒有剩餘抽獎次數' }),
+        };
+      }
+      
+      // 執行抽獎
+      const prize = drawLottery();
+      
+      // 記錄抽獎結果
+      const recordsDb = loadDatabase('lottery_records.json');
+      const record = {
+        id: `record_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        lineId: lineId,
+        prizeId: prize.id,
+        prizeName: prize.name,
+        prizeDescription: prize.description,
+        drawnAt: new Date().toISOString(),
+      };
+      recordsDb.records.push(record);
+      saveDatabase('lottery_records.json', recordsDb);
+      
+      // 更新用戶資料
+      user.usedChances += 1;
+      user.remainingChances -= 1;
+      user.lastUpdated = new Date().toISOString();
+      
+      const usersDb = loadDatabase('users_database.json');
+      const userIndex = usersDb.users.findIndex(u => u.lineId === lineId);
+      if (userIndex !== -1) {
+        usersDb.users[userIndex] = user;
+        saveDatabase('users_database.json', usersDb);
+      }
+      
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: true,
+          prize: {
+            id: prize.id,
+            name: prize.name,
+            description: prize.description,
+            image: prize.image,
+          },
+          user: {
+            remainingChances: user.remainingChances,
+            usedChances: user.usedChances,
+            totalChances: user.totalChances,
+          },
+        }),
+      };
+    }
+    
+    if (path === '/invite' && method === 'POST') {
+      // 記錄邀請（當好友加入時）
+      const inviterLineId = body.inviterLineId;
+      const newUserLineId = body.newUserLineId;
+      
+      if (!inviterLineId || !newUserLineId) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '缺少必要參數' }),
+        };
+      }
+      
+      // 不能邀請自己
+      if (inviterLineId === newUserLineId) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '不能邀請自己' }),
+        };
+      }
+      
+      // 獲取邀請者資料
+      const inviter = getOrCreateUser(inviterLineId);
+      
+      // 檢查是否已達到最大邀請次數
+      if (inviter.invitedCount >= 2) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '已達到最大邀請次數' }),
+        };
+      }
+      
+      // 檢查是否已經邀請過這個用戶（防止重複）
+      const recordsDb = loadDatabase('lottery_records.json');
+      const existingInvite = recordsDb.records.find(
+        r => r.lineId === newUserLineId && r.inviterLineId === inviterLineId
+      );
+      
+      if (existingInvite) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '該用戶已被邀請過' }),
+        };
+      }
+      
+      // 增加邀請次數和抽獎次數
+      inviter.invitedCount += 1;
+      inviter.totalChances += 1;
+      inviter.remainingChances += 1;
+      inviter.lastUpdated = new Date().toISOString();
+      
+      const usersDb = loadDatabase('users_database.json');
+      const userIndex = usersDb.users.findIndex(u => u.lineId === inviterLineId);
+      if (userIndex !== -1) {
+        usersDb.users[userIndex] = inviter;
+      } else {
+        usersDb.users.push(inviter);
+      }
+      saveDatabase('users_database.json', usersDb);
+      
+      // 記錄邀請記錄（在 lottery_records 中標記）
+      const inviteRecord = {
+        id: `invite_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        lineId: newUserLineId,
+        inviterLineId: inviterLineId,
+        type: 'invite',
+        createdAt: new Date().toISOString(),
+      };
+      recordsDb.records.push(inviteRecord);
+      saveDatabase('lottery_records.json', recordsDb);
+      
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: true,
+          user: {
+            invitedCount: inviter.invitedCount,
+            remainingChances: inviter.remainingChances,
+            totalChances: inviter.totalChances,
+          },
+        }),
+      };
+    }
+    
+    if (path === '/records' && method === 'GET') {
+      // 獲取用戶抽獎記錄
+      const lineId = queryParams.lineId || body.lineId;
+      
+      if (!lineId) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: '缺少 lineId 參數' }),
+        };
+      }
+      
+      const recordsDb = loadDatabase('lottery_records.json');
+      const userRecords = recordsDb.records
+        .filter(r => r.lineId === lineId && r.type !== 'invite')
+        .sort((a, b) => new Date(b.drawnAt) - new Date(a.drawnAt));
+      
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: true,
+          records: userRecords,
+        }),
+      };
+    }
+    
+    // 404
+    return {
+      statusCode: 404,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: 'Not found' }),
+    };
+    
+  } catch (error) {
+    console.error('Lottery API Error:', error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: 'Internal server error',
+        message: error.message,
+      }),
+    };
+  }
+};

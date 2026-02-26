@@ -67,4 +67,28 @@ if [ -d "frontend/shared" ] && [ -d "frontend/web/liff/shared" ]; then
   fi
 fi
 
+# 複製抽獎系統資料庫到函數目錄
+if [ -d "data" ]; then
+  echo "複製抽獎系統資料庫到函數目錄..."
+  mkdir -p netlify/functions/data
+  cp -r data/* netlify/functions/data/
+  if [ $? -eq 0 ]; then
+    echo "✅ 抽獎系統資料庫複製成功"
+  else
+    echo "❌ 抽獎系統資料庫複製失敗"
+  fi
+fi
+
+# 複製後台管理頁面到 web 目錄
+if [ -d "frontend/admin" ]; then
+  echo "複製後台管理頁面到 web 目錄..."
+  mkdir -p frontend/web/admin
+  cp -r frontend/admin/* frontend/web/admin/
+  if [ $? -eq 0 ]; then
+    echo "✅ 後台管理頁面複製成功"
+  else
+    echo "❌ 後台管理頁面複製失敗"
+  fi
+fi
+
 echo "構建完成"

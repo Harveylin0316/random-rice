@@ -4,11 +4,13 @@
 // 同時向後兼容查詢參數：/liff?page=home
 
 import { initHomePage } from './home.js';
+import { initLotteryPage } from './lottery.js';
 import { initLiffFeatures } from './components/liff-features.js';
 
 // 頁面路由映射
 const routes = {
     'home': initHomePage,
+    'lottery': initLotteryPage,
     // 未來可以添加更多頁面：
     // 'favorites': initFavoritesPage,
     // 'history': initHistoryPage,
