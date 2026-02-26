@@ -591,12 +591,14 @@
                 return;
             }
             
+            const totalQuantityValue = document.getElementById('prizeTotalQuantity').value;
             const formData = {
                 name: document.getElementById('prizeName').value,
                 description: document.getElementById('prizeDescription').value,
                 probability: parseFloat(document.getElementById('prizeProbability').value),
                 image: document.getElementById('prizeImage').value,
                 enabled: document.getElementById('prizeEnabled').checked,
+                total_quantity: totalQuantityValue !== '' ? parseInt(totalQuantityValue) : null,
             };
             
             try {
