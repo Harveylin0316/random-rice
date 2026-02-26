@@ -272,12 +272,19 @@ exports.handler = async (event, context) => {
         if (body.enabled !== undefined) prize.enabled = body.enabled;
         prize.updatedAt = new Date().toISOString();
         
-        saveDatabase('prizes_database.json', db);
+        const saved = saveDatabase('prizes_database.json', db);
+        if (!saved) {
+          console.warn('更新獎品時保存失敗，但資料已更新到內存中');
+        }
         
         return {
           statusCode: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ success: true, prize }),
+          body: JSON.stringify({ 
+            success: true, 
+            prize,
+            warning: saved ? null : '資料庫保存失敗，但獎品已更新。建議使用外部資料庫服務以持久化資料。'
+          }),
         };
       }
       
@@ -393,12 +400,14 @@ exports.handler = async (event, context) => {
     
   } catch (error) {
     console.error('Admin API Error:', error);
+    console.error('Error stack:', error.stack);
     return {
       statusCode: 500,
       headers: corsHeaders,
       body: JSON.stringify({
         error: 'Internal server error',
         message: error.message,
+        stack: process.env.NETLIFY_DEV ? error.stack : undefined, // 只在開發環境顯示 stack
       }),
     };
   }
