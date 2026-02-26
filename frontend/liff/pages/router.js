@@ -1,5 +1,7 @@
 // 路由管理器
-// 負責根據 URL 參數切換不同的頁面
+// 負責根據 URL pathname 或查詢參數切換不同的頁面
+// 支援子目錄路由：/liff/home, /liff/favorites 等
+// 同時向後兼容查詢參數：/liff?page=home
 
 import { initHomePage } from './home.js';
 import { initLiffFeatures } from './components/liff-features.js';
@@ -17,17 +19,54 @@ const routes = {
 let currentPage = null;
 
 /**
+ * 從 URL 解析頁面名稱
+ * 優先順序：1. pathname (/liff/home) 2. 查詢參數 (?page=home) 3. 默認 (home)
+ * @returns {string} 頁面名稱
+ */
+function parsePageFromUrl() {
+    const pathname = window.location.pathname;
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // 優先從 pathname 解析（子目錄路由）
+    // 例如：/liff/home -> home, /liff/favorites -> favorites
+    if (pathname.startsWith('/liff/')) {
+        const pageFromPath = pathname.replace('/liff/', '').split('/')[0];
+        if (pageFromPath && routes[pageFromPath]) {
+            console.log('從 pathname 解析頁面:', pageFromPath);
+            return pageFromPath;
+        }
+    } else if (pathname === '/liff' || pathname === '/liff/') {
+        // /liff 或 /liff/ 視為首頁
+        console.log('從 pathname 解析頁面: home (根路徑)');
+        return 'home';
+    }
+    
+    // 向後兼容：從查詢參數解析
+    const pageFromQuery = urlParams.get('page');
+    if (pageFromQuery && routes[pageFromQuery]) {
+        console.log('從查詢參數解析頁面:', pageFromQuery);
+        return pageFromQuery;
+    }
+    
+    // 默認返回首頁
+    console.log('使用默認頁面: home');
+    return 'home';
+}
+
+/**
  * 初始化路由系統
  */
 export function initRouter() {
     console.log('初始化路由系統');
+    console.log('當前 URL:', window.location.href);
+    console.log('Pathname:', window.location.pathname);
+    console.log('Search:', window.location.search);
     
     // 初始化 LINE 特定功能（分享、關閉等）
     initLiffFeatures();
     
-    // 獲取當前頁面參數
-    const urlParams = new URLSearchParams(window.location.search);
-    const page = urlParams.get('page') || 'home';
+    // 從 URL 解析頁面
+    const page = parsePageFromUrl();
     
     console.log('當前頁面:', page);
     
@@ -76,6 +115,7 @@ async function loadPage(pageName) {
 
 /**
  * 導航到指定頁面
+ * 使用 pathname 路由（/liff/home, /liff/favorites 等）
  * @param {string} pageName - 頁面名稱
  */
 export function navigateTo(pageName) {
@@ -84,9 +124,21 @@ export function navigateTo(pageName) {
         return;
     }
     
+    // 構建新的 pathname URL
+    // 例如：/liff/home, /liff/favorites
+    const basePath = '/liff';
+    const newPath = pageName === 'home' ? basePath : `${basePath}/${pageName}`;
+    
     // 更新 URL（不刷新頁面）
-    const newUrl = new URL(window.location);
-    newUrl.searchParams.set('page', pageName);
+    const newUrl = new URL(window.location.origin + newPath);
+    // 保留其他查詢參數（如果有），但排除 page 參數
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.forEach((value, key) => {
+        if (key !== 'page') {
+            newUrl.searchParams.set(key, value);
+        }
+    });
+    
     window.history.pushState({ page: pageName }, '', newUrl);
     
     // 載入新頁面
@@ -102,7 +154,6 @@ export function getCurrentPage() {
 
 // 監聽瀏覽器前進/後退按鈕
 window.addEventListener('popstate', (event) => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const page = urlParams.get('page') || 'home';
+    const page = parsePageFromUrl();
     loadPage(page);
 });
