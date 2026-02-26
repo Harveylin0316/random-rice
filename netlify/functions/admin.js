@@ -364,6 +364,8 @@ exports.handler = async (event, context) => {
             probability: parseFloat(body.probability) || 0,
             image: body.image || '',
             enabled: body.enabled !== undefined ? body.enabled : true,
+            total_quantity: body.total_quantity !== undefined && body.total_quantity !== '' ? parseInt(body.total_quantity) : null,
+            used_quantity: 0,
           };
 
           if (supabase) {

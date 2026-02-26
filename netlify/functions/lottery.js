@@ -125,8 +125,23 @@ async function drawLottery() {
       throw new Error('沒有可用的獎品');
     }
     
-    // 計算總機率
-    const totalProbability = enabledPrizes.reduce((sum, p) => sum + p.probability, 0);
+    // 過濾出有剩餘數量的獎品（如果設定了數量上限）
+    const availablePrizes = enabledPrizes.filter(prize => {
+      // 如果沒有設定總數量（total_quantity 為 NULL），則無限制
+      if (prize.total_quantity === null || prize.total_quantity === undefined) {
+        return true;
+      }
+      // 計算剩餘數量
+      const remaining = prize.total_quantity - (prize.used_quantity || 0);
+      return remaining > 0;
+    });
+    
+    if (availablePrizes.length === 0) {
+      throw new Error('所有獎品都已抽完，沒有可用的獎品');
+    }
+    
+    // 計算總機率（只計算可用獎品的機率）
+    const totalProbability = availablePrizes.reduce((sum, p) => sum + p.probability, 0);
     
     if (totalProbability <= 0) {
       throw new Error('獎品機率設定錯誤');
@@ -137,7 +152,7 @@ async function drawLottery() {
     
     // 根據機率分配獎品
     let cumulative = 0;
-    for (const prize of enabledPrizes) {
+    for (const prize of availablePrizes) {
       cumulative += prize.probability;
       if (random <= cumulative) {
         return prize;
@@ -145,7 +160,7 @@ async function drawLottery() {
     }
     
     // 預設返回最後一個獎品
-    return enabledPrizes[enabledPrizes.length - 1];
+    return availablePrizes[availablePrizes.length - 1];
   } catch (error) {
     console.error('抽獎邏輯失敗:', error);
     throw error;
@@ -265,6 +280,25 @@ exports.handler = async (event, context) => {
         
         // 執行抽獎
         const prize = await drawLottery();
+        
+        // 更新獎品的已使用數量（如果設定了數量上限）
+        if (prize.total_quantity !== null && prize.total_quantity !== undefined) {
+          const newUsedQuantity = (prize.used_quantity || 0) + 1;
+          
+          if (supabase) {
+            await supabase.prizes.update(prize.id, {
+              used_quantity: newUsedQuantity
+            });
+          } else {
+            // 後備方案：更新文件系統
+            const db = loadDatabase('prizes_database.json');
+            const prizeIndex = db.prizes.findIndex(p => p.id === prize.id);
+            if (prizeIndex !== -1) {
+              db.prizes[prizeIndex].used_quantity = newUsedQuantity;
+              saveDatabase('prizes_database.json', db);
+            }
+          }
+        }
         
         // 記錄抽獎結果
         const recordId = `record_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

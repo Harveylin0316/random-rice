@@ -332,6 +332,11 @@
                     <input type="url" id="prizeImage">
                 </div>
                 <div class="form-group">
+                    <label>總數量（留空表示無限制）</label>
+                    <input type="number" id="prizeTotalQuantity" min="0" placeholder="例如：100">
+                    <small style="color: #666;">設定獎品的總數量上限，留空表示無限制</small>
+                </div>
+                <div class="form-group">
                     <label>
                         <input type="checkbox" id="prizeEnabled" checked> 啟用
                     </label>
@@ -463,6 +468,7 @@
                             <th>名稱</th>
                             <th>描述</th>
                             <th>機率</th>
+                            <th>數量</th>
                             <th>狀態</th>
                             <th>操作</th>
                         </tr>
@@ -523,6 +529,7 @@
                         document.getElementById('prizeDescription').value = prize.description || '';
                         document.getElementById('prizeProbability').value = prize.probability;
                         document.getElementById('prizeImage').value = prize.image || '';
+                        document.getElementById('prizeTotalQuantity').value = prize.total_quantity !== null && prize.total_quantity !== undefined ? prize.total_quantity : '';
                         document.getElementById('prizeEnabled').checked = prize.enabled;
                         document.getElementById('prizeModal').classList.add('active');
                     }

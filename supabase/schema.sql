@@ -22,8 +22,13 @@ CREATE TABLE IF NOT EXISTS prizes (
   probability REAL NOT NULL CHECK (probability >= 0 AND probability <= 1),
   image TEXT,
   enabled BOOLEAN DEFAULT true NOT NULL,
+  -- 數量控制欄位
+  total_quantity INTEGER, -- 總數量，NULL 表示無限制
+  used_quantity INTEGER DEFAULT 0 NOT NULL, -- 已使用數量
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  -- 檢查：已使用數量不能超過總數量（如果設定了總數量）
+  CHECK (total_quantity IS NULL OR used_quantity <= total_quantity)
 );
 
 -- 3. 抽獎記錄表
