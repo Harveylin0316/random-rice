@@ -8,14 +8,33 @@ let supabase = null;
 try {
   // 構建腳本會將 supabase 複製到 netlify/functions/supabase/
   // 所以這裡使用相對路徑 ./supabase/client
-  supabase = require('./supabase/client');
-  console.log('Supabase 客戶端已載入');
+  const supabaseModule = require('./supabase/client');
+  console.log('Supabase 模組已載入:', typeof supabaseModule);
+  console.log('Supabase 模組內容:', Object.keys(supabaseModule || {}));
+  
+  // 檢查模組導出的內容
+  if (supabaseModule && typeof supabaseModule === 'object') {
+    // 如果導出的是對象，檢查是否有 prizes 屬性
+    if (supabaseModule.prizes) {
+      supabase = supabaseModule;
+      console.log('Supabase 客戶端已正確初始化');
+    } else {
+      console.warn('Supabase 模組沒有 prizes 屬性，模組內容:', Object.keys(supabaseModule));
+      // 嘗試直接使用模組
+      supabase = supabaseModule;
+    }
+  } else {
+    console.warn('Supabase 模組格式不正確:', typeof supabaseModule);
+  }
+  
   console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? '已設定' : '未設定');
   console.log('SUPABASE_KEY:', process.env.SUPABASE_KEY ? '已設定' : '未設定');
+  console.log('Supabase 客戶端狀態:', supabase ? '已初始化' : '未初始化');
 } catch (err) {
   // 如果導入失敗，使用文件系統後備方案
   console.log('Supabase 客戶端未找到，將使用文件系統後備方案:', err.message);
   console.error('Supabase 導入錯誤詳情:', err);
+  console.error('錯誤堆疊:', err.stack);
 }
 
 // 資料庫文件路徑（與 lottery.js 相同邏輯）
