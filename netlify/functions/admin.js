@@ -224,16 +224,37 @@ exports.handler = async (event, context) => {
             // 使用 Supabase
             console.log('從 Supabase 獲取所有獎品');
             console.log('Supabase 客戶端狀態:', supabase ? '已初始化' : '未初始化');
+            console.log('檢查 Supabase 環境變數:');
+            console.log('  SUPABASE_URL:', process.env.SUPABASE_URL ? `已設定 (${process.env.SUPABASE_URL.substring(0, 20)}...)` : '未設定');
+            console.log('  SUPABASE_KEY:', process.env.SUPABASE_KEY ? `已設定 (${process.env.SUPABASE_KEY.substring(0, 20)}...)` : '未設定');
             
             try {
               const prizes = await supabase.prizes.getAll();
               console.log('獲取到的獎品數量:', prizes ? prizes.length : 0);
               console.log('獲取到的獎品:', JSON.stringify(prizes, null, 2));
               
+              // 如果返回空陣列，記錄警告
+              if (!prizes || prizes.length === 0) {
+                console.warn('警告：Supabase 查詢返回空陣列，可能的原因：');
+                console.warn('  1. 資料表中沒有資料');
+                console.warn('  2. RLS 策略阻擋了查詢');
+                console.warn('  3. 環境變數未正確設定');
+                console.warn('  4. 查詢語法有問題');
+              }
+              
               return {
                 statusCode: 200,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ success: true, prizes: prizes || [] }),
+                body: JSON.stringify({ 
+                  success: true, 
+                  prizes: prizes || [],
+                  debug: {
+                    supabaseConnected: !!supabase,
+                    envUrlSet: !!process.env.SUPABASE_URL,
+                    envKeySet: !!process.env.SUPABASE_KEY,
+                    resultCount: prizes ? prizes.length : 0
+                  }
+                }),
               };
             } catch (supabaseError) {
               console.error('Supabase 查詢錯誤:', supabaseError);

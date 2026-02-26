@@ -4,6 +4,10 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
+console.log('Supabase 客戶端初始化:');
+console.log('  SUPABASE_URL:', SUPABASE_URL ? `已設定 (${SUPABASE_URL.substring(0, 30)}...)` : '未設定');
+console.log('  SUPABASE_KEY:', SUPABASE_KEY ? `已設定 (${SUPABASE_KEY.substring(0, 20)}...)` : '未設定');
+
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.warn('Supabase 環境變數未設定，將使用文件系統後備方案');
 }
