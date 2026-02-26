@@ -429,6 +429,7 @@
                 const data = await response.json();
                 console.log('收到的資料:', data);
                 console.log('獎品數量:', data.prizes ? data.prizes.length : 0);
+                console.log('獎品詳情:', JSON.stringify(data, null, 2));
                 
                 if (data.success) {
                     console.log('渲染獎品列表，數量:', data.prizes ? data.prizes.length : 0);
