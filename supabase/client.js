@@ -127,7 +127,17 @@ const users = {
 const prizes = {
   // 獲取所有獎品
   async getAll() {
-    return await supabaseRequest('prizes?select=*&order=created_at.asc');
+    try {
+      console.log('執行 Supabase 查詢: prizes?select=*&order=created_at.asc');
+      const result = await supabaseRequest('prizes?select=*&order=created_at.asc');
+      console.log('Supabase 查詢結果:', result);
+      console.log('結果類型:', Array.isArray(result) ? '數組' : typeof result);
+      console.log('結果長度:', Array.isArray(result) ? result.length : 'N/A');
+      return result;
+    } catch (error) {
+      console.error('Supabase prizes.getAll() 錯誤:', error);
+      throw error;
+    }
   },
 
   // 獲取啟用的獎品

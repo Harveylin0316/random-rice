@@ -9,9 +9,13 @@ try {
   // 構建腳本會將 supabase 複製到 netlify/functions/supabase/
   // 所以這裡使用相對路徑 ./supabase/client
   supabase = require('./supabase/client');
+  console.log('Supabase 客戶端已載入');
+  console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? '已設定' : '未設定');
+  console.log('SUPABASE_KEY:', process.env.SUPABASE_KEY ? '已設定' : '未設定');
 } catch (err) {
   // 如果導入失敗，使用文件系統後備方案
   console.log('Supabase 客戶端未找到，將使用文件系統後備方案:', err.message);
+  console.error('Supabase 導入錯誤詳情:', err);
 }
 
 // 資料庫文件路徑（與 lottery.js 相同邏輯）
@@ -219,14 +223,37 @@ exports.handler = async (event, context) => {
           if (supabase) {
             // 使用 Supabase
             console.log('從 Supabase 獲取所有獎品');
-            const prizes = await supabase.prizes.getAll();
-            console.log('獲取到的獎品數量:', prizes ? prizes.length : 0);
+            console.log('Supabase 客戶端狀態:', supabase ? '已初始化' : '未初始化');
             
-            return {
-              statusCode: 200,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ success: true, prizes: prizes || [] }),
-            };
+            try {
+              const prizes = await supabase.prizes.getAll();
+              console.log('獲取到的獎品數量:', prizes ? prizes.length : 0);
+              console.log('獲取到的獎品:', JSON.stringify(prizes, null, 2));
+              
+              return {
+                statusCode: 200,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ success: true, prizes: prizes || [] }),
+              };
+            } catch (supabaseError) {
+              console.error('Supabase 查詢錯誤:', supabaseError);
+              console.error('錯誤詳情:', supabaseError.message);
+              console.error('錯誤堆疊:', supabaseError.stack);
+              
+              // 如果 Supabase 查詢失敗，回退到文件系統
+              console.log('Supabase 查詢失敗，回退到文件系統');
+              const db = loadDatabase('prizes_database.json');
+              return {
+                statusCode: 200,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  success: true, 
+                  prizes: db.prizes || [],
+                  warning: 'Supabase 查詢失敗，使用文件系統後備方案',
+                  error: supabaseError.message
+                }),
+              };
+            }
           } else {
             // 後備方案：從文件系統或環境變數讀取
             let db = null;
