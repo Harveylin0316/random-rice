@@ -645,10 +645,23 @@
         
         // 載入統計資料
         async function loadStatistics() {
-            if (!apiKey) return;
+            if (!apiKey) {
+                document.getElementById('statisticsContent').innerHTML = '<p style="color: #999;">請先設定 API Key</p>';
+                return;
+            }
             
             try {
                 const response = await fetch(`/api/admin/statistics?apiKey=${encodeURIComponent(apiKey)}`);
+                
+                if (response.status === 401) {
+                    document.getElementById('statisticsContent').innerHTML = '<p style="color: #f44336;">認證失敗：請檢查 API Key</p>';
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -656,6 +669,7 @@
                 }
             } catch (error) {
                 console.error('載入統計失敗:', error);
+                document.getElementById('statisticsContent').innerHTML = `<p style="color: #f44336;">載入失敗: ${error.message}</p>`;
             }
         }
         
