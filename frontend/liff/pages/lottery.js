@@ -1,7 +1,7 @@
 // 抽獎頁面
 // 包含抽獎功能的所有邏輯
 
-import { getLiff, getLiffProfile } from '../app.js';
+import { getLiff } from '../app.js';
 
 // 頁面狀態
 let userData = null;
