@@ -474,12 +474,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${prizes.map(prize => `
+                        ${prizes.map(prize => {
+                            const totalQuantity = prize.total_quantity !== null && prize.total_quantity !== undefined ? prize.total_quantity : null;
+                            const usedQuantity = prize.used_quantity || 0;
+                            const remainingQuantity = totalQuantity !== null ? totalQuantity - usedQuantity : null;
+                            const quantityText = totalQuantity !== null 
+                                ? `${usedQuantity}/${totalQuantity} (剩餘: ${remainingQuantity})` 
+                                : '無限制';
+                            
+                            return `
                             <tr>
                                 <td>${prize.id}</td>
                                 <td>${prize.name}</td>
                                 <td>${prize.description || '-'}</td>
                                 <td>${(prize.probability * 100).toFixed(1)}%</td>
+                                <td>${quantityText}</td>
                                 <td>
                                     <span class="badge ${prize.enabled ? 'badge-enabled' : 'badge-disabled'}">
                                         ${prize.enabled ? '啟用' : '停用'}
@@ -492,7 +501,8 @@
                                     </div>
                                 </td>
                             </tr>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </tbody>
                 </table>
             `;
