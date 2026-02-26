@@ -5,9 +5,18 @@ const path = require('path');
 // 嘗試導入 Supabase 客戶端
 let supabase = null;
 try {
-  supabase = require('../supabase/client');
+  // 嘗試從多個可能的路徑導入
+  try {
+    supabase = require('./supabase/client');
+  } catch (e1) {
+    try {
+      supabase = require('../supabase/client');
+    } catch (e2) {
+      supabase = require('../../supabase/client');
+    }
+  }
 } catch (err) {
-  console.log('Supabase 客戶端未找到，將使用文件系統後備方案');
+  console.log('Supabase 客戶端未找到，將使用文件系統後備方案:', err.message);
 }
 
 // 資料庫文件路徑
