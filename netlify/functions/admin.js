@@ -22,16 +22,31 @@ function getDatabasePath(filename) {
 
 // 載入資料庫
 function loadDatabase(filename) {
-  const dbPath = getDatabasePath(filename);
-  try {
-    if (fs.existsSync(dbPath)) {
-      const data = fs.readFileSync(dbPath, 'utf-8');
-      return JSON.parse(data);
+  // 嘗試多個可能的路徑（包括保存路徑）
+  const possiblePaths = [
+    path.join(__dirname, 'data', filename), // Functions 目錄下的 data 子目錄
+    path.join(__dirname, filename), // Functions 目錄
+    path.join(process.cwd(), 'data', filename), // 當前工作目錄
+    path.join('/tmp', filename), // Netlify Functions 的臨時目錄
+    getDatabasePath(filename), // 原始路徑
+  ];
+  
+  for (const dbPath of possiblePaths) {
+    try {
+      if (fs.existsSync(dbPath)) {
+        const data = fs.readFileSync(dbPath, 'utf-8');
+        const parsed = JSON.parse(data);
+        console.log(`資料庫已從 ${dbPath} 載入`);
+        return parsed;
+      }
+    } catch (err) {
+      console.log(`嘗試從 ${dbPath} 載入失敗:`, err.message);
+      continue;
     }
-  } catch (err) {
-    console.error(`Error loading ${filename}:`, err);
   }
   
+  // 如果都找不到，返回空資料結構
+  console.log(`找不到 ${filename}，使用空資料結構`);
   if (filename === 'users_database.json') {
     return { users: [] };
   } else if (filename === 'prizes_database.json') {
