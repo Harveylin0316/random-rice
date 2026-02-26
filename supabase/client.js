@@ -142,11 +142,26 @@ const prizes = {
   // 獲取所有獎品
   async getAll() {
     try {
-      console.log('執行 Supabase 查詢: prizes?select=*&order=created_at.asc');
-      const result = await supabaseRequest('prizes?select=*&order=created_at.asc');
+      // 注意：如果表沒有 created_at 欄位，不要使用 order 參數
+      // 先嘗試不帶 order 的查詢
+      console.log('執行 Supabase 查詢: prizes?select=*');
+      let result = await supabaseRequest('prizes?select=*');
       console.log('Supabase 查詢結果:', result);
       console.log('結果類型:', Array.isArray(result) ? '數組' : typeof result);
       console.log('結果長度:', Array.isArray(result) ? result.length : 'N/A');
+      
+      // 如果結果是數組，嘗試按 id 排序（客戶端排序）
+      if (Array.isArray(result) && result.length > 0) {
+        result = result.sort((a, b) => {
+          // 如果有 created_at，按時間排序
+          if (a.created_at && b.created_at) {
+            return new Date(a.created_at) - new Date(b.created_at);
+          }
+          // 否則按 id 排序
+          return (a.id || '').localeCompare(b.id || '');
+        });
+      }
+      
       return result;
     } catch (error) {
       console.error('Supabase prizes.getAll() 錯誤:', error);
