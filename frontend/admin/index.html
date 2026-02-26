@@ -352,14 +352,40 @@
         // 設定 API Key
         function setApiKey() {
             apiKey = document.getElementById('apiKeyInput').value;
+            console.log('設定 API Key:', apiKey ? '已設定' : '未設定');
             if (apiKey) {
+                // 保存到 localStorage
+                localStorage.setItem('admin_api_key', apiKey);
                 document.getElementById('authStatus').textContent = '✓ 已設定';
                 document.getElementById('authStatus').className = 'success';
+                console.log('開始載入所有資料...');
                 loadPrizes();
                 loadUsers();
                 loadStatistics();
+            } else {
+                console.warn('API Key 為空，無法載入資料');
             }
         }
+        
+        // 頁面載入時檢查是否有保存的 API Key
+        window.addEventListener('load', () => {
+            console.log('頁面載入完成');
+            // 可以從 localStorage 讀取保存的 API Key
+            const savedApiKey = localStorage.getItem('admin_api_key');
+            if (savedApiKey) {
+                apiKey = savedApiKey;
+                document.getElementById('apiKeyInput').value = savedApiKey;
+                document.getElementById('authStatus').textContent = '✓ 已設定';
+                document.getElementById('authStatus').className = 'success';
+                console.log('從 localStorage 載入 API Key');
+                console.log('開始載入所有資料...');
+                loadPrizes();
+                loadUsers();
+                loadStatistics();
+            } else {
+                console.log('沒有保存的 API Key，請手動設定');
+            }
+        });
         
         // 切換標籤頁
         function switchTab(tabName) {
@@ -372,33 +398,50 @@
         
         // 載入獎品列表
         async function loadPrizes() {
+            console.log('開始載入獎品列表...');
+            console.log('API Key:', apiKey ? '已設定' : '未設定');
+            
             if (!apiKey) {
                 document.getElementById('prizesList').innerHTML = '<p style="color: #999;">請先設定 API Key</p>';
                 return;
             }
             
             try {
-                const response = await fetch(`/api/admin/prizes?apiKey=${encodeURIComponent(apiKey)}`);
+                const url = `/api/admin/prizes?apiKey=${encodeURIComponent(apiKey)}`;
+                console.log('發送請求到:', url);
+                
+                const response = await fetch(url);
+                console.log('收到響應:', response.status, response.statusText);
                 
                 // 檢查 HTTP 狀態碼
                 if (response.status === 401) {
+                    console.error('認證失敗: 401 Unauthorized');
                     alert('認證失敗：API Key 不正確或未設定。請檢查：\n1. Netlify 環境變數 ADMIN_API_KEY 是否已設定\n2. API Key 是否與環境變數值一致\n3. 網站是否已重新部署');
                     return;
                 }
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    const errorText = await response.text();
+                    console.error('HTTP 錯誤:', response.status, errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
                 
                 const data = await response.json();
+                console.log('收到的資料:', data);
+                console.log('獎品數量:', data.prizes ? data.prizes.length : 0);
                 
                 if (data.success) {
-                    renderPrizes(data.prizes);
+                    console.log('渲染獎品列表，數量:', data.prizes ? data.prizes.length : 0);
+                    renderPrizes(data.prizes || []);
                 } else {
-                    alert('載入失敗: ' + (data.error || '未知錯誤'));
+                    console.error('API 返回失敗:', data.error);
+                    document.getElementById('prizesList').innerHTML = '<p style="color: #f44336;">載入失敗: ' + (data.error || '未知錯誤') + '</p>';
                 }
             } catch (error) {
-                alert('載入失敗: ' + error.message);
+                console.error('載入獎品失敗:', error);
+                console.error('錯誤詳情:', error.message);
+                console.error('錯誤堆疊:', error.stack);
+                document.getElementById('prizesList').innerHTML = '<p style="color: #f44336;">載入失敗: ' + error.message + '</p>';
             }
         }
         
