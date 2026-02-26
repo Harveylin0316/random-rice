@@ -253,8 +253,13 @@ exports.handler = async (event, context) => {
 
           if (supabase) {
             // 使用 Supabase
+            console.log('新增獎品到 Supabase:', newPrize);
             const prize = await supabase.prizes.create(newPrize);
+            console.log('插入後的獎品:', prize);
+            
             const allPrizes = await supabase.prizes.getAll();
+            console.log('所有獎品數量:', allPrizes ? allPrizes.length : 0);
+            console.log('所有獎品:', allPrizes);
             
             return {
               statusCode: 200,

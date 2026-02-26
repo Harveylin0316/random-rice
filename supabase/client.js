@@ -147,7 +147,12 @@ const prizes = {
       method: 'POST',
       body: JSON.stringify(prize),
     });
-    return Array.isArray(result) ? result[0] : result;
+    // Supabase 使用 Prefer: return=representation 時，會返回數組
+    // 但我們需要返回單個對象
+    if (Array.isArray(result)) {
+      return result.length > 0 ? result[0] : null;
+    }
+    return result;
   },
 
   // 更新獎品
