@@ -6,13 +6,19 @@ const path = require('path');
 let supabase = null;
 try {
   // 嘗試從多個可能的路徑導入
+  // 優先順序：1. 同目錄下的 supabase 2. 上一級目錄 3. 項目根目錄
   try {
     supabase = require('./supabase/client');
   } catch (e1) {
     try {
       supabase = require('../supabase/client');
     } catch (e2) {
-      supabase = require('../../supabase/client');
+      try {
+        supabase = require('../../supabase/client');
+      } catch (e3) {
+        // 如果都失敗，使用文件系統後備方案
+        console.log('Supabase 客戶端未找到，將使用文件系統後備方案');
+      }
     }
   }
 } catch (err) {
