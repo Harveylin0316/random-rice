@@ -215,28 +215,50 @@ exports.handler = async (event, context) => {
     if (path.startsWith('/prizes')) {
       if (path === '/prizes' && method === 'GET') {
         // 獲取所有獎品
-        // 優先從環境變數讀取（如果有的話）
-        let db = null;
-        const envPrizes = process.env.PRIZES_DATABASE;
-        if (envPrizes) {
-          try {
-            db = JSON.parse(envPrizes);
-            console.log('從環境變數載入獎品資料');
-          } catch (err) {
-            console.log('環境變數解析失敗，使用文件載入:', err.message);
+        try {
+          if (supabase) {
+            // 使用 Supabase
+            console.log('從 Supabase 獲取所有獎品');
+            const prizes = await supabase.prizes.getAll();
+            console.log('獲取到的獎品數量:', prizes ? prizes.length : 0);
+            
+            return {
+              statusCode: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ success: true, prizes: prizes || [] }),
+            };
+          } else {
+            // 後備方案：從文件系統或環境變數讀取
+            let db = null;
+            const envPrizes = process.env.PRIZES_DATABASE;
+            if (envPrizes) {
+              try {
+                db = JSON.parse(envPrizes);
+                console.log('從環境變數載入獎品資料');
+              } catch (err) {
+                console.log('環境變數解析失敗，使用文件載入:', err.message);
+              }
+            }
+            
+            // 如果環境變數沒有，從文件載入
+            if (!db) {
+              db = loadDatabase('prizes_database.json');
+            }
+            
+            return {
+              statusCode: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ success: true, prizes: db.prizes || [] }),
+            };
           }
+        } catch (error) {
+          console.error('獲取獎品失敗:', error);
+          return {
+            statusCode: 500,
+            headers: corsHeaders,
+            body: JSON.stringify({ error: '獲取獎品失敗', message: error.message }),
+          };
         }
-        
-        // 如果環境變數沒有，從文件載入
-        if (!db) {
-          db = loadDatabase('prizes_database.json');
-        }
-        
-        return {
-          statusCode: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ success: true, prizes: db.prizes || [] }),
-        };
       }
       
       if (path === '/prizes' && method === 'POST') {
@@ -324,10 +346,17 @@ exports.handler = async (event, context) => {
               };
             }
             
+            // 返回更新後的完整獎品列表
+            const allPrizes = await supabase.prizes.getAll();
+            
             return {
               statusCode: 200,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ success: true, prize }),
+              body: JSON.stringify({ 
+                success: true, 
+                prize,
+                prizes: allPrizes || [],
+              }),
             };
           } else {
             // 後備方案：使用文件系統
@@ -376,10 +405,17 @@ exports.handler = async (event, context) => {
           if (supabase) {
             // 使用 Supabase
             await supabase.prizes.delete(prizeId);
+            
+            // 返回更新後的完整獎品列表
+            const allPrizes = await supabase.prizes.getAll();
+            
             return {
               statusCode: 200,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ success: true }),
+              body: JSON.stringify({ 
+                success: true,
+                prizes: allPrizes || [],
+              }),
             };
           } else {
             // 後備方案：使用文件系統
@@ -402,6 +438,7 @@ exports.handler = async (event, context) => {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
               body: JSON.stringify({ 
                 success: true,
+                prizes: db.prizes,
                 warning: saved ? null : '資料庫保存失敗，請配置 Supabase 以持久化資料。'
               }),
             };
