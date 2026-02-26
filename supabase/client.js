@@ -109,13 +109,14 @@ const users = {
     const to = from + limit - 1;
     
     const result = await supabaseRequest(`users?select=*&order=created_at.desc&range=${from}-${to}`);
-    const countResult = await supabaseRequest(`users?select=line_id`, {
-      headers: { 'Prefer': 'count=exact' },
-    });
+    
+    // 獲取總數（查詢所有用戶的 ID 來計算總數）
+    const allUsers = await supabaseRequest('users?select=line_id');
+    const total = allUsers ? allUsers.length : 0;
 
     return {
       users: result || [],
-      total: parseInt(countResult?.length || 0),
+      total: total,
     };
   },
 };
@@ -189,21 +190,17 @@ const records = {
 
   // 獲取統計資料
   async getStatistics() {
-    // 總抽獎數
-    const totalDraws = await supabaseRequest('lottery_records?type=eq.draw&select=id', {
-      headers: { 'Prefer': 'count=exact' },
-    });
+    // 查詢所有抽獎記錄來計算統計
+    const allDrawRecords = await supabaseRequest('lottery_records?type=eq.draw&select=prize_id,prize_name');
+    const allInviteRecords = await supabaseRequest('lottery_records?type=eq.invite&select=id');
+    
+    const totalDraws = allDrawRecords ? allDrawRecords.length : 0;
+    const totalInvites = allInviteRecords ? allInviteRecords.length : 0;
 
-    // 總邀請數
-    const totalInvites = await supabaseRequest('lottery_records?type=eq.invite&select=id', {
-      headers: { 'Prefer': 'count=exact' },
-    });
-
-    // 獎品統計（需要手動查詢，因為 Supabase 的 count 有限制）
-    const allRecords = await supabaseRequest('lottery_records?type=eq.draw&select=prize_id,prize_name');
+    // 獎品統計
     const prizeStats = {};
-    if (allRecords) {
-      allRecords.forEach(record => {
+    if (allDrawRecords) {
+      allDrawRecords.forEach(record => {
         if (record.prize_id) {
           prizeStats[record.prize_id] = (prizeStats[record.prize_id] || 0) + 1;
         }
@@ -211,13 +208,27 @@ const records = {
     }
 
     return {
-      totalDraws: parseInt(totalDraws?.length || 0),
-      totalInvites: parseInt(totalInvites?.length || 0),
+      totalDraws,
+      totalInvites,
       prizeStats: Object.entries(prizeStats).map(([prizeId, count]) => ({
         prizeId,
         count,
       })),
     };
+  },
+};
+
+  // 檢查是否已邀請過
+  async checkInvite(newUserLineId, inviterLineId) {
+    try {
+      const records = await supabaseRequest(
+        `lottery_records?line_id=eq.${encodeURIComponent(newUserLineId)}&inviter_line_id=eq.${encodeURIComponent(inviterLineId)}&type=eq.invite&select=id`
+      );
+      return records && records.length > 0;
+    } catch (error) {
+      console.error('檢查邀請記錄失敗:', error);
+      return false;
+    }
   },
 };
 
