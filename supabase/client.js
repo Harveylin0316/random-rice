@@ -13,10 +13,16 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
  */
 async function supabaseRequest(endpoint, options = {}) {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('Supabase 環境變數檢查:');
+    console.error('  SUPABASE_URL:', SUPABASE_URL ? '已設定' : '未設定');
+    console.error('  SUPABASE_KEY:', SUPABASE_KEY ? '已設定' : '未設定');
     throw new Error('Supabase 環境變數未設定');
   }
 
   const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+  console.log('Supabase 請求 URL:', url);
+  console.log('Supabase 請求方法:', options.method || 'GET');
+  
   const headers = {
     'apikey': SUPABASE_KEY,
     'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -25,22 +31,30 @@ async function supabaseRequest(endpoint, options = {}) {
     ...options.headers,
   };
 
+  console.log('發送 Supabase 請求...');
   const response = await fetch(url, {
     ...options,
     headers,
   });
 
+  console.log('Supabase 響應狀態:', response.status, response.statusText);
+  console.log('Supabase 響應 headers:', Object.fromEntries(response.headers.entries()));
+
   if (!response.ok) {
     const error = await response.text();
+    console.error('Supabase API 錯誤:', response.status, error);
     throw new Error(`Supabase API 錯誤: ${response.status} - ${error}`);
   }
 
   // 如果沒有內容，返回 null
   if (response.status === 204 || response.headers.get('content-length') === '0') {
+    console.log('Supabase 響應為空');
     return null;
   }
 
-  return await response.json();
+  const result = await response.json();
+  console.log('Supabase 響應內容:', result);
+  return result;
 }
 
 /**
