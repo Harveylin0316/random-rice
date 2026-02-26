@@ -3,25 +3,14 @@ const fs = require('fs');
 const path = require('path');
 
 // 嘗試導入 Supabase 客戶端
+// 注意：Netlify Functions 在打包時會分析所有 require，所以只使用構建後的正確路徑
 let supabase = null;
 try {
-  // 嘗試從多個可能的路徑導入
-  // 優先順序：1. 同目錄下的 supabase 2. 上一級目錄 3. 項目根目錄
-  try {
-    supabase = require('./supabase/client');
-  } catch (e1) {
-    try {
-      supabase = require('../supabase/client');
-    } catch (e2) {
-      try {
-        supabase = require('../../supabase/client');
-      } catch (e3) {
-        // 如果都失敗，使用文件系統後備方案
-        console.log('Supabase 客戶端未找到，將使用文件系統後備方案');
-      }
-    }
-  }
+  // 構建腳本會將 supabase 複製到 netlify/functions/supabase/
+  // 所以這裡使用相對路徑 ./supabase/client
+  supabase = require('./supabase/client');
 } catch (err) {
+  // 如果導入失敗，使用文件系統後備方案
   console.log('Supabase 客戶端未找到，將使用文件系統後備方案:', err.message);
 }
 
