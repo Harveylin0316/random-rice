@@ -114,14 +114,21 @@ async function drawLottery() {
     
     if (supabase) {
       // 使用 Supabase
-      enabledPrizes = await supabase.prizes.getEnabled();
+      console.log('從 Supabase 獲取啟用的獎品...');
+      try {
+        enabledPrizes = await supabase.prizes.getEnabled();
+        console.log('獲取到的啟用獎品數量:', enabledPrizes ? enabledPrizes.length : 0);
+      } catch (supabaseError) {
+        console.error('Supabase 查詢啟用獎品失敗:', supabaseError);
+        throw new Error(`獲取獎品列表失敗: ${supabaseError.message}`);
+      }
     } else {
       // 後備方案：使用文件系統
       const db = loadDatabase('prizes_database.json');
       enabledPrizes = db.prizes.filter(p => p.enabled);
     }
     
-    if (enabledPrizes.length === 0) {
+    if (!enabledPrizes || enabledPrizes.length === 0) {
       throw new Error('沒有可用的獎品');
     }
     
@@ -136,33 +143,42 @@ async function drawLottery() {
       return remaining > 0;
     });
     
+    console.log('可用獎品數量（考慮數量限制）:', availablePrizes.length);
+    
     if (availablePrizes.length === 0) {
       throw new Error('所有獎品都已抽完，沒有可用的獎品');
     }
     
     // 計算總機率（只計算可用獎品的機率）
-    const totalProbability = availablePrizes.reduce((sum, p) => sum + p.probability, 0);
+    const totalProbability = availablePrizes.reduce((sum, p) => sum + (p.probability || 0), 0);
     
     if (totalProbability <= 0) {
-      throw new Error('獎品機率設定錯誤');
+      throw new Error('獎品機率設定錯誤：總機率必須大於 0');
     }
+    
+    console.log('總機率:', totalProbability);
     
     // 生成隨機數
     const random = Math.random() * totalProbability;
+    console.log('隨機數:', random);
     
     // 根據機率分配獎品
     let cumulative = 0;
     for (const prize of availablePrizes) {
-      cumulative += prize.probability;
+      cumulative += (prize.probability || 0);
       if (random <= cumulative) {
+        console.log('抽中獎品:', prize.name, 'ID:', prize.id);
         return prize;
       }
     }
     
     // 預設返回最後一個獎品
+    console.log('返回最後一個獎品:', availablePrizes[availablePrizes.length - 1].name);
     return availablePrizes[availablePrizes.length - 1];
   } catch (error) {
     console.error('抽獎邏輯失敗:', error);
+    console.error('錯誤詳情:', error.message);
+    console.error('錯誤堆疊:', error.stack);
     throw error;
   }
 }
@@ -387,10 +403,16 @@ exports.handler = async (event, context) => {
         }
       } catch (error) {
         console.error('抽獎失敗:', error);
+        console.error('錯誤詳情:', error.message);
+        console.error('錯誤堆疊:', error.stack);
         return {
           statusCode: 500,
           headers: corsHeaders,
-          body: JSON.stringify({ error: '抽獎失敗', message: error.message }),
+          body: JSON.stringify({ 
+            error: '抽獎失敗', 
+            message: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+          }),
         };
       }
     }

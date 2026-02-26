@@ -185,7 +185,24 @@ const prizes = {
 
   // 獲取啟用的獎品
   async getEnabled() {
-    return await supabaseRequest('prizes?select=*&enabled=eq.true&order=created_at.asc');
+    try {
+      console.log('執行 Supabase 查詢: prizes?select=*&enabled=eq.true');
+      // 不使用 order 參數，避免 created_at 欄位問題
+      let result = await supabaseRequest('prizes?select=*&enabled=eq.true');
+      console.log('獲取到的啟用獎品數量:', result ? result.length : 0);
+      
+      // 如果結果是數組，過濾出啟用的獎品（雙重檢查）
+      if (Array.isArray(result)) {
+        result = result.filter(p => p.enabled === true);
+        // 按 id 排序（客戶端排序）
+        result = result.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Supabase prizes.getEnabled() 錯誤:', error);
+      throw error;
+    }
   },
 
   // 獲取單個獎品
