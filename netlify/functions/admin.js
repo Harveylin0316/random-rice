@@ -239,7 +239,16 @@ exports.handler = async (event, context) => {
       if (path === '/prizes' && method === 'GET') {
         // 獲取所有獎品
         try {
+          // 檢查 supabase 是否正確初始化
+          console.log('檢查 Supabase 客戶端:');
+          console.log('  supabase 變數:', supabase ? '存在' : 'null/undefined');
+          console.log('  supabase 類型:', typeof supabase);
           if (supabase) {
+            console.log('  supabase 屬性:', Object.keys(supabase));
+            console.log('  supabase.prizes:', supabase.prizes ? '存在' : '不存在');
+          }
+          
+          if (supabase && supabase.prizes) {
             // 使用 Supabase
             console.log('從 Supabase 獲取所有獎品');
             console.log('Supabase 客戶端狀態:', supabase ? '已初始化' : '未初始化');
@@ -248,6 +257,7 @@ exports.handler = async (event, context) => {
             console.log('  SUPABASE_KEY:', process.env.SUPABASE_KEY ? `已設定 (${process.env.SUPABASE_KEY.substring(0, 20)}...)` : '未設定');
             
             try {
+              console.log('調用 supabase.prizes.getAll()...');
               const prizes = await supabase.prizes.getAll();
               console.log('獲取到的獎品數量:', prizes ? prizes.length : 0);
               console.log('獲取到的獎品:', JSON.stringify(prizes, null, 2));
