@@ -66,6 +66,13 @@ CREATE TRIGGER update_prizes_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+-- 禁用 Row Level Security (RLS) 以允許服務端訪問
+-- 注意：這適用於使用 service_role key 的情況
+-- 如果使用 anon key，需要設置適當的 RLS 策略
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE prizes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE lottery_records DISABLE ROW LEVEL SECURITY;
+
 -- 插入預設獎品（可選）
 INSERT INTO prizes (id, name, description, probability, enabled) VALUES
   ('prize_1', '100元折價券', '可於指定餐廳使用', 0.5, true),
