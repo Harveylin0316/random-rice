@@ -575,10 +575,24 @@
                 
                 if (data.success) {
                     closePrizeModal();
-                    // 稍微延遲一下確保後端已保存
-                    setTimeout(() => {
-                        loadPrizes();
-                    }, 100);
+                    
+                    // 如果有警告，顯示給用戶
+                    if (data.warning) {
+                        console.warn('警告:', data.warning);
+                        if (data.envUpdate) {
+                            console.log('環境變數更新提示:', data.envUpdate);
+                        }
+                    }
+                    
+                    // 如果返回了完整的獎品列表，直接更新 UI
+                    if (data.prizes && Array.isArray(data.prizes)) {
+                        renderPrizes(data.prizes);
+                    } else {
+                        // 否則重新載入
+                        setTimeout(() => {
+                            loadPrizes();
+                        }, 100);
+                    }
                 } else {
                     document.getElementById('prizeFormError').textContent = data.error || '儲存失敗';
                 }

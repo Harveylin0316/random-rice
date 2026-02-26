@@ -203,11 +203,27 @@ exports.handler = async (event, context) => {
     if (path.startsWith('/prizes')) {
       if (path === '/prizes' && method === 'GET') {
         // 獲取所有獎品
-        const db = loadDatabase('prizes_database.json');
+        // 優先從環境變數讀取（如果有的話）
+        let db = null;
+        const envPrizes = process.env.PRIZES_DATABASE;
+        if (envPrizes) {
+          try {
+            db = JSON.parse(envPrizes);
+            console.log('從環境變數載入獎品資料');
+          } catch (err) {
+            console.log('環境變數解析失敗，使用文件載入:', err.message);
+          }
+        }
+        
+        // 如果環境變數沒有，從文件載入
+        if (!db) {
+          db = loadDatabase('prizes_database.json');
+        }
+        
         return {
           statusCode: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ success: true, prizes: db.prizes }),
+          body: JSON.stringify({ success: true, prizes: db.prizes || [] }),
         };
       }
       
@@ -227,16 +243,28 @@ exports.handler = async (event, context) => {
         };
         
         db.prizes.push(newPrize);
+        
+        // 嘗試保存到文件
         const saved = saveDatabase('prizes_database.json', db);
+        
+        // 同時嘗試保存到環境變數（通過返回提示用戶手動更新）
+        // 注意：Netlify Functions 無法直接修改環境變數，需要通過 Netlify API 或 Dashboard
+        const dbJson = JSON.stringify(db, null, 2);
+        const dbSize = Buffer.byteLength(dbJson, 'utf8');
+        const maxEnvSize = 64 * 1024; // Netlify 環境變數最大約 64KB
+        
+        let envWarning = null;
+        if (dbSize > maxEnvSize) {
+          envWarning = '資料量過大，無法使用環境變數存儲。建議使用外部資料庫服務。';
+        } else {
+          envWarning = `請在 Netlify Dashboard 的環境變數中設定 PRIZES_DATABASE 為以下 JSON（不含換行）:\n${dbJson.replace(/\n/g, '')}`;
+        }
         
         if (!saved) {
           console.error('保存獎品失敗 - 可能是文件系統只讀限制');
-          // 即使保存失敗，也返回成功，因為資料已經在內存中
-          // 注意：在 Netlify Functions 中，文件系統通常是只讀的
-          // 實際應用中應該使用外部資料庫（如 Supabase、Firebase 等）
-          console.warn('警告：資料庫保存失敗，但獎品已添加到內存中。建議使用外部資料庫服務。');
+          console.warn('警告：資料庫保存失敗。請手動更新環境變數 PRIZES_DATABASE 以持久化資料。');
         } else {
-          console.log('獎品已保存:', newPrize.id);
+          console.log('獎品已保存到文件:', newPrize.id);
         }
         
         return {
@@ -245,7 +273,9 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ 
             success: true, 
             prize: newPrize,
-            warning: saved ? null : '資料庫保存失敗，但獎品已添加。建議使用外部資料庫服務以持久化資料。'
+            prizes: db.prizes, // 返回完整的獎品列表
+            warning: saved ? null : '資料庫保存失敗，但獎品已添加。請手動更新環境變數以持久化資料。',
+            envUpdate: saved ? null : envWarning
           }),
         };
       }
