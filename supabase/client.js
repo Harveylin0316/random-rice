@@ -274,7 +274,6 @@ const records = {
       })),
     };
   },
-};
 
   // 檢查是否已邀請過
   async checkInvite(newUserLineId, inviterLineId) {
