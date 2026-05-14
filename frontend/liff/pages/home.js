@@ -402,7 +402,7 @@ function setupFormSubmit() {
             displayResults(restaurants);
             
         } catch (err) {
-            showError(err.message || '獲取推薦餐廳失敗，請稍後再試');
+            showError(err.message || '抽選失敗，請稍後再試');
             console.error('推薦餐廳錯誤:', err);
         } finally {
             hideLoading();
@@ -531,7 +531,7 @@ function displayResults(restaurants) {
     console.log('displayResults 被調用，餐廳數量:', restaurants.length);
     
     if (restaurants.length === 0) {
-        showError('沒有找到符合條件的餐廳，請調整篩選條件');
+        showError('沒抽到符合條件的餐廳，要不要放寬條件再抽一次？');
         return;
     }
     
@@ -649,7 +649,7 @@ function setupResetButton() {
             const restaurants = await fetchRecommendations(formData, []);
             
             if (restaurants.length === 0) {
-                showError('沒有找到符合條件的餐廳，請調整篩選條件');
+                showError('沒抽到符合條件的餐廳，要不要放寬條件再抽一次？');
                 return;
             }
             
@@ -657,7 +657,7 @@ function setupResetButton() {
             displayResults(restaurants);
             
         } catch (err) {
-            showError(err.message || '獲取推薦餐廳失敗，請稍後再試');
+            showError(err.message || '抽選失敗，請稍後再試');
             console.error('推薦餐廳錯誤:', err);
         } finally {
             hideLoading();

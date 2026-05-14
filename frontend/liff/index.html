@@ -61,7 +61,7 @@
     <div class="container">
         <header class="header">
             <h1>今天吃什麼</h1>
-            <p class="subtitle">回答幾個問題，幫你挑五間餐廳</p>
+            <p class="subtitle">不想再煩惱了嗎？幫你隨機抽五間餐廳</p>
         </header>
 
         <!-- LIFF 初始化載入中 -->
@@ -195,23 +195,23 @@
                 </details>
 
                 <button type="submit" class="submit-btn" id="submitBtn">
-                    推薦我五間餐廳
+                    隨機抽五間
                 </button>
             </form>
 
             <div id="loading" class="loading" style="display: none;" role="status" aria-live="polite">
                 <div class="spinner" aria-hidden="true"></div>
-                <p>正在為你尋找餐廳</p>
+                <p>擲骰子中</p>
             </div>
 
             <div id="results" class="results" style="display: none;">
                 <h2 class="results-title">
-                    為你推薦
+                    抽到這幾間
                     <span id="resultCount" class="result-count"></span>
                 </h2>
                 <div id="restaurantList" class="restaurant-list">
                 </div>
-                <button id="resetBtn" class="reset-btn">換一批</button>
+                <button id="resetBtn" class="reset-btn">再抽一次</button>
             </div>
 
             <div id="error" class="error" style="display: none;" role="alert">
