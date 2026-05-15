@@ -10,7 +10,7 @@ import {
     loadLocationOptions as apiLoadLocationOptions,
     fetchRecommendations
 } from '../shared/api.js';
-import { filterGeneralTags, initImageCarousels, calculateDistance, formatDistance, getOpeningStatus } from '../shared/utils.js';
+import { filterGeneralTags, initImageCarousels, calculateDistance, formatDistance, getOpeningStatus, generateOmikuji } from '../shared/utils.js';
 
 // 頁面狀態
 let filterOptions = {
@@ -522,127 +522,180 @@ function collectFormData() {
     return formData;
 }
 
+// 建立單張餐廳卡 HTML
+function buildCardHTML(restaurant, cardIndex) {
+    const images = (restaurant.images || []).slice(0, 8);
+    const hasImages = images.length > 0;
+    const canSlide = images.length > 1;
+
+    const diningTime = document.querySelector('input[name="diningTime"]:checked')?.value;
+    const oh = getOpeningStatus(restaurant.opening_hours);
+    const omikuji = generateOmikuji(restaurant, { diningTime, openNow: oh.openNow });
+
+    const metaParts = [];
+    if (oh.label) {
+        const cls = oh.status === 'open' ? 'is-open'
+                  : oh.status === 'closing-soon' ? 'is-closing'
+                  : 'is-closed';
+        metaParts.push(`<span class="meta-chip ${cls}"><span class="meta-dot"></span>${oh.label}</span>`);
+    }
+    if (userLocation && restaurant.coordinates?.lat && restaurant.coordinates?.lng) {
+        const d = calculateDistance(
+            userLocation.lat, userLocation.lng,
+            restaurant.coordinates.lat, restaurant.coordinates.lng
+        );
+        metaParts.push(`<span class="meta-chip">離你 ${formatDistance(d)}</span>`);
+    }
+    if (restaurant.bookable) {
+        metaParts.push(`<span class="meta-chip is-accent">線上可訂位</span>`);
+    }
+    const metaHtml = metaParts.length ? `<div class="restaurant-meta">${metaParts.join('')}</div>` : '';
+
+    const dishList = filterGeneralTags(restaurant.dish || []).slice(0, 4);
+    const dishHtml = dishList.length
+        ? `<p class="restaurant-dish"><span class="restaurant-dish__label">招牌</span>${dishList.join('、')}</p>`
+        : '';
+
+    const cuisineTags = filterGeneralTags(restaurant.cuisine_style || [])
+        .map(c => `<span class="tag cuisine">${c}</span>`).join('');
+    const typeTags = filterGeneralTags(restaurant.type || [])
+        .map(t => `<span class="tag type">${t}</span>`).join('');
+    const budgetTag = restaurant.budget
+        ? `<span class="tag budget">${restaurant.budget} 元</span>`
+        : '<span class="tag">預算未標示</span>';
+
+    const bookingBtn = restaurant.url
+        ? `<a href="${restaurant.url}" target="_blank" rel="noopener" class="restaurant-btn booking-btn">查看 / 訂位</a>`
+        : '';
+    const navBtn = restaurant.coordinates?.lat && restaurant.coordinates?.lng
+        ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}" target="_blank" rel="noopener" class="restaurant-btn navigation-btn">導航</a>`
+        : restaurant.address
+        ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address)}" target="_blank" rel="noopener" class="restaurant-btn navigation-btn">導航</a>`
+        : '';
+
+    return `
+        ${hasImages ? `
+            <div class="restaurant-image-container" data-card-index="${cardIndex}">
+                <div class="image-carousel" data-carousel="${cardIndex}">
+                    ${images.map((img, i) => `
+                        <div class="carousel-slide ${i === 0 ? 'active' : ''}" data-slide="${i}">
+                            <img src="${img}" alt="${restaurant.name}" class="carousel-image" onerror="this.style.display='none';">
+                        </div>
+                    `).join('')}
+                </div>
+                ${canSlide ? `
+                    <div class="carousel-controls">
+                        <button class="carousel-btn carousel-prev" data-carousel="${cardIndex}"><span>‹</span></button>
+                        <button class="carousel-btn carousel-next" data-carousel="${cardIndex}"><span>›</span></button>
+                    </div>
+                    <div class="carousel-indicators" data-carousel="${cardIndex}">
+                        ${images.map((_, i) => `<span class="indicator ${i === 0 ? 'active' : ''}" data-slide="${i}"></span>`).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        ` : `
+            <div class="restaurant-image-placeholder"><span>無照片</span></div>
+        `}
+        <button type="button" class="card-refresh" data-card-index="${cardIndex}" aria-label="換掉這一家">
+            <svg aria-hidden="true"><use href="#icon-refresh"></use></svg>
+        </button>
+        <div class="restaurant-info">
+            <p class="restaurant-omikuji">「${omikuji}」</p>
+            <h3 class="restaurant-name">${restaurant.name}</h3>
+            <p class="restaurant-address">${restaurant.address}</p>
+            ${metaHtml}
+            ${dishHtml}
+            <div class="restaurant-tags">${cuisineTags}${typeTags}${budgetTag}</div>
+            <div class="restaurant-actions">${bookingBtn}${navBtn}</div>
+        </div>
+    `;
+}
+
 // 顯示結果
 function displayResults(restaurants) {
     const resultCount = document.getElementById('resultCount');
     const restaurantList = document.getElementById('restaurantList');
     const results = document.getElementById('results');
-    
+
     console.log('displayResults 被調用，餐廳數量:', restaurants.length);
-    
+
     if (restaurants.length === 0) {
         showError('沒抽到符合條件的餐廳，要不要放寬條件再抽一次？');
         return;
     }
-    
+
     if (resultCount) resultCount.textContent = `${restaurants.length} 間餐廳`;
-    
+
     if (restaurantList) {
-        restaurantList.innerHTML = restaurants.map((restaurant, cardIndex) => {
-            const images = (restaurant.images || []).slice(0, 8);
-            const hasImages = images.length > 0;
-            const canSlide = images.length > 1;
-            
-            return `
-            <div class="restaurant-card">
-                ${hasImages ? `
-                    <div class="restaurant-image-container" data-card-index="${cardIndex}">
-                        <div class="image-carousel" data-carousel="${cardIndex}">
-                            ${images.map((img, imgIndex) => `
-                                <div class="carousel-slide ${imgIndex === 0 ? 'active' : ''}" data-slide="${imgIndex}">
-                                    <img src="${img}" alt="${restaurant.name}" class="carousel-image"
-                                         onerror="this.style.display='none';">
-                                </div>
-                            `).join('')}
-                        </div>
-                        ${canSlide ? `
-                            <div class="carousel-controls">
-                                <button class="carousel-btn carousel-prev" data-carousel="${cardIndex}">
-                                    <span>‹</span>
-                                </button>
-                                <button class="carousel-btn carousel-next" data-carousel="${cardIndex}">
-                                    <span>›</span>
-                                </button>
-                            </div>
-                            <div class="carousel-indicators" data-carousel="${cardIndex}">
-                                ${images.map((_, imgIndex) => `
-                                    <span class="indicator ${imgIndex === 0 ? 'active' : ''}" data-slide="${imgIndex}"></span>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-                    </div>
-                ` : `
-                    <div class="restaurant-image-placeholder">
-                        <span>無照片</span>
-                    </div>
-                `}
-                <div class="restaurant-info">
-                    <h3 class="restaurant-name">${restaurant.name}</h3>
-                    <p class="restaurant-address">${restaurant.address}</p>
-                    ${(() => {
-                        const meta = [];
-                        // 營業狀態
-                        const oh = getOpeningStatus(restaurant.opening_hours);
-                        if (oh.label) {
-                            const cls = oh.status === 'open' ? 'is-open'
-                                      : oh.status === 'closing-soon' ? 'is-closing'
-                                      : 'is-closed';
-                            meta.push(`<span class="meta-chip ${cls}"><span class="meta-dot"></span>${oh.label}</span>`);
-                        }
-                        // 距離（僅 nearby 模式有 userLocation）
-                        if (userLocation && restaurant.coordinates?.lat && restaurant.coordinates?.lng) {
-                            const d = calculateDistance(
-                                userLocation.lat, userLocation.lng,
-                                restaurant.coordinates.lat, restaurant.coordinates.lng
-                            );
-                            meta.push(`<span class="meta-chip">離你 ${formatDistance(d)}</span>`);
-                        }
-                        // 線上可訂位
-                        if (restaurant.bookable) {
-                            meta.push(`<span class="meta-chip is-accent">線上可訂位</span>`);
-                        }
-                        return meta.length ? `<div class="restaurant-meta">${meta.join('')}</div>` : '';
-                    })()}
-                    ${restaurant.dish && restaurant.dish.length > 0 ?
-                        `<p class="restaurant-dish"><span class="restaurant-dish__label">招牌</span>${filterGeneralTags(restaurant.dish).slice(0, 4).join('、')}</p>` : ''
-                    }
-                    <div class="restaurant-tags">
-                        ${restaurant.cuisine_style && restaurant.cuisine_style.length > 0 ?
-                            filterGeneralTags(restaurant.cuisine_style)
-                                .map(cuisine => `<span class="tag cuisine">${cuisine}</span>`).join('') : ''
-                        }
-                        ${restaurant.type && restaurant.type.length > 0 ?
-                            filterGeneralTags(restaurant.type)
-                                .map(type => `<span class="tag type">${type}</span>`).join('') : ''
-                        }
-                        ${restaurant.budget ?
-                            `<span class="tag budget">${restaurant.budget} 元</span>` :
-                            '<span class="tag">預算未標示</span>'
-                        }
-                    </div>
-                    <div class="restaurant-actions">
-                        ${restaurant.url ?
-                            `<a href="${restaurant.url}" target="_blank" rel="noopener" class="restaurant-btn booking-btn">查看 / 訂位</a>` : ''
-                        }
-                        ${restaurant.coordinates && restaurant.coordinates.lat && restaurant.coordinates.lng ?
-                            `<a href="https://www.google.com/maps/dir/?api=1&destination=${restaurant.coordinates.lat},${restaurant.coordinates.lng}"
-                               target="_blank" rel="noopener" class="restaurant-btn navigation-btn">導航</a>` :
-                            restaurant.address ?
-                            `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address)}"
-                               target="_blank" rel="noopener" class="restaurant-btn navigation-btn">導航</a>` : ''
-                        }
-                    </div>
-                </div>
-            </div>
-        `;
-        }).join('');
+        restaurantList.innerHTML = restaurants.map((r, i) =>
+            `<div class="restaurant-card">${buildCardHTML(r, i)}</div>`
+        ).join('');
     }
-    
+
     initImageCarousels();
-    
+    setupCardRefreshButtons(restaurants);
+
     if (results) {
         results.style.display = 'block';
         results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+// 為每張卡的「換這張」按鈕綁定 handler
+function setupCardRefreshButtons(currentList) {
+    document.querySelectorAll('.card-refresh').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const idx = parseInt(btn.dataset.cardIndex, 10);
+            if (isNaN(idx)) return;
+            await refreshSingleCard(idx, currentList);
+        });
+    });
+}
+
+// 重新抽取單張卡片
+async function refreshSingleCard(cardIndex, currentList) {
+    const cards = document.querySelectorAll('.restaurant-card');
+    const card = cards[cardIndex];
+    if (!card) return;
+
+    // 防止連點
+    if (card.classList.contains('is-refreshing')) return;
+    card.classList.add('is-refreshing');
+
+    try {
+        const formData = collectFormData();
+        // exclude 用當前 list 全部 + displayedRestaurants（避免抽到已顯示過的）
+        const excludeSet = new Set([
+            ...currentList.map(r => r.name),
+            ...displayedRestaurants,
+        ]);
+        const newResults = await fetchRecommendations(formData, Array.from(excludeSet), 1);
+
+        if (!newResults || newResults.length === 0) {
+            card.classList.remove('is-refreshing');
+            showError('沒有更多符合條件的餐廳可換了，試試放寬條件');
+            return;
+        }
+
+        const newRestaurant = newResults[0];
+        // 更新列表與已顯示名單
+        currentList[cardIndex] = newRestaurant;
+        displayedRestaurants.push(newRestaurant.name);
+
+        // 替換卡片內容（保留 .restaurant-card 外殼以維持動畫上下文）
+        card.innerHTML = buildCardHTML(newRestaurant, cardIndex);
+        card.classList.remove('is-refreshing');
+        card.classList.add('is-new');
+        setTimeout(() => card.classList.remove('is-new'), 600);
+
+        // 重新初始化該張卡的輪播 / 換卡按鈕
+        initImageCarousels();
+        setupCardRefreshButtons(currentList);
+    } catch (err) {
+        card.classList.remove('is-refreshing');
+        console.error('重抽單張失敗:', err);
+        showError(err.message || '重抽失敗，請稍後再試');
     }
 }
 

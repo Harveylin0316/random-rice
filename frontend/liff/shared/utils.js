@@ -111,6 +111,65 @@ export function getOpeningStatus(openingHours, now = new Date()) {
 }
 
 /**
+ * 為餐廳產生一句呼應「隨機抽到」的籤詩短語
+ * 規則式：依料理 / 類型 / 預算 / 招牌菜 / 時段 / 訂位 拼出最合適的一句
+ * @param {Object} restaurant - 餐廳物件
+ * @param {Object} context - { diningTime, openNow }
+ * @returns {string} 短語
+ */
+export function generateOmikuji(restaurant, context = {}) {
+    const cuisines = restaurant.cuisine_style || [];
+    const types = restaurant.type || [];
+    const dish = (restaurant.dish || []).filter(d => d && d !== '一般' && !/^外帶|外送$/.test(d))[0];
+    const bookable = restaurant.bookable;
+    const budget = restaurant.budget || '';
+    const { diningTime, openNow } = context;
+
+    const has = (arr, ...needles) => needles.some(n => arr.some(x => x && x.includes(n)));
+
+    const pool = [];
+
+    // 料理 / 類型導向
+    if (has(types, '燒肉', '烤肉') || has(cuisines, '燒肉')) {
+        pool.push('肉食控的命運抽選', '今天就是想吃肉');
+    }
+    if (has(types, '火鍋', '鍋物') || has(cuisines, '火鍋')) {
+        pool.push('一鍋熱湯解決今天', '抽到鍋物的命運');
+    }
+    if (has(types, '居酒屋', '餐酒', '酒吧', 'Lounge', 'Bar')) {
+        if (diningTime !== 'lunch') pool.push('下班想喝兩杯就這家', '小酌一下吧');
+    }
+    if (has(types, '咖啡', 'Cafe', '甜點')) {
+        pool.push('來點甜的解壓', '咖啡因補給站');
+    }
+    if (has(cuisines, '日式', '日本')) pool.push('精緻日式給今天加分');
+    if (has(cuisines, '韓式', '韓國')) pool.push('來點韓國風味');
+    if (has(cuisines, '泰式', '東南亞')) pool.push('辛香料的命運安排');
+    if (has(types, '吃到飽', '放題', 'Buffet')) pool.push('放開吃就對了');
+
+    // 預算導向
+    if (/200/.test(budget) && !/500/.test(budget)) {
+        pool.push('銅板價的好選擇');
+    } else if (/1500|1000-1500/.test(budget)) {
+        pool.push('值得犒賞自己一頓');
+    }
+
+    // 招牌菜（最具體的賣點）
+    if (dish) pool.push(`為了${dish}值得一試`, `招牌${dish}在等你`);
+
+    // 訂位 + 現在營業
+    if (bookable && openNow) pool.push('現在就能訂位入座');
+    else if (bookable) pool.push('趕快訂位卡個位');
+
+    // 兜底（避免空陣列）
+    if (pool.length === 0) {
+        pool.push('命運就是這家了', '機率讓你來這', '不選白不選', '就試試看吧');
+    }
+
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/**
  * 初始化照片輪播功能
  */
 export function initImageCarousels() {

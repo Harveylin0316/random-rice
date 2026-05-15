@@ -725,6 +725,7 @@
 
   /* Restaurant card */
   .restaurant-card {
+    position: relative;
     background: var(--color-bg-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
@@ -733,6 +734,62 @@
     transition: box-shadow var(--duration-fast) var(--ease-out),
                 transform var(--duration-fast) var(--ease-out);
     animation: card-enter var(--duration-normal) var(--ease-out) backwards;
+  }
+  .restaurant-card.is-refreshing {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .restaurant-card.is-new {
+    animation: card-enter var(--duration-normal) var(--ease-out);
+  }
+
+  /* 「換這張」浮動按鈕 */
+  .card-refresh {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    z-index: var(--z-raised);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out),
+                transform var(--duration-fast) var(--ease-out);
+  }
+  .card-refresh svg {
+    width: 18px;
+    height: 18px;
+  }
+  .card-refresh:hover {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
+  .card-refresh:active {
+    transform: scale(0.92);
+  }
+  .card-refresh:focus-visible {
+    box-shadow: var(--shadow-focus);
+  }
+  .restaurant-card.is-refreshing .card-refresh svg {
+    animation: spin 600ms linear infinite;
+  }
+
+  /* 籤詩短語 */
+  .restaurant-omikuji {
+    font-size: var(--font-size-sm);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-snug);
+    margin-bottom: var(--space-2);
+    letter-spacing: 0.01em;
   }
   .restaurant-card:hover {
     box-shadow: var(--shadow-md);
