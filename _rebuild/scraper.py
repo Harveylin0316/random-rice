@@ -17,6 +17,46 @@ DAY_CH = {'一': 'monday', '二': 'tuesday', '三': 'wednesday',
           '四': 'thursday', '五': 'friday', '六': 'saturday', '日': 'sunday'}
 
 
+def parse_day_range(date_txt: str):
+    """從「星期一至二」「星期三、五」「星期日」等解析出 day_key list
+
+    OpenRice 把連續多天同時段合併寫成「星期 X 至 Y」，原本 first-hit
+    匹配會漏掉中間／結尾的日子，這裡明確展開範圍。
+    """
+    txt = (date_txt or '').replace('星期', '').strip()
+
+    # 範圍：「一至二」「三至四」（包含端點）
+    if '至' in txt:
+        parts = [p.strip() for p in txt.split('至')]
+        if len(parts) == 2 and parts[0] in DAY_CH and parts[1] in DAY_CH:
+            si = DAYS.index(DAY_CH[parts[0]])
+            ei = DAYS.index(DAY_CH[parts[1]])
+            if si <= ei:
+                return DAYS[si:ei + 1]
+            # 跨週（罕見）：例如「星期六至日」之外的特殊組合，給端點兩天即可
+            return [DAYS[si], DAYS[ei]]
+
+    # 列表：「一、三、五」「一,三,五」
+    if any(sep in txt for sep in ['、', ',', '，']):
+        days = []
+        for ch in re.split(r'[、,，]', txt):
+            ch = ch.strip()
+            if ch in DAY_CH:
+                days.append(DAY_CH[ch])
+        if days:
+            return days
+
+    # 單日
+    if txt in DAY_CH:
+        return [DAY_CH[txt]]
+
+    # Fallback：找第一個匹配字
+    for ch, en in DAY_CH.items():
+        if ch in txt:
+            return [en]
+    return []
+
+
 def make_session() -> requests.Session:
     s = requests.Session()
     retry = Retry(total=3, backoff_factor=1.5, status_forcelist=[429, 500, 502, 503, 504])
@@ -87,8 +127,8 @@ def parse_openrice_page(html: str) -> dict:
             if not (date_e and time_e):
                 continue
             date_txt = date_e.get_text(strip=True)
-            day_key = next((en for ch, en in DAY_CH.items() if ch in date_txt), None)
-            if not day_key:
+            day_keys = parse_day_range(date_txt)
+            if not day_keys:
                 continue
             divs = time_e.find_all('div')
             slots = []
@@ -100,7 +140,8 @@ def parse_openrice_page(html: str) -> dict:
                 for ln in time_e.get_text(strip=True).split('\n'):
                     ln = ln.strip()
                     if ln: slots.append(ln)
-            hours[day_key] = slots
+            for dk in day_keys:
+                hours[dk] = slots
     out['opening_hours'] = hours
 
     # images
