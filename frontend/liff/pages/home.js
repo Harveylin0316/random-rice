@@ -237,8 +237,9 @@ function setupLocationModeHandlers() {
                 if (locationStatus) {
                     locationStatus.style.display = 'none';
                 }
+                // 切離 nearby 模式時，重設交通方式為預設「走路」
                 const transportRadios = document.querySelectorAll('input[name="transport"]');
-                transportRadios.forEach(r => r.checked = false);
+                transportRadios.forEach(r => r.checked = (r.value === 'walking'));
             }
             
             if (mode !== 'area') {
