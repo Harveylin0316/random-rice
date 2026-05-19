@@ -107,6 +107,21 @@ export function getOpeningStatus(openingHours, now = new Date()) {
             openNow: false,
         };
     }
+    // 過了今天所有營業時段：可能是真的打烊，也可能是 OpenRice 資料只給了部分時段。
+    // 為避免誤導，顯示營業時段列表讓使用者自己判斷，而不是絕對地說「已打烊」。
+    const formattedSlots = todaySlots
+        .map(s => {
+            const [o, c] = (s || '').split('-').map(x => x?.trim());
+            return o && c ? `${o}-${c}` : null;
+        })
+        .filter(Boolean);
+    if (formattedSlots.length > 0) {
+        return {
+            status: 'closed-today',
+            label: `今日 ${formattedSlots.join('、')}`,
+            openNow: false,
+        };
+    }
     return { status: 'closed-today', label: '今日已打烊', openNow: false };
 }
 
