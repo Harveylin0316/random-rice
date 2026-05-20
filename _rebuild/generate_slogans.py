@@ -29,24 +29,37 @@ if not GEMINI_API_KEY:
 GEMINI_BASE = os.environ.get('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com')
 MODEL = 'gemini-2.5-flash'
 
-SYSTEM_PROMPT = """你是台灣餐廳行銷文案專家，為「隨機抽餐廳」App 卡片頂部寫趣味 slogan。
+SYSTEM_PROMPT = """你是台灣餐廳文案專家，為「隨機抽餐廳」App 卡片頂部寫趣味 slogan。
 
-【最重要】根據餐廳「名稱」判斷實際類型（OpenRice 標籤常常錯，例：「犇鐵板燒」要看出是鐵板燒、「Butcher 一極肉舖」要看出是肉舖／餐酒館）。
+【判斷餐廳類型的優先序】
+1. 真實食客評論摘錄（如有提供）← 最高優先
+2. 餐廳名稱（OpenRice 標籤常常錯：例鐵板燒被標義大利料理、肉舖被標咖啡廳）
+3. OpenRice 標籤（最低優先，僅供交叉驗證）
 
-風格要求：
-- 長度嚴格 8-13 字（含標點），繁體中文
-- 像跟朋友隨口說的話，不是廣告詞
-- 不要寫「歡迎光臨」「美食推薦」「天選之人」「運氣爆棚」「人品大爆發」這種誇張腔
-- 不要每條都用「命運」「骰子」開頭
-- 可以提餐廳特色（鐵板燒、肉舖、酒吧、南洋、義式...）但不要提具體菜名
-- 五條句型要有變化（不要都同結構）
+【絕對禁止 — 違反就重寫】
+1. **任何台灣地名／街道／商圈／夜市／景點／行政區一律禁用**。包含但不限於：永康街、東門、信義區、西門町、寧夏夜市、五分埔、士林、安和路、忠孝東路、敦化、台中草悟道、高雄駁二、宜蘭冬山……。即使你從訓練資料「知道」這家店在哪，也不可寫地名。
+   - 反例：「永康街小店」「冬山質感選擇」「東門名店」← 都禁止
+   - 正例（如要描述地點）：「市區轉角」「街邊小店」「鬧區裡的」
+2. 不可寫廣告腔：歡迎光臨、美食推薦、天選之人、運氣爆棚、人品大爆發、味蕾旅行、療癒你的胃
+3. 不可寫具體菜名（除非食記反覆提到，且是該店真招牌）
+4. 不可五條都用「想吃 X」「今晚 X」「下班 X」這類同句型開頭
+5. 不可寫「下班怒吃」「犒賞自己」「療癒你身心」這種濫用詞
 
-風格範例（口吻參考）：
-- 想吃肉肉？來這就對了
+【五條 slogan 必須分五種角度】
+- 第 1 條：實際特色（從名稱／食記判斷的真實類型，例：鐵板燒、肉舖、餐酒館、咖啡廳）
+- 第 2 條：適合的場景（聚餐／小酌／一個人吃／聚會）
+- 第 3 條：呼應「隨機抽到」的趣味（命運、骰子、就決定是你）
+- 第 4 條：氛圍／口感／價位的描述
+- 第 5 條：短金句（5-8 字）
+
+【長度】每條 8-13 字（含標點）；短金句條 5-8 字。繁體中文。
+
+【良好範例】
 - 鐵板秀今晚就看你
-- 下班想喝兩杯就這家
-- 銅板價的好選擇
-- 今天讓南洋療癒你
+- 想小酌就找這家
+- 抽到肉食控的命運
+- 平價也吃得開心
+- 就決定是它了
 
 輸出格式：嚴格五行，每行一句，無編號、無引號、無解釋、無 markdown。"""
 
@@ -55,12 +68,17 @@ USER_PROMPT_TEMPLATE = """餐廳資料：
 - 地址：{address}
 - 區域：{region} / {district}
 - 預算：{budget}
-- OpenRice 標籤（僅參考、可能不準）：料理={cuisines}，類型={types}
-
+- OpenRice 標籤（僅供交叉驗證、可能不準）：料理={cuisines}，類型={types}
+{reviews_section}
 請生五條 slogan。"""
 
+REVIEWS_SECTION_TEMPLATE = """- 真實食客評論摘錄（重要參考）：
+{reviews}
+"""
 
-def generate_for_restaurant(r):
+
+def generate_for_restaurant(r, reviews_excerpts=None):
+    """reviews_excerpts: list[str]，每條為食記摘錄。沒給就只用結構化資料。"""
     name = r.get('name', '')
     address = r.get('address', '')
     region = r.get('region', '')
@@ -69,15 +87,23 @@ def generate_for_restaurant(r):
     cuisines = ', '.join(r.get('cuisine_style') or []) or '無'
     types = ', '.join(r.get('type') or []) or '無'
 
+    if reviews_excerpts:
+        # 限制總長度避免 prompt 過長
+        joined = '\n'.join(f'  · 「{e}」' for e in reviews_excerpts[:3])
+        reviews_section = REVIEWS_SECTION_TEMPLATE.format(reviews=joined)
+    else:
+        reviews_section = ''
+
     user_prompt = USER_PROMPT_TEMPLATE.format(
         name=name, address=address, region=region, district=district,
         budget=budget, cuisines=cuisines, types=types,
+        reviews_section=reviews_section,
     )
 
     payload = {
         'systemInstruction': {'parts': [{'text': SYSTEM_PROMPT}]},
         'contents': [{'role': 'user', 'parts': [{'text': user_prompt}]}],
-        'generationConfig': {'temperature': 0.9, 'maxOutputTokens': 600, 'thinkingConfig': {'thinkingBudget': 0}},
+        'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 600, 'thinkingConfig': {'thinkingBudget': 0}},
     }
     url = f'{GEMINI_BASE}/v1beta/models/{MODEL}:generateContent?key={GEMINI_API_KEY}'
     r = requests.post(url, json=payload, timeout=30)
@@ -119,22 +145,20 @@ def main():
     db = data['restaurants']
 
     if args.spike:
-        # spike 兩家用戶提到的問題店
-        targets = [r for r in db if r.get('or_id') in {553995, 226660}]  # placeholder
-        # 改：找用戶提到的兩家
+        # 之前 sample 看到的「問題店」 + 對照組
+        target_names = [
+            '犇鐵板燒 安和本館',           # OR 標日法義料理但實際鐵板燒
+            'Butcher Restaurant by EZ-MEAT 一極肉舖',  # OR 標咖啡廳實際肉舖餐酒
+            'mo labo 墨拿',                # OR 標籤空、之前 LLM 編出永康街
+            '金豬食堂',                    # OR 標籤空、之前 LLM 猜韓式
+            '日光私廚',                    # 義式但之前「私廚約會」調性怪
+            '椰糖 Coconut Sugar 南洋餐事', # 對照組
+        ]
         targets = []
-        for r in db:
-            if '犇鐵板燒' in r.get('name', '') and '安和' in r.get('name', ''):
-                targets.append(r)
-            if 'Butcher' in r.get('name', '') and 'EZ-MEAT' in r.get('name', ''):
-                targets.append(r)
-        # 再加一兩家對照
-        for r in db:
-            if r.get('name') == '椰糖 Coconut Sugar 南洋餐事':
-                targets.append(r); break
-        for r in db:
-            if 'EZO' in r.get('name','').upper():
-                targets.append(r); break
+        for name in target_names:
+            for r in db:
+                if r.get('name') == name:
+                    targets.append(r); break
         print(f'Spike: {len(targets)} 家')
         for r in targets:
             print(f'\n--- {r["name"]} ---')
