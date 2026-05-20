@@ -657,6 +657,8 @@ function displayAd(ad) {
     const restaurantList = document.getElementById('restaurantList');
     const results = document.getElementById('results');
 
+    // 廣告模式：隱藏「抽到這家」標題（避免誤導，廣告不是餐廳），視覺聚焦在廣告卡
+    if (results) results.classList.add('is-ad');
     if (resultCount) resultCount.textContent = '';
 
     if (restaurantList) {
@@ -693,6 +695,9 @@ function displayResults(restaurants) {
     const resultCount = document.getElementById('resultCount');
     const restaurantList = document.getElementById('restaurantList');
     const results = document.getElementById('results');
+
+    // 取消廣告模式（廣告完還原成餐廳模式）
+    if (results) results.classList.remove('is-ad');
 
     console.log('displayResults 被調用，餐廳數量:', restaurants.length);
 

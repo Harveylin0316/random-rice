@@ -862,6 +862,27 @@
     box-shadow: var(--shadow-focus);
   }
 
+  /* 廣告模式：聚焦廣告卡，隱藏「抽到這家」標題、廣告卡留更多空間 */
+  .results.is-ad .results-title {
+    display: none;
+  }
+  .results.is-ad .ad-card {
+    padding: var(--space-10) var(--space-6) var(--space-8);
+  }
+  .results.is-ad .ad-card__icon {
+    width: 72px;
+    height: 72px;
+    margin-bottom: var(--space-5);
+  }
+  .results.is-ad .ad-card__icon svg {
+    width: 36px;
+    height: 36px;
+  }
+  .results.is-ad .ad-card__title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-4);
+  }
+
   /* Restaurant card */
   .restaurant-card {
     position: relative;
