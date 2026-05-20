@@ -28,6 +28,28 @@ let userLocation = null;
 let displayedRestaurants = [];
 let locationRequestInProgress = false;
 
+// 廣告插入：每抽 N 次插一個 OpenRice 小知識
+const AD_EVERY = 3;
+let drawCount = 0;
+let adIndex = 0;
+const ADS = [
+    {
+        icon: 'icon-gift',
+        title: '獨家優惠',
+        body: '很多餐廳在 OpenRice 都有獨家優惠，訂位前不妨先看看餐廳頁面有沒有驚喜。',
+    },
+    {
+        icon: 'icon-wallet',
+        title: '訂位現金回饋',
+        body: '每次透過 OpenRice 訂位，都能拿到現金或航空里程回饋，吃飯也能存錢。',
+    },
+    {
+        icon: 'icon-clock',
+        title: '冷門時段折扣',
+        body: '想省一點？很多餐廳在午茶、下午、宵夜這種冷門時段有大幅度折扣。',
+    },
+];
+
 // 更新「使用我的位置」按鈕內的文字（保留旁邊的 SVG icon）
 function setLocationBtnText(text) {
     const el = document.getElementById('getLocationBtnText');
@@ -396,6 +418,10 @@ function setupFormSubmit() {
             const formData = collectFormData();
             console.log('表單資料:', formData);
 
+            // 重置整個 session（新表單提交視為新一輪）
+            displayedRestaurants = [];
+            drawCount = 0;
+
             // 擲骰動畫至少跑 1 秒（即使 API 更快回來）
             // 一次只抽 1 間，強化「抽獎」感
             const minDelay = new Promise(r => setTimeout(r, 1000));
@@ -405,6 +431,7 @@ function setupFormSubmit() {
             ]);
             console.log('API 返回的餐廳數量:', restaurants.length);
 
+            drawCount = 1;
             displayedRestaurants = restaurants.map(r => r.name);
             displayResults(restaurants);
 
@@ -617,6 +644,33 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     `;
 }
 
+// 顯示 OpenRice 小知識廣告卡（取代當次的抽店）
+function displayAd(ad) {
+    const resultCount = document.getElementById('resultCount');
+    const restaurantList = document.getElementById('restaurantList');
+    const results = document.getElementById('results');
+
+    if (resultCount) resultCount.textContent = '';
+
+    if (restaurantList) {
+        restaurantList.innerHTML = `
+            <div class="ad-card">
+                <div class="ad-card__badge">OpenRice 小知識</div>
+                <div class="ad-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><use href="#${ad.icon}"></use></svg>
+                </div>
+                <h3 class="ad-card__title">${ad.title}</h3>
+                <p class="ad-card__body">${ad.body}</p>
+            </div>
+        `;
+    }
+
+    if (results) {
+        results.style.display = 'block';
+        results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
 // 顯示結果（一次只 1 間）
 function displayResults(restaurants) {
     const resultCount = document.getElementById('resultCount');
@@ -739,21 +793,36 @@ function setupResetButton() {
         resetBtn.disabled = true;
         
         try {
-            const formData = collectFormData();
-            // 再抽一次：累加排除已看過的，跑擲骰動畫，再抽 1 間
+            // 每抽 AD_EVERY 次插入一個 OpenRice 小知識廣告
+            // drawCount 是「上一次完成的抽次數」，這次按下去 +1 後若整除 → 廣告
+            const nextDrawNumber = drawCount + 1;
+            const showAd = nextDrawNumber % AD_EVERY === 0;
+
             const minDelay = new Promise(r => setTimeout(r, 1000));
-            const [restaurants] = await Promise.all([
-                fetchRecommendations(formData, displayedRestaurants, 1),
-                minDelay,
-            ]);
 
-            if (restaurants.length === 0) {
-                showError('沒抽到符合條件的餐廳，要不要放寬條件再抽一次？');
-                return;
+            if (showAd) {
+                // 廣告不打 API，但保留擲骰動畫節奏一致
+                await minDelay;
+                const ad = ADS[adIndex % ADS.length];
+                adIndex++;
+                drawCount = nextDrawNumber;
+                displayAd(ad);
+            } else {
+                const formData = collectFormData();
+                const [restaurants] = await Promise.all([
+                    fetchRecommendations(formData, displayedRestaurants, 1),
+                    minDelay,
+                ]);
+
+                if (restaurants.length === 0) {
+                    showError('沒抽到符合條件的餐廳，要不要放寬條件再抽一次？');
+                    return;
+                }
+
+                drawCount = nextDrawNumber;
+                displayedRestaurants.push(...restaurants.map(r => r.name));
+                displayResults(restaurants);
             }
-
-            displayedRestaurants.push(...restaurants.map(r => r.name));
-            displayResults(restaurants);
             
         } catch (err) {
             showError(err.message || '抽選失敗，請稍後再試');

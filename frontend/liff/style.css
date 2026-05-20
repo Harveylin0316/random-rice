@@ -847,6 +847,59 @@
     gap: var(--space-4);
   }
 
+  /* OpenRice 小知識廣告卡 */
+  .ad-card {
+    position: relative;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8) var(--space-6) var(--space-6);
+    text-align: center;
+    box-shadow: var(--shadow-xs);
+    animation: card-enter var(--duration-normal) var(--ease-out) backwards;
+  }
+  .ad-card__badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent-text);
+    background: var(--color-accent-subtle);
+    padding: 4px var(--space-2);
+    border-radius: var(--radius-full);
+    letter-spacing: 0.05em;
+  }
+  .ad-card__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-4);
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ad-card__icon svg {
+    width: 32px;
+    height: 32px;
+  }
+  .ad-card__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-3);
+    line-height: var(--line-height-tight);
+  }
+  .ad-card__body {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-body);
+    margin: 0 auto;
+    max-width: 28em;
+  }
+
   /* Restaurant card */
   .restaurant-card {
     position: relative;
