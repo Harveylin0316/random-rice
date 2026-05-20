@@ -424,7 +424,7 @@ function setupFormSubmit() {
 
             // 擲骰動畫至少跑 1 秒（即使 API 更快回來）
             // 一次只抽 1 間，強化「抽獎」感
-            const minDelay = new Promise(r => setTimeout(r, 1000));
+            const minDelay = new Promise(r => setTimeout(r, 500));
             const [restaurants] = await Promise.all([
                 fetchRecommendations(formData, [], 1),
                 minDelay,
@@ -798,7 +798,7 @@ function setupResetButton() {
             const nextDrawNumber = drawCount + 1;
             const showAd = nextDrawNumber % AD_EVERY === 0;
 
-            const minDelay = new Promise(r => setTimeout(r, 1000));
+            const minDelay = new Promise(r => setTimeout(r, 500));
 
             if (showAd) {
                 // 廣告不打 API，但保留擲骰動畫節奏一致
