@@ -29,7 +29,7 @@ let displayedRestaurants = [];
 let locationRequestInProgress = false;
 
 // 廣告插入：每抽 N 次插一個 OpenRice 小知識
-const AD_EVERY = 3;
+const AD_EVERY = 4;
 let drawCount = 0;
 let adIndex = 0;
 const ADS = [
@@ -47,6 +47,13 @@ const ADS = [
         icon: 'icon-clock',
         title: '冷門時段折扣',
         body: '想省一點？很多餐廳在午茶、下午、宵夜這種冷門時段有大幅度折扣。',
+    },
+    {
+        icon: 'icon-instagram',
+        title: '追蹤 OpenRice IG',
+        body: '探店短影片每週更新，找下一頓飯的靈感就在這。',
+        url: 'https://www.instagram.com/openricetw/',
+        ctaText: '立即追蹤',
     },
 ];
 
@@ -653,6 +660,9 @@ function displayAd(ad) {
     if (resultCount) resultCount.textContent = '';
 
     if (restaurantList) {
+        const ctaHtml = ad.url
+            ? `<a href="${ad.url}" target="_blank" rel="noopener" class="ad-card__cta">${ad.ctaText || '前往看看'}</a>`
+            : '';
         restaurantList.innerHTML = `
             <div class="ad-card">
                 <div class="ad-card__badge">OpenRice 小知識</div>
@@ -661,6 +671,7 @@ function displayAd(ad) {
                 </div>
                 <h3 class="ad-card__title">${ad.title}</h3>
                 <p class="ad-card__body">${ad.body}</p>
+                ${ctaHtml}
             </div>
         `;
     }

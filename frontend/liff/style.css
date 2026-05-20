@@ -834,6 +834,31 @@
     margin: 0 auto;
     max-width: 28em;
   }
+  .ad-card__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-inverse);
+    background: var(--color-accent);
+    border: 1px solid var(--gray-900);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background var(--duration-fast) var(--ease-out),
+                transform var(--duration-fast) var(--ease-out);
+  }
+  .ad-card__cta:hover {
+    background: var(--color-accent-hover);
+  }
+  .ad-card__cta:active {
+    transform: scale(0.97);
+  }
+  .ad-card__cta:focus-visible {
+    box-shadow: var(--shadow-focus);
+  }
 
   /* Restaurant card */
   .restaurant-card {
