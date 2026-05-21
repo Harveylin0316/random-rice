@@ -165,7 +165,14 @@
                     <div id="locationStatus" class="location-status" style="display: none;" role="status" aria-live="polite"></div>
                     <div class="transport-options">
                         <label class="transport-option">
-                            <input type="radio" name="transport" value="walking" checked>
+                            <input type="radio" name="transport" value="any" checked>
+                            <div class="transport-card">
+                                <svg class="icon-svg" aria-hidden="true"><use href="#icon-shuffle"></use></svg>
+                                <span class="transport-text">不限（5km 內）</span>
+                            </div>
+                        </label>
+                        <label class="transport-option">
+                            <input type="radio" name="transport" value="walking">
                             <div class="transport-card">
                                 <svg class="icon-svg" aria-hidden="true"><use href="#icon-walk"></use></svg>
                                 <span class="transport-text">走路 10 分鐘內</span>

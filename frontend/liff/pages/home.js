@@ -288,9 +288,9 @@ function setupLocationModeHandlers() {
                 if (locationStatus) {
                     locationStatus.style.display = 'none';
                 }
-                // 切離 nearby 模式時，重設交通方式為預設「走路」
+                // 切離 nearby 模式時，重設交通方式為預設「不限」
                 const transportRadios = document.querySelectorAll('input[name="transport"]');
-                transportRadios.forEach(r => r.checked = (r.value === 'walking'));
+                transportRadios.forEach(r => r.checked = (r.value === 'any'));
             }
             
             if (mode !== 'area') {
@@ -570,6 +570,9 @@ function collectFormData() {
             formData.maxDistance = 0.5;
         } else if (transportRadio.value === 'driving') {
             formData.maxDistance = 3.0;
+        } else {
+            // 'any' / 不限：5km 同城附近（再大就脫離「附近」語意）
+            formData.maxDistance = 5.0;
         }
     } else if (locationMode === 'area') {
         const citySelect = document.getElementById('citySelect');
