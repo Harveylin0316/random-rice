@@ -31,7 +31,27 @@ let locationRequestInProgress = false;
 // 廣告插入：每抽 N 次插一個 OpenRice 小知識
 const AD_EVERY = 4;
 let drawCount = 0;
-let adIndex = 0;
+// 廣告抽選用 shuffled queue：每輪洗牌一次，pop 完再洗
+// 比純 random 好：每 ADS.length 次必看完所有廣告，且本輪不重複
+let adQueue = [];
+let lastAdIdx = -1;
+function pickNextAd() {
+    if (adQueue.length === 0) {
+        adQueue = ADS.map((_, i) => i);
+        for (let i = adQueue.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [adQueue[i], adQueue[j]] = [adQueue[j], adQueue[i]];
+        }
+        // 防呆：新一輪第一個（queue 末尾）若跟上次一樣，跟前一個 swap
+        if (ADS.length > 1 && adQueue[adQueue.length - 1] === lastAdIdx) {
+            const last = adQueue.length - 1;
+            [adQueue[last], adQueue[last - 1]] = [adQueue[last - 1], adQueue[last]];
+        }
+    }
+    const idx = adQueue.pop();
+    lastAdIdx = idx;
+    return ADS[idx];
+}
 const ADS = [
     {
         icon: 'icon-gift',
@@ -827,8 +847,7 @@ function setupResetButton() {
             if (showAd) {
                 // 廣告不打 API，但保留擲骰動畫節奏一致
                 await minDelay;
-                const ad = ADS[adIndex % ADS.length];
-                adIndex++;
+                const ad = pickNextAd();
                 drawCount = nextDrawNumber;
                 displayAd(ad);
             } else {
