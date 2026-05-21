@@ -2,6 +2,7 @@
 // 負責 LIFF 初始化和路由管理
 
 import { initRouter } from './pages/router.js';
+import { track, setUserContext } from './shared/tracker.js';
 
 // LINE LIFF ID（需要在 LINE Developers Console 獲取）
 // 優先順序：1. URL 參數 2. 環境變數 3. 默認值
@@ -71,7 +72,16 @@ async function initLiff() {
             // liff.login();
             console.log('用戶未登入');
         }
-        
+
+        // 設定 tracker 用戶 context + 送 app_open 事件
+        setUserContext({
+            line_id: liffProfile?.userId || null,
+            is_in_line: liff.isInClient(),
+            os: liff.getOS(),
+            language: liff.getLanguage(),
+        });
+        track('app_open', { logged_in: liff.isLoggedIn() });
+
         // 隱藏 LIFF 載入畫面
         if (liffLoading) liffLoading.style.display = 'none';
         
@@ -125,6 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (params.get('dev') === '1') {
         console.log('[dev] Bypassing LIFF init');
         if (liffLoading) liffLoading.style.display = 'none';
+        // dev 模式也送 app_open（line_id 為 null）
+        setUserContext({ is_in_line: false, os: 'dev', language: navigator.language });
+        track('app_open', { dev: true });
         initRouter();
         return;
     }

@@ -11,6 +11,8 @@ import {
     fetchRecommendations
 } from '../shared/api.js';
 import { filterGeneralTags, initImageCarousels, calculateDistance, formatDistance, getOpeningStatus, generateOmikuji } from '../shared/utils.js';
+import { getLiff, getLiffProfile } from '../app.js';
+import { track } from '../shared/tracker.js';
 
 // 頁面狀態
 let filterOptions = {
@@ -449,6 +451,16 @@ function setupFormSubmit() {
             displayedRestaurants = [];
             drawCount = 0;
 
+            track('submit_draw', {
+                cuisine_style: formData.cuisine_style || null,
+                budget: formData.budget || null,
+                diningTime: formData.diningTime || null,
+                city: formData.city || null,
+                district: formData.district || null,
+                location_mode: formData.userLocation ? 'nearby' : 'area',
+                transport: formData.transportMode || null,
+            });
+
             // 擲骰動畫至少跑 1 秒（即使 API 更快回來）
             // 一次只抽 1 間，強化「抽獎」感
             const minDelay = new Promise(r => setTimeout(r, 500));
@@ -630,7 +642,13 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
         ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address)}" target="_blank" rel="noopener" class="restaurant-btn navigation-btn">導航</a>`
         : '';
 
+    // 暫存當前餐廳資料給分享按鈕用（單卡模式只有一張，安全）
+    window.__currentRestaurant = restaurant;
+
     return `
+        <button type="button" class="card-share" aria-label="分享給朋友">
+            <svg aria-hidden="true"><use href="#icon-share"></use></svg>
+        </button>
         ${hasImages ? `
             <div class="restaurant-image-container" data-card-index="${cardIndex}">
                 <div class="image-carousel" data-carousel="${cardIndex}">
@@ -665,6 +683,86 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     `;
 }
 
+// 分享當前抽到的餐廳給 LINE 好友 / 外部分享
+async function shareRestaurant(restaurant) {
+    const profile = getLiffProfile();
+    const sharerName = profile?.displayName || '我';
+    const altText = `${sharerName}抽到「${restaurant.name}」，一起去吃？`;
+    const bookingUrl = restaurant.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name + ' ' + (restaurant.address || ''))}`;
+    const heroImage = (restaurant.images || [])[0];
+
+    // 1) LINE 內：用 Flex Message
+    const liff = getLiff();
+    if (liff && liff.isApiAvailable && liff.isApiAvailable('shareTargetPicker')) {
+        const flex = buildShareFlex(restaurant, sharerName, bookingUrl, heroImage);
+        try {
+            const result = await liff.shareTargetPicker([{ type: 'flex', altText, contents: flex }]);
+            if (result && result.status === 'success') {
+                console.log('[share] 已分享');
+            }
+        } catch (err) {
+            console.error('[share] LIFF share 失敗:', err);
+        }
+        return;
+    }
+
+    // 2) 外部：Web Share API
+    const text = `${altText}\n${bookingUrl}`;
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: restaurant.name, text, url: bookingUrl });
+        } catch (e) { /* 用戶取消，靜默 */ }
+        return;
+    }
+
+    // 3) Fallback：複製連結
+    try {
+        await navigator.clipboard.writeText(`${altText}\n${bookingUrl}`);
+        alert('已複製分享連結，可貼給朋友');
+    } catch {
+        prompt('複製這段分享給朋友：', `${altText}\n${bookingUrl}`);
+    }
+}
+
+function buildShareFlex(restaurant, sharerName, bookingUrl, heroImage) {
+    const bodyContents = [
+        { type: 'text', text: `${sharerName}抽到的店`, size: 'xs', color: '#8B5A00', weight: 'bold' },
+        { type: 'text', text: restaurant.name, size: 'xl', weight: 'bold', wrap: true, margin: 'sm' },
+    ];
+    if (restaurant.address) {
+        bodyContents.push({ type: 'text', text: restaurant.address, size: 'sm', color: '#666666', wrap: true, margin: 'sm' });
+    }
+    const tags = [
+        ...filterGeneralTags(restaurant.cuisine_style || []),
+        ...filterGeneralTags(restaurant.type || []).slice(0, 2),
+        restaurant.budget ? `${restaurant.budget} 元` : null,
+    ].filter(Boolean).slice(0, 4);
+    if (tags.length > 0) {
+        bodyContents.push({
+            type: 'text',
+            text: tags.join('・'),
+            size: 'xs', color: '#999999', wrap: true, margin: 'md',
+        });
+    }
+
+    const bubble = {
+        type: 'bubble',
+        body: { type: 'box', layout: 'vertical', contents: bodyContents, paddingAll: 'lg' },
+        footer: {
+            type: 'box', layout: 'vertical', spacing: 'sm',
+            contents: [
+                { type: 'button', style: 'primary', color: '#FFCC00',
+                  action: { type: 'uri', label: '查看 / 訂位', uri: bookingUrl } },
+            ],
+            paddingAll: 'lg',
+        },
+    };
+    if (heroImage) {
+        bubble.hero = { type: 'image', url: heroImage, size: 'full', aspectRatio: '20:13', aspectMode: 'cover' };
+    }
+    return bubble;
+}
+
 // 顯示 OpenRice 小知識廣告卡（取代當次的抽店）
 function displayAd(ad) {
     const resultCount = document.getElementById('resultCount');
@@ -691,6 +789,13 @@ function displayAd(ad) {
                 ${ctaHtml}
             </div>
         `;
+        track('ad_shown', { ad_title: ad.title, ad_icon: ad.icon });
+        const cta = restaurantList.querySelector('.ad-card__cta');
+        if (cta) {
+            cta.addEventListener('click', () => {
+                track('ad_cta_click', { ad_title: ad.title, url: ad.url });
+            });
+        }
     }
 
     if (results) {
@@ -731,6 +836,37 @@ function displayResults(restaurants) {
     if (restaurantList) {
         const r = restaurants[0];
         restaurantList.innerHTML = `<div class="restaurant-card">${buildCardHTML(r, 0)}</div>`;
+        track('result_shown', {
+            or_id: r.or_id, name: r.name, draw_count: displayedRestaurants.length,
+        });
+        // 綁定分享按鈕
+        const shareBtn = restaurantList.querySelector('.card-share');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.__currentRestaurant) {
+                    track('share_click', {
+                        or_id: window.__currentRestaurant.or_id,
+                        name: window.__currentRestaurant.name,
+                    });
+                    shareRestaurant(window.__currentRestaurant);
+                }
+            });
+        }
+        // 餐廳卡上 a 連結（查看 / 訂位、導航）的點擊也追蹤
+        restaurantList.querySelectorAll('.booking-btn').forEach(el => {
+            el.addEventListener('click', () => {
+                track('restaurant_click', {
+                    or_id: r.or_id, name: r.name, url: r.url,
+                    draw_count: displayedRestaurants.length,
+                });
+            });
+        });
+        restaurantList.querySelectorAll('.navigation-btn').forEach(el => {
+            el.addEventListener('click', () => {
+                track('navigation_click', { or_id: r.or_id, name: r.name });
+            });
+        });
     }
 
     initImageCarousels();
@@ -837,6 +973,8 @@ function setupResetButton() {
         resetBtn.disabled = true;
         
         try {
+            track('redraw', { current_draw_count: drawCount });
+
             // 每抽 AD_EVERY 次插入一個 OpenRice 小知識廣告
             // drawCount 是「上一次完成的抽次數」，這次按下去 +1 後若整除 → 廣告
             const nextDrawNumber = drawCount + 1;

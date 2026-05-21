@@ -39,6 +39,13 @@
   status = 200
   force = true
 
+# 用戶行為追蹤
+[[redirects]]
+  from = "/api/track"
+  to = "/.netlify/functions/track"
+  status = 200
+  force = true
+
 # LIFF App SPA 路由支持
 # 將所有 /liff/* 請求重定向到 /liff/index.html，以支持子目錄路由
 # 例如：/liff/home, /liff/favorites 等都會返回 /liff/index.html
