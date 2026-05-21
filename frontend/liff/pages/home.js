@@ -10,7 +10,7 @@ import {
     loadLocationOptions as apiLoadLocationOptions,
     fetchRecommendations
 } from '../shared/api.js';
-import { filterGeneralTags, initImageCarousels, calculateDistance, formatDistance, getOpeningStatus, generateOmikuji } from '../shared/utils.js';
+import { filterGeneralTags, initImageCarousels, calculateDistance, formatDistance, getOpeningStatus, generateOmikuji, generateEvidence } from '../shared/utils.js';
 import { getLiff, getLiffProfile } from '../app.js';
 import { track } from '../shared/tracker.js';
 
@@ -598,26 +598,23 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     const hasImages = images.length > 0;
     const canSlide = images.length > 1;
 
-    const diningTime = document.querySelector('input[name="diningTime"]:checked')?.value;
-    // 營業狀態 chip 暫時拿掉：DB 內 opening_hours 多筆過期 / OpenRice 範圍格式解析有 bug，
-    // 顯示「今日已打烊」會誤導。等下次完整重爬後再開回來。
-    // 但 omikuji 還是用 openNow 做語氣判斷（保留邏輯，避免籤詩語意斷裂）。
-    const oh = getOpeningStatus(restaurant.opening_hours);
-    const omikuji = generateOmikuji(restaurant, {
-        diningTime,
-        openNow: oh.openNow,
-        exclude: opts.usedOmikujis,
-    });
-    if (opts.usedOmikujis) opts.usedOmikujis.add(omikuji);
-
-    const metaParts = [];
+    // 距離（nearby mode 才有 userLocation）
+    let distance = null;
     if (userLocation && restaurant.coordinates?.lat && restaurant.coordinates?.lng) {
-        const d = calculateDistance(
+        distance = calculateDistance(
             userLocation.lat, userLocation.lng,
             restaurant.coordinates.lat, restaurant.coordinates.lng
         );
-        metaParts.push(`<span class="meta-chip">離你 ${formatDistance(d)}</span>`);
     }
+
+    // 真實事實證據（取代之前情緒型 LLM slogan）
+    const evidenceList = generateEvidence(restaurant, { distance });
+    const evidenceHtml = evidenceList.length
+        ? `<p class="restaurant-evidence">${evidenceList.join('・')}</p>`
+        : '';
+
+    // 訂位徽章維持（距離已寫進 evidence 不重複）
+    const metaParts = [];
     if (restaurant.bookable) {
         metaParts.push(`<span class="meta-chip is-accent">線上可訂位</span>`);
     }
@@ -675,7 +672,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
             <div class="restaurant-image-placeholder"><span>無照片</span></div>
         `}
         <div class="restaurant-info">
-            <p class="restaurant-omikuji">「${omikuji}」</p>
+            ${evidenceHtml}
             <h3 class="restaurant-name">${restaurant.name}</h3>
             <p class="restaurant-address">${restaurant.address}</p>
             ${metaHtml}

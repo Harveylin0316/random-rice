@@ -132,6 +132,69 @@ export function getOpeningStatus(openingHours, now = new Date()) {
  * @param {Object} context - { diningTime, openNow }
  * @returns {string} 短語
  */
+/**
+ * 從 DB 既有欄位推導餐廳的「真實」事實證據（取代情緒型 slogan）
+ * 純事實、無 LLM、無編造空間。按優先序挑前 2 條顯示。
+ * @param {Object} restaurant
+ * @param {Object} context - { distance } 距離單位公里（僅 nearby mode 有）
+ * @returns {string[]} 1-2 條事實短句
+ */
+export function generateEvidence(restaurant, context = {}) {
+    const facts = [];
+    const { distance } = context;
+
+    // 距離（最強說服力，nearby mode 才有）
+    if (typeof distance === 'number') {
+        if (distance < 0.3) {
+            facts.push({ p: 10, t: `離你 ${formatDistance(distance)}，走過去就到` });
+        } else if (distance < 1) {
+            facts.push({ p: 9, t: `離你 ${formatDistance(distance)}` });
+        } else if (distance < 3) {
+            facts.push({ p: 7, t: `離你 ${formatDistance(distance)}，捷運可達` });
+        } else {
+            facts.push({ p: 5, t: `離你 ${formatDistance(distance)}` });
+        }
+    }
+
+    // 預算（最直接的決策資訊）
+    const budget = restaurant.budget || '';
+    if (/200|100/.test(budget) && !/500|1000|1500/.test(budget)) {
+        facts.push({ p: 8, t: '人均 200 元以內，銅板價' });
+    } else if (/1500/.test(budget)) {
+        facts.push({ p: 7, t: '人均 1500 元以上，犒賞自己等級' });
+    } else if (/1000-1500|800-1000/.test(budget)) {
+        facts.push({ p: 6, t: `人均 ${budget} 元，預算中段` });
+    } else if (/500-800|501-1000|500-1000/.test(budget)) {
+        facts.push({ p: 6, t: `人均 ${budget} 元` });
+    } else if (/200-500|201-500/.test(budget)) {
+        facts.push({ p: 6, t: `人均 ${budget} 元` });
+    }
+
+    // 吃到飽（強訊號）
+    if (restaurant.is_buffet) {
+        facts.push({ p: 8, t: '吃到飽選擇' });
+    }
+
+    // 食客照片數（社會證據）
+    const imgCount = (restaurant.images || []).length;
+    if (imgCount >= 15) {
+        facts.push({ p: 7, t: `${imgCount}+ 張食客照片` });
+    } else if (imgCount >= 8) {
+        facts.push({ p: 5, t: `${imgCount} 張食客照片` });
+    }
+
+    // 訂位狀態已用獨立 meta-chip 顯示，不在 evidence 重複
+
+    // 多料理融合（限 fusion 才提，避免雜訊）
+    const cuisines = filterGeneralTags(restaurant.cuisine_style || []);
+    if (cuisines.length >= 3) {
+        facts.push({ p: 4, t: `${cuisines.length} 種料理融合` });
+    }
+
+    // 排序取前 2
+    return facts.sort((a, b) => b.p - a.p).slice(0, 2).map(f => f.t);
+}
+
 export function generateOmikuji(restaurant, context = {}) {
     const cuisines = restaurant.cuisine_style || [];
     const types = restaurant.type || [];
