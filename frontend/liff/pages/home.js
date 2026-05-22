@@ -674,7 +674,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     const typeTags = filterGeneralTags(restaurant.type || [])
         .map(t => `<span class="tag type">${t}</span>`).join('');
     const budgetTag = restaurant.budget
-        ? `<span class="tag budget">${restaurant.budget} 元</span>`
+        ? `<span class="tag budget">${restaurant.budget}</span>`
         : '<span class="tag">預算未標示</span>';
 
     const bookingBtn = restaurant.url
@@ -779,7 +779,7 @@ function buildShareFlex(restaurant, sharerName, bookingUrl, heroImage) {
     const tags = [
         ...filterGeneralTags(restaurant.cuisine_style || []),
         ...filterGeneralTags(restaurant.type || []).slice(0, 2),
-        restaurant.budget ? `${restaurant.budget} 元` : null,
+        restaurant.budget || null,
     ].filter(Boolean).slice(0, 4);
     if (tags.length > 0) {
         bodyContents.push({
