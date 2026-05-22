@@ -644,12 +644,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
                   : 'is-closed';
         metaParts.push(`<span class="meta-chip ${cls}"><span class="meta-dot"></span>${oh.label}</span>`);
     }
-    if (restaurant.has_booking_offer) {
-        const count = restaurant.booking_offer_count || (restaurant.booking_offers || []).length || 1;
-        const firstTitle = (restaurant.booking_offers || [])[0] || '';
-        const title = firstTitle ? ` title="${firstTitle.replace(/"/g, '&quot;')}"` : '';
-        metaParts.push(`<span class="meta-chip is-offer"${title}>★ 訂位優惠${count > 1 ? ` ${count} 項` : ''}</span>`);
-    }
+    // 訂位優惠改為下方獨立區塊顯示具體標題，這裡不再放 chip
     // 線上套餐明細用獨立區塊呈現（在 招牌行之後），這裡不再放 chip
     if (restaurant.bookable) {
         metaParts.push(`<span class="meta-chip is-accent">線上可訂位</span>`);
@@ -660,6 +655,20 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     const dishHtml = dishList.length
         ? `<p class="restaurant-dish"><span class="restaurant-dish__label">招牌</span>${dishList.join('、')}</p>`
         : '';
+
+    // 訂位獨家優惠（OpenRice 訂位才有）— 列出具體優惠標題
+    const offers = (restaurant.booking_offers || []).slice(0, 4);
+    const offersHtml = offers.length ? `
+        <div class="restaurant-offers">
+            <div class="restaurant-offers__header">
+                <span class="restaurant-offers__star">★</span>
+                <span>OPENRICE 訂位獨家</span>
+            </div>
+            <ul class="restaurant-offers__list">
+                ${offers.map(t => `<li>${t}</li>`).join('')}
+            </ul>
+        </div>
+    ` : '';
 
     // 線上套餐獨家優惠（OpenRice 會員專屬）—— 顯示 1-2 個最有折扣的套餐
     const bookingMenus = (restaurant.booking_menus || [])
@@ -738,6 +747,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
             <h3 class="restaurant-name">${restaurant.name}</h3>
             <p class="restaurant-address">${restaurant.address}</p>
             ${metaHtml}
+            ${offersHtml}
             ${menusHtml}
             ${dishHtml}
             <div class="restaurant-tags">${cuisineTags}${typeTags}${budgetTag}</div>

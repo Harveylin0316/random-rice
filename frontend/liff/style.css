@@ -1280,6 +1280,50 @@
   }
   /* （舊 .is-menu chip 已改為下方 .restaurant-menus 區塊） */
 
+  /* OpenRice 訂位獨家優惠區塊（顯示具體優惠標題列表） */
+  .restaurant-offers {
+    background: var(--gray-900);
+    color: var(--gray-0);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+  .restaurant-offers__header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-2);
+    text-transform: uppercase;
+  }
+  .restaurant-offers__star {
+    color: var(--color-accent);
+    font-size: var(--font-size-sm);
+  }
+  .restaurant-offers__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .restaurant-offers__list li {
+    font-size: var(--font-size-sm);
+    color: var(--gray-0);
+    line-height: var(--line-height-normal);
+    padding: 4px 0;
+    position: relative;
+    padding-left: var(--space-3);
+  }
+  .restaurant-offers__list li::before {
+    content: '•';
+    position: absolute;
+    left: 4px;
+    color: var(--color-accent);
+    font-weight: bold;
+  }
+
   /* OpenRice 套餐獨家優惠區塊（顯示具體套餐標題 + 原/特價） */
   .restaurant-menus {
     background: linear-gradient(180deg, var(--color-accent-subtle), transparent);
