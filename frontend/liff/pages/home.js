@@ -635,7 +635,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
         ? `<p class="restaurant-evidence">${evidenceList.join('・')}</p>`
         : '';
 
-    // meta chips：營業狀態 + 訂位（新版 opening_hours 資料可信，重新開啟營業 chip）
+    // meta chips：營業狀態 + 訂位優惠 + 訂位
     const metaParts = [];
     const oh = getOpeningStatus(restaurant.opening_hours);
     if (oh.label) {
@@ -643,6 +643,13 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
                   : oh.status === 'closing-soon' ? 'is-closing'
                   : 'is-closed';
         metaParts.push(`<span class="meta-chip ${cls}"><span class="meta-dot"></span>${oh.label}</span>`);
+    }
+    if (restaurant.has_booking_offer) {
+        const count = restaurant.booking_offer_count || (restaurant.booking_offers || []).length || 1;
+        const firstTitle = (restaurant.booking_offers || [])[0] || '';
+        // 把第一個 offer 標題當 tooltip
+        const title = firstTitle ? ` title="${firstTitle.replace(/"/g, '&quot;')}"` : '';
+        metaParts.push(`<span class="meta-chip is-offer"${title}>★ 訂位優惠${count > 1 ? ` ${count} 項` : ''}</span>`);
     }
     if (restaurant.bookable) {
         metaParts.push(`<span class="meta-chip is-accent">線上可訂位</span>`);

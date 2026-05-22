@@ -4511,7 +4511,12 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/6/4R4/00XSXG2039FCA9EC49D68Bsx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/6/4R4/00XSXHB5DB6366D8D7CA5Asx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/6/4R4/00XSXIA9E7DA363B4C7898sx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "壽星專屬優惠"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 229085,
@@ -5827,7 +5832,12 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/2/295/00G16J2556C2AAC5F7A738sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/2/295/00G16KC45EEAFEDC57C8D1sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/B/92Y/01SL01DAB8E91BFE42ABE5lv.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "壽星專屬優惠"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 286018,
@@ -11525,7 +11535,12 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/C/9WG/01YEUK78AF91977884D01Bsx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/C/9WG/01YEUL97D25B00CF7CA609sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/C/9WG/01YEUMDE4D0DBF6EBA9AF0sx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "壽星專屬優惠"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 441542,
@@ -12909,7 +12924,12 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/F/BYS/02D3C3FFA8CC55A67FE937sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/user/226/1MLXR/BKS01W0D7CC2774395B73Ftx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/C/9Z3/01YXKM2C92095B53B8EC30sx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "生日壽星限定招待"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 448676,
@@ -12997,7 +13017,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6M/02LR6021F1E2D08E6EF5E5mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6M/02LR6021F1E2D08E6EF5E5mx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "壽星優惠",
+        "武鶴專屬優惠"
+      ],
+      "booking_offer_count": 2
     },
     {
       "or_id": 448860,
@@ -13924,7 +13950,12 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6N/02LR8YB5D0E2E7B4A39E58mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6N/02LR8YB5D0E2E7B4A39E58mx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "當月壽星優惠"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 455660,
@@ -20913,7 +20944,12 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/F/C9F/02F74Z1FBF53021AAFE8D6mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/F/C9F/02F74YB902429A35A6723Cmx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/F/C9F/02F74XDA1A3319997E236Dmx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "生日驚喜禮：免費4吋蛋糕等你領取(4吋蛋糕一顆)"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 496932,
@@ -30111,7 +30147,12 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJK8BB1534DE824112E8mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJK8BB1534DE824112E8mx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "當月壽星專屬禮"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 527501,
@@ -40497,7 +40538,12 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/CXO/02JZJJ4D122D2337BF82B9mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CXO/02JZJJ4D122D2337BF82B9mx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "當月壽星優惠贈送shots"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 541649,
@@ -60307,7 +60353,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CXL/02JYYP47F6C711791138C7mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/0/4/0000TX5929999655B268A9lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/2/1QJ/00CCPC353243A070A06441lv.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "蟹黃瀑布丼飯原價$350元，優惠價$245元",
+        "生蠔買2送1 (原價1個$150)，優惠價3個$300元"
+      ],
+      "booking_offer_count": 2
     },
     {
       "or_id": 559400,
@@ -70746,7 +70798,12 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D0X/02KMPNA0EFCCF7608F72B0mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/0/PC/00509NCD410185330C94F5lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/C/9SH/01XMJ01E49C6395DE36FB6lv.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "壽星優惠"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 567502,
@@ -72012,7 +72069,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6B/02LOV0809D7FEDD4FE2BA5mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6B/02LOV0809D7FEDD4FE2BA5mx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "壽星專屬好禮：滿$500招待牛舌一份",
+        "品味鳶園｜預訂套餐享招待飲品"
+      ],
+      "booking_offer_count": 2
     },
     {
       "or_id": 578178,
@@ -79075,7 +79138,12 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D2F/02KXACFCD6FDB059BA7F9Amx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJK8BB1534DE824112E8lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/0/D0/002KKV94158B4D693D5E6Blv.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "生日驚喜禮：免費4吋蛋糕等你領取(4吋蛋糕一顆)"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 727192,
@@ -81753,7 +81821,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6H/02LQ74AF3CD3AD1997A298mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6H/02LQ74AF3CD3AD1997A298mx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "當月壽星 招待特調一杯",
+        "信義區友好活動"
+      ],
+      "booking_offer_count": 2
     },
     {
       "or_id": 740876,
@@ -82058,7 +82132,12 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D5F/02LILT7947586D6584DD11mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5F/02LILT7947586D6584DD11mx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "生日壽星優惠"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 751318,
@@ -82139,7 +82218,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJOQ19F03DF3A5E9249Fmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJOQ19F03DF3A5E9249Fmx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "當月壽星至店內用餐，贈主廚甜點乙份",
+        "OpenRice會員專屬優惠"
+      ],
+      "booking_offer_count": 2
     },
     {
       "or_id": 751370,
@@ -82222,7 +82307,12 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D5P/02LKOR5FBCE4A01FA70E7Bmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5P/02LKOR5FBCE4A01FA70E7Bmx.jpg"
-      ]
+      ],
+      "has_booking_offer": true,
+      "booking_offers": [
+        "OpenRice會員專屬優惠"
+      ],
+      "booking_offer_count": 1
     },
     {
       "or_id": 751516,

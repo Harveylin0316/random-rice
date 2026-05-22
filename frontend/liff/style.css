@@ -1271,6 +1271,13 @@
     color: var(--color-accent-text);
     background: var(--color-accent-subtle);
   }
+  /* 訂位優惠 chip：突出標示有訂位專屬優惠 */
+  .meta-chip.is-offer {
+    color: var(--gray-0);
+    background: var(--gray-900);
+    font-weight: var(--font-weight-bold);
+    padding: 3px var(--space-3);
+  }
   .restaurant-dish {
     font-size: var(--font-size-sm);
     color: var(--color-text-body);
