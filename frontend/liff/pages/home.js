@@ -613,8 +613,15 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
         ? `<p class="restaurant-evidence">${evidenceList.join('・')}</p>`
         : '';
 
-    // 訂位徽章維持（距離已寫進 evidence 不重複）
+    // meta chips：營業狀態 + 訂位（新版 opening_hours 資料可信，重新開啟營業 chip）
     const metaParts = [];
+    const oh = getOpeningStatus(restaurant.opening_hours);
+    if (oh.label) {
+        const cls = oh.status === 'open' ? 'is-open'
+                  : oh.status === 'closing-soon' ? 'is-closing'
+                  : 'is-closed';
+        metaParts.push(`<span class="meta-chip ${cls}"><span class="meta-dot"></span>${oh.label}</span>`);
+    }
     if (restaurant.bookable) {
         metaParts.push(`<span class="meta-chip is-accent">線上可訂位</span>`);
     }

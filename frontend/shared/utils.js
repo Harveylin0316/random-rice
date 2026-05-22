@@ -143,52 +143,76 @@ export function generateEvidence(restaurant, context = {}) {
     const facts = [];
     const { distance } = context;
 
-    // 距離（最強說服力，nearby mode 才有）
+    // ★ OpenRice 評分（最強說服力，新版資料源）
+    const rating = restaurant.rating;
+    if (typeof rating === 'number' && rating > 0) {
+        if (rating >= 4) {
+            facts.push({ p: 11, t: `OpenRice ${rating.toFixed(1)} 星，高評價` });
+        } else if (rating >= 3.5) {
+            facts.push({ p: 9, t: `OpenRice ${rating.toFixed(1)} 星` });
+        } else if (rating >= 3) {
+            facts.push({ p: 6, t: `OpenRice ${rating.toFixed(1)} 星` });
+        }
+    }
+
+    // ★ 推薦比例（smile / (smile + ok + cry)）
+    const smile = restaurant.smile_count || 0;
+    const ok = restaurant.ok_count || 0;
+    const cry = restaurant.cry_count || 0;
+    const totalVotes = smile + ok + cry;
+    if (totalVotes >= 20) {
+        const pct = Math.round((smile / totalVotes) * 100);
+        if (pct >= 80) facts.push({ p: 10, t: `${pct}% 食客推薦（${totalVotes} 人評）` });
+        else if (pct >= 60) facts.push({ p: 7, t: `${pct}% 食客推薦` });
+    }
+
+    // ★ 食記數（內容厚度）
+    const reviews = restaurant.review_count;
+    if (reviews >= 50) facts.push({ p: 8, t: `${reviews} 篇食記` });
+    else if (reviews >= 10) facts.push({ p: 5, t: `${reviews} 篇食記` });
+
+    // ★ 收藏數（人氣指標）
+    const bookmarks = restaurant.bookmark_count;
+    if (bookmarks >= 500) facts.push({ p: 7, t: `${bookmarks}+ 人收藏` });
+    else if (bookmarks >= 100) facts.push({ p: 5, t: `${bookmarks} 人收藏` });
+
+    // 距離（nearby mode 才有）
     if (typeof distance === 'number') {
         if (distance < 0.3) {
             facts.push({ p: 10, t: `離你 ${formatDistance(distance)}，走過去就到` });
         } else if (distance < 1) {
             facts.push({ p: 9, t: `離你 ${formatDistance(distance)}` });
         } else if (distance < 3) {
-            facts.push({ p: 7, t: `離你 ${formatDistance(distance)}，捷運可達` });
+            facts.push({ p: 6, t: `離你 ${formatDistance(distance)}` });
         } else {
-            facts.push({ p: 5, t: `離你 ${formatDistance(distance)}` });
+            facts.push({ p: 4, t: `離你 ${formatDistance(distance)}` });
         }
     }
 
-    // 預算（最直接的決策資訊）
+    // 預算
     const budget = restaurant.budget || '';
     if (/200|100/.test(budget) && !/500|1000|1500/.test(budget)) {
-        facts.push({ p: 8, t: '人均 200 元以內，銅板價' });
+        facts.push({ p: 7, t: '人均 200 元以內，銅板價' });
     } else if (/1500/.test(budget)) {
-        facts.push({ p: 7, t: '人均 1500 元以上，犒賞自己等級' });
-    } else if (/1000-1500|800-1000/.test(budget)) {
-        facts.push({ p: 6, t: `人均 ${budget} 元，預算中段` });
-    } else if (/500-800|501-1000|500-1000/.test(budget)) {
-        facts.push({ p: 6, t: `人均 ${budget} 元` });
+        facts.push({ p: 6, t: '人均 1500 元以上，犒賞自己' });
+    } else if (/1000-1500/.test(budget)) {
+        facts.push({ p: 5, t: `人均 ${budget} 元` });
+    } else if (/501-1000|500-1000/.test(budget)) {
+        facts.push({ p: 5, t: `人均 ${budget} 元` });
     } else if (/200-500|201-500/.test(budget)) {
-        facts.push({ p: 6, t: `人均 ${budget} 元` });
+        facts.push({ p: 5, t: `人均 ${budget} 元` });
     }
 
-    // 吃到飽（強訊號）
-    if (restaurant.is_buffet) {
-        facts.push({ p: 8, t: '吃到飽選擇' });
-    }
+    // 吃到飽
+    if (restaurant.is_buffet) facts.push({ p: 7, t: '吃到飽選擇' });
 
-    // 食客照片數（社會證據）
-    const imgCount = (restaurant.images || []).length;
-    if (imgCount >= 15) {
-        facts.push({ p: 7, t: `${imgCount}+ 張食客照片` });
-    } else if (imgCount >= 8) {
-        facts.push({ p: 5, t: `${imgCount} 張食客照片` });
-    }
+    // 深夜營業（凌晨後仍開）
+    if (restaurant.open_late) facts.push({ p: 5, t: '深夜營業' });
 
-    // 訂位狀態已用獨立 meta-chip 顯示，不在 evidence 重複
-
-    // 多料理融合（限 fusion 才提，避免雜訊）
-    const cuisines = filterGeneralTags(restaurant.cuisine_style || []);
-    if (cuisines.length >= 3) {
-        facts.push({ p: 4, t: `${cuisines.length} 種料理融合` });
+    // 地標（附近知名點）
+    const landmarks = restaurant.landmarks || [];
+    if (landmarks.length > 0) {
+        facts.push({ p: 4, t: `${landmarks[0]} 附近` });
     }
 
     // 排序取前 2
