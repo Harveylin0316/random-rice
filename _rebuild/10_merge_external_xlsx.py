@@ -22,6 +22,26 @@ from datetime import datetime
 XLSX = '/Users/harveylin/Desktop/Claude-workspace/projects/openrice-crawler/exports/restaurants_for_app.xlsx'
 MAIN_DB = 'restaurants_database.json'
 NETLIFY_DB = 'netlify/functions/restaurants_database.json'
+BOOKING_BLOCKLIST = '_rebuild/booking_blocklist.txt'
+
+
+def load_booking_blocklist():
+    """讀 booking_blocklist.txt → set of or_ids 強制 bookable=false"""
+    if not os.path.exists(BOOKING_BLOCKLIST):
+        return set()
+    blocked = set()
+    with open(BOOKING_BLOCKLIST, encoding='utf-8') as f:
+        for line in f:
+            line = line.split('#')[0].strip()
+            if not line: continue
+            try:
+                blocked.add(int(line))
+            except ValueError:
+                pass
+    return blocked
+
+
+BOOKING_BLOCKED_IDS = set()  # 載入時設定
 
 DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 DAY_CH = {'一': 'monday', '二': 'tuesday', '三': 'wednesday',
@@ -220,10 +240,13 @@ def map_to_db_schema(rec, existing=None):
         'region': rec.get('region') or '',
         'district': rec.get('district') or '',
         'services': split_csv_field(rec.get('services_type')),
-        # 嚴格 bookable：is_bookable=1 且 or_status='Normal'。
-        # 「Renovate / Hide / Moved」這類雖然 status=Normal 但 OpenRice 頁面
-        # 會顯示「網上訂位即將推出」或無法訂位，不該標「線上可訂位」chip。
-        'bookable': bool(rec.get('is_bookable')) and rec.get('or_status') == 'Normal',
+        # 嚴格 bookable：is_bookable=1 且 or_status='Normal' 且不在 manual blocklist 內
+        # blocklist 用來排除 xlsx 跟線上不同步的「網上訂位服務暫停」店
+        'bookable': (
+            bool(rec.get('is_bookable'))
+            and rec.get('or_status') == 'Normal'
+            and poi_id not in BOOKING_BLOCKED_IDS
+        ),
         'enabled': bool(is_normal),
         'cuisine_style': cuisine_style,
         'type': type_list,
@@ -281,6 +304,11 @@ def map_to_db_schema(rec, existing=None):
 
 
 def main():
+    global BOOKING_BLOCKED_IDS
+    BOOKING_BLOCKED_IDS = load_booking_blocklist()
+    if BOOKING_BLOCKED_IDS:
+        print(f'載入訂位 blocklist: {len(BOOKING_BLOCKED_IDS)} 間強制 bookable=false')
+
     print('讀外部 xlsx...')
     records = load_xlsx()
     print(f'  總筆數: {len(records)}')

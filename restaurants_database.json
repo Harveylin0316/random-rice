@@ -77737,7 +77737,7 @@
         "RMSLite",
         "ThirdPartyBookingService"
       ],
-      "bookable": true,
+      "bookable": false,
       "enabled": true,
       "cuisine_style": [
         "泰式料理"
@@ -84500,7 +84500,7 @@
     }
   ],
   "_metadata": {
-    "updated_at": "2026-05-22T18:37:49.204743",
+    "updated_at": "2026-05-22T18:55:57.314541",
     "source": "openrice-crawler/exports/restaurants_for_app.xlsx",
     "total": 928,
     "enabled": 921,

@@ -1,0 +1,9 @@
+# 強制 bookable=false 的 or_id 清單
+# 每行一個 or_id（純數字），# 開頭是註解
+#
+# 用途：OpenRice 線上實際顯示「網上訂位服務暫停」/「即將推出」但 xlsx 仍標 is_bookable=1 的店
+# 加完後重跑 _rebuild/10_merge_external_xlsx.py 即可生效
+#
+# 加新項目時可附上店名為註解，方便日後查證
+
+652188  # 南洋湯研所coco mama（網上訂位服務暫停）
