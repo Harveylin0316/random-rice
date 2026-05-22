@@ -894,6 +894,77 @@
     box-shadow: var(--shadow-focus);
   }
 
+  /* Booking offer ad card（有訂位獨家優惠的餐廳廣告） */
+  .ad-card--offer {
+    text-align: left;
+    padding: var(--space-6) var(--space-5) var(--space-5);
+  }
+  .ad-card__badge--offer {
+    background: var(--gray-900);
+    color: var(--color-accent);
+    position: static;
+    display: inline-flex;
+    margin-bottom: var(--space-3);
+  }
+  .ad-card--offer .ad-card__title {
+    text-align: left;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-2);
+  }
+  .ad-offer__image {
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+    background: var(--color-bg-subtle);
+  }
+  .ad-offer__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ad-offer__address {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-3);
+  }
+  .ad-offer__list {
+    list-style: none;
+    padding: var(--space-3);
+    margin: 0 0 var(--space-3);
+    background: var(--gray-900);
+    color: var(--gray-0);
+    border-radius: var(--radius-md);
+  }
+  .ad-offer__list li {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    padding: 4px 0;
+    position: relative;
+    padding-left: var(--space-3);
+  }
+  .ad-offer__list li::before {
+    content: '•';
+    position: absolute;
+    left: 4px;
+    color: var(--color-accent);
+    font-weight: bold;
+  }
+  .ad-offer__meta {
+    margin-bottom: var(--space-3);
+    font-size: var(--font-size-sm);
+  }
+  .ad-offer__rating {
+    color: var(--color-accent-text);
+    font-weight: var(--font-weight-semibold);
+  }
+  .ad-card--offer .ad-card__cta {
+    margin-top: 0;
+    width: 100%;
+  }
+
   /* Sponsored ad card（付費合作餐廳廣告） */
   .ad-card--sponsored {
     text-align: left;

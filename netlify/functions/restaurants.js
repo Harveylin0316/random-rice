@@ -283,6 +283,8 @@ exports.handler = async (event, context) => {
           apiPath = '/all';
         } else if (rawPath.includes('sponsored')) {
           apiPath = '/sponsored';
+        } else if (rawPath.includes('with-booking-offers')) {
+          apiPath = '/with-booking-offers';
         } else {
           apiPath = '/recommend';
         }
@@ -426,6 +428,28 @@ exports.handler = async (event, context) => {
           count: data.restaurants.length,
           restaurants: data.restaurants
         })
+      };
+    } else if (apiPath === '/with-booking-offers') {
+      // 有訂位獨家優惠的餐廳（給廣告輪播用）
+      const data = loadRestaurantDatabase();
+      const list = (data.restaurants || [])
+        .filter(r => r.enabled && r.has_booking_offer && (r.booking_offers || []).length > 0)
+        .map(r => ({
+          or_id: r.or_id,
+          name: r.name,
+          address: r.address,
+          url: r.url,
+          rating: r.rating,
+          budget: r.budget,
+          cuisine_style: r.cuisine_style,
+          image: (r.images && r.images[0]) || r.door_photo_url || null,
+          booking_offers: r.booking_offers,
+          booking_offer_count: r.booking_offer_count,
+        }));
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, count: list.length, restaurants: list })
       };
     } else if (apiPath === '/sponsored') {
       // 付費贊助餐廳（給廣告位輪播用）

@@ -161,6 +161,34 @@ router.get('/all', (req, res) => {
 });
 
 /**
+ * GET /api/restaurants/with-booking-offers
+ * 有 OpenRice 訂位獨家優惠的餐廳列表（給廣告位輪播用）
+ */
+router.get('/with-booking-offers', (req, res) => {
+  try {
+    const { loadRestaurantDatabase } = require('../utils/recommendation');
+    const data = loadRestaurantDatabase();
+    const list = (data.restaurants || [])
+      .filter(r => r.enabled && r.has_booking_offer && (r.booking_offers || []).length > 0)
+      .map(r => ({
+        or_id: r.or_id,
+        name: r.name,
+        address: r.address,
+        url: r.url,
+        rating: r.rating,
+        budget: r.budget,
+        cuisine_style: r.cuisine_style,
+        image: (r.images && r.images[0]) || r.door_photo_url || null,
+        booking_offers: r.booking_offers,
+        booking_offer_count: r.booking_offer_count,
+      }));
+    res.json({ success: true, count: list.length, restaurants: list });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * GET /api/restaurants/sponsored
  * 拿付費合作餐廳（is_paid_account=true）的精簡列表，給廣告位輪播用
  */

@@ -9,6 +9,7 @@ import {
     loadFilterOptions as apiLoadFilterOptions,
     loadLocationOptions as apiLoadLocationOptions,
     loadSponsoredRestaurants,
+    loadBookingOfferRestaurants,
     fetchRecommendations
 } from '../shared/api.js';
 import { filterGeneralTags, initImageCarousels, calculateDistance, formatDistance, getOpeningStatus, generateOmikuji, generateEvidence } from '../shared/utils.js';
@@ -34,13 +35,15 @@ let locationRequestInProgress = false;
 // 廣告插入：每抽 N 次插一個（OpenRice 小知識 + 贊助餐廳合併池）
 const AD_EVERY = 4;
 let drawCount = 0;
-let sponsoredRestaurants = []; // init 時從 /api/restaurants/sponsored 載入
+let sponsoredRestaurants = [];      // is_paid_account=true 的店
+let bookingOfferRestaurants = [];   // 有訂位獨家優惠的店
 
-// 合併廣告池：tips（固定 4 條）+ sponsored 餐廳（動態，is_paid_account=true 的）
+// 合併廣告池：tips + sponsored + booking offer 餐廳
 function buildAdPool() {
     return [
         ...ADS.map(a => ({ kind: 'tip', data: a })),
         ...sponsoredRestaurants.map(s => ({ kind: 'sponsored', data: s })),
+        ...bookingOfferRestaurants.map(s => ({ kind: 'offer', data: s })),
     ];
 }
 
@@ -48,7 +51,10 @@ let adQueue = []; // 已洗牌的 entries
 let lastAdSig = null;
 
 function adSig(entry) {
-    return entry.kind === 'tip' ? `tip:${entry.data.title}` : `spo:${entry.data.or_id}`;
+    if (entry.kind === 'tip') return `tip:${entry.data.title}`;
+    if (entry.kind === 'sponsored') return `spo:${entry.data.or_id}`;
+    if (entry.kind === 'offer') return `off:${entry.data.or_id}`;
+    return 'unknown';
 }
 
 function pickNextAd() {
@@ -179,10 +185,14 @@ export async function initHomePage() {
         // 設置「更多設定」收合區的摘要更新
         setupAdvancedOptionsSummary();
 
-        // 背景載入贊助餐廳列表（給廣告位輪播用），失敗不影響主流程
+        // 背景載入廣告池資料（贊助餐廳 + 訂位優惠餐廳），失敗不影響主流程
         loadSponsoredRestaurants().then(list => {
             sponsoredRestaurants = list || [];
             console.log(`[sponsored] loaded ${sponsoredRestaurants.length} 間付費餐廳`);
+        });
+        loadBookingOfferRestaurants().then(list => {
+            bookingOfferRestaurants = list || [];
+            console.log(`[booking-offers] loaded ${bookingOfferRestaurants.length} 間有訂位優惠的餐廳`);
         });
         
         // 隱藏載入進度，顯示主要內容
@@ -850,6 +860,8 @@ function displayAd(entry) {
 
     if (entry.kind === 'sponsored') {
         renderSponsoredAd(restaurantList, entry.data);
+    } else if (entry.kind === 'offer') {
+        renderOfferAd(restaurantList, entry.data);
     } else {
         renderTipAd(restaurantList, entry.data);
     }
@@ -885,6 +897,32 @@ function renderTipAd(container, ad) {
     const cta = container.querySelector('.ad-card__cta');
     if (cta) {
         cta.addEventListener('click', () => track('ad_cta_click', { kind: 'tip', ad_title: ad.title, url: ad.url }));
+    }
+}
+
+function renderOfferAd(container, r) {
+    const offers = (r.booking_offers || []).slice(0, 4);
+    const offersHtml = offers.length
+        ? `<ul class="ad-offer__list">${offers.map(t => `<li>${t}</li>`).join('')}</ul>`
+        : '';
+    const ratingHtml = (typeof r.rating === 'number' && r.rating > 0)
+        ? `<span class="ad-offer__rating">OpenRice ${r.rating.toFixed(1)} 星</span>`
+        : '';
+    container.innerHTML = `
+        <div class="ad-card ad-card--offer">
+            <div class="ad-card__badge ad-card__badge--offer">★ 訂位獨家優惠</div>
+            ${r.image ? `<div class="ad-offer__image"><img src="${r.image}" alt="${r.name}" onerror="this.style.display='none'"></div>` : ''}
+            <h3 class="ad-card__title">${r.name}</h3>
+            ${r.address ? `<p class="ad-offer__address">${r.address}</p>` : ''}
+            ${offersHtml}
+            ${ratingHtml ? `<div class="ad-offer__meta">${ratingHtml}</div>` : ''}
+            ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener" class="ad-card__cta">立即訂位享優惠</a>` : ''}
+        </div>
+    `;
+    track('ad_shown', { kind: 'offer', or_id: r.or_id, name: r.name });
+    const cta = container.querySelector('.ad-card__cta');
+    if (cta) {
+        cta.addEventListener('click', () => track('ad_cta_click', { kind: 'offer', or_id: r.or_id, name: r.name }));
     }
 }
 

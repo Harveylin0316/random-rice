@@ -19,6 +19,21 @@ export async function loadSponsoredRestaurants() {
 }
 
 /**
+ * 載入有訂位獨家優惠的餐廳（給廣告位輪播用）
+ */
+export async function loadBookingOfferRestaurants() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/restaurants/with-booking-offers`);
+        if (!response.ok) return [];
+        const data = await response.json();
+        return data.success ? (data.restaurants || []) : [];
+    } catch (err) {
+        console.warn('[booking-offers] load failed:', err);
+        return [];
+    }
+}
+
+/**
  * 載入篩選選項
  */
 export async function loadFilterOptions() {
