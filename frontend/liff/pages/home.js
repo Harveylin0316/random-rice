@@ -647,9 +647,17 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
     if (restaurant.has_booking_offer) {
         const count = restaurant.booking_offer_count || (restaurant.booking_offers || []).length || 1;
         const firstTitle = (restaurant.booking_offers || [])[0] || '';
-        // 把第一個 offer 標題當 tooltip
         const title = firstTitle ? ` title="${firstTitle.replace(/"/g, '&quot;')}"` : '';
         metaParts.push(`<span class="meta-chip is-offer"${title}>★ 訂位優惠${count > 1 ? ` ${count} 項` : ''}</span>`);
+    }
+    if (restaurant.has_booking_menu) {
+        const count = restaurant.booking_menu_count || 1;
+        const minP = restaurant.booking_menu_min_price;
+        const titleParts = [];
+        if (minP) titleParts.push(`最低 NT$${minP} 起`);
+        if (restaurant.booking_menu_avg_discount_pct) titleParts.push(`平均省 ${restaurant.booking_menu_avg_discount_pct}%`);
+        const titleAttr = titleParts.length ? ` title="${titleParts.join('，')}"` : '';
+        metaParts.push(`<span class="meta-chip is-menu"${titleAttr}>線上套餐 ${count} 套</span>`);
     }
     if (restaurant.bookable) {
         metaParts.push(`<span class="meta-chip is-accent">線上可訂位</span>`);

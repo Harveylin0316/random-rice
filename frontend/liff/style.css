@@ -1271,10 +1271,17 @@
     color: var(--color-accent-text);
     background: var(--color-accent-subtle);
   }
-  /* 訂位優惠 chip：突出標示有訂位專屬優惠 */
+  /* 訂位優惠 chip：突出標示有訂位專屬優惠（黑底黃字） */
   .meta-chip.is-offer {
     color: var(--gray-0);
     background: var(--gray-900);
+    font-weight: var(--font-weight-bold);
+    padding: 3px var(--space-3);
+  }
+  /* 線上套餐 chip：OpenRice 會員獨家套餐（黃底深棕字、跟訂位優惠視覺區隔） */
+  .meta-chip.is-menu {
+    color: var(--color-accent-text);
+    background: var(--color-accent);
     font-weight: var(--font-weight-bold);
     padding: 3px var(--space-3);
   }

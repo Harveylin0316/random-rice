@@ -1759,7 +1759,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CYC/02K45RCF8F0C6F85ABE6E9sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CYC/02K45S3664977F5E6748B7sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CYC/02K45T30A879BB807BCD03sx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 3,
+      "booking_menu_min_price": 1676,
+      "booking_menu_max_price": 1976,
+      "booking_menu_avg_discount_pct": 5.0
     },
     {
       "or_id": 62337,
@@ -2998,7 +3004,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRP921EDF59B451BF8E8mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRP921EDF59B451BF8E8mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 2700,
+      "booking_menu_max_price": 5200,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 155111,
@@ -5946,7 +5958,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/F/CM9/02HQ8YE913D3B080801C08sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/F/CM9/02HQ8ZA5965658318DAFC7sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/F/CM9/02HQ9012A18BF35B17B6B9sx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 300,
+      "booking_menu_max_price": 300,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 293086,
@@ -12474,7 +12492,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D13/02KNUB67B4E4CF3047F886sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D13/02KNUCD4B04C27BDFAB6FEsx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D13/02KNUDCFD3F6D0E9019C4Csx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 3,
+      "booking_menu_min_price": 1512,
+      "booking_menu_max_price": 2004,
+      "booking_menu_avg_discount_pct": 3.9
     },
     {
       "or_id": 445892,
@@ -12929,7 +12953,13 @@
       "booking_offers": [
         "生日壽星限定招待"
       ],
-      "booking_offer_count": 1
+      "booking_offer_count": 1,
+      "has_booking_menu": true,
+      "booking_menu_count": 4,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 350,
+      "booking_menu_max_price": 780,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 448676,
@@ -14061,7 +14091,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/E/BRD/02BMON3C812EBAE0FAAD4Esx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/E/BRD/02BMOO092A6F51B5890132sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/E/BRD/02BMOP322DE234175AC32Asx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 2,
+      "booking_menu_min_price": 1500,
+      "booking_menu_max_price": 2150,
+      "booking_menu_avg_discount_pct": 21.5
     },
     {
       "or_id": 456662,
@@ -15862,7 +15898,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D01/02KGC98836667FFB3C806Amx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/4/3RM/00QSIDB692625D81755D41lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/9/7GR/01H3AZ4443A16AAEB36441lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 2,
+      "booking_menu_min_price": 1980,
+      "booking_menu_max_price": 3980,
+      "booking_menu_avg_discount_pct": 14.2
     },
     {
       "or_id": 474171,
@@ -17037,7 +17079,13 @@
         "https://cdn-tw.orstatic.com/userphoto/user/26/1PYN/0C8MIFEF94F2FE30E6E6CCtx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/C/A7V/020NWV53BDC50BA9ABB980sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/C/A7V/020NWWA621DDF2A5D5D48Csx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 550,
+      "booking_menu_max_price": 550,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 482899,
@@ -18618,7 +18666,13 @@
         "https://static7.orstatic.com/userphoto/user/66/4W0U/0YRPXMC068CE0B29B97C3Dtx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CRV/02IU9Z8CA9D9BB51519125sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CRV/02IUA0AB8A749F5FC4061Dsx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 1018,
+      "booking_menu_max_price": 1018,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 489732,
@@ -20562,7 +20616,13 @@
         "https://cdn-tw.orstatic.com/userphoto/user/229/1MO9S/BL8LKWBEE8C6F247F540FBtx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/D/AMX/023N5785A227600B9B3A91sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/D/AMX/023N58C4814E8EF6E77761sx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 4,
+      "booking_menu_discounted_count": 4,
+      "booking_menu_min_price": 1180,
+      "booking_menu_max_price": 2480,
+      "booking_menu_avg_discount_pct": 7.9
     },
     {
       "or_id": 496265,
@@ -20949,7 +21009,13 @@
       "booking_offers": [
         "生日驚喜禮：免費4吋蛋糕等你領取(4吋蛋糕一顆)"
       ],
-      "booking_offer_count": 1
+      "booking_offer_count": 1,
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 3,
+      "booking_menu_min_price": 5480,
+      "booking_menu_max_price": 7880,
+      "booking_menu_avg_discount_pct": 9.2
     },
     {
       "or_id": 496932,
@@ -22879,7 +22945,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/E/B2T/026S3H3F2A0BEEFC2C8AFFsx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/E/B2T/026S3IB0E35436AAC4C3CFsx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/E/B2T/026S3JD90CF2E7AE7E89BEsx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 1,
+      "booking_menu_min_price": 500,
+      "booking_menu_max_price": 500,
+      "booking_menu_avg_discount_pct": 9.1
     },
     {
       "or_id": 505616,
@@ -28954,7 +29026,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRP8FFBFA803CBA4E94Cmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRP8FFBFA803CBA4E94Cmx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 2700,
+      "booking_menu_max_price": 5200,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 524465,
@@ -29070,7 +29148,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/E/BPN/02BAG83949D4E6D2CFB12Esx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CUI/02JCX46E3C9E8A64AAE781lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/0/C7/002EWAD862DAEC4EC596DClv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 4,
+      "booking_menu_discounted_count": 4,
+      "booking_menu_min_price": 1180,
+      "booking_menu_max_price": 2480,
+      "booking_menu_avg_discount_pct": 7.9
     },
     {
       "or_id": 524749,
@@ -29858,7 +29942,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRNOAD5ECFA28FB3F4BEmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRNOAD5ECFA28FB3F4BEmx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 500,
+      "booking_menu_max_price": 500,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 526491,
@@ -30152,7 +30242,13 @@
       "booking_offers": [
         "當月壽星專屬禮"
       ],
-      "booking_offer_count": 1
+      "booking_offer_count": 1,
+      "has_booking_menu": true,
+      "booking_menu_count": 5,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 2000,
+      "booking_menu_max_price": 2000,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 527501,
@@ -32767,7 +32863,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/F/C4S/02EA1946E89C57AF7CAE3Bsx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/3/34V/00MALIDB47CDC42159857Flv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/A/81F/01L63QECF19FE053D4734Elv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 3580,
+      "booking_menu_max_price": 6580,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 532768,
@@ -35141,7 +35243,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ3/02K9MFED9CEA0A6E380300mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/0/G/00037AA605373AB07568E4lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/F/C7U/02EVSN6892D277AEB9F62Elv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 600,
+      "booking_menu_max_price": 600,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 536617,
@@ -39731,7 +39839,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5W/02LM1MC476327000299EC8mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5W/02LM1LED23C0E93E2CC8FDmx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/7/5M8/013Y6W0DA5B2A2AF6860D9lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 1,
+      "booking_menu_min_price": 1200,
+      "booking_menu_max_price": 1200,
+      "booking_menu_avg_discount_pct": 26.4
     },
     {
       "or_id": 540830,
@@ -39998,7 +40112,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6G/02LQ0G7B0AD255DF73887Fmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6G/02LQ0G7B0AD255DF73887Fmx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 1000,
+      "booking_menu_max_price": 1000,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 541205,
@@ -40543,7 +40663,13 @@
       "booking_offers": [
         "當月壽星優惠贈送shots"
       ],
-      "booking_offer_count": 1
+      "booking_offer_count": 1,
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 1000,
+      "booking_menu_max_price": 1000,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 541649,
@@ -47630,7 +47756,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D5H/02LIX31A0EFC700A7C0DC6mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5H/02LIX31A0EFC700A7C0DC6mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 1000,
+      "booking_menu_max_price": 1000,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 546278,
@@ -48355,7 +48487,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/F/CHZ/02GVTU507C1645C938A785sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJK8BB1534DE824112E8lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/1/18I/008SK97267E2E6DB445D0Flv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 2000,
+      "booking_menu_max_price": 2000,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 546890,
@@ -50588,7 +50726,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CU5/02JADO328A5E95DBE44EC2mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/1/15T/0089HAEE33E9E65A0DF5B7lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/0/CC/002FV855B15F5B7E906731lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 680,
+      "booking_menu_max_price": 6580,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 549281,
@@ -52537,7 +52681,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6R/02LS0X75DEE9B153AC5D96mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6R/02LS0X75DEE9B153AC5D96mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 500,
+      "booking_menu_max_price": 500,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 552927,
@@ -53410,7 +53560,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D5M/02LK1V1709083434276BAEmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5M/02LK1V1709083434276BAEmx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 3,
+      "booking_menu_min_price": 850,
+      "booking_menu_max_price": 900,
+      "booking_menu_avg_discount_pct": 5.8
     },
     {
       "or_id": 554350,
@@ -54138,7 +54294,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/CNI/02HZ7P55E76FB1BF268E89mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CNI/02HZ7P55E76FB1BF268E89mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 550,
+      "booking_menu_max_price": 880,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 555283,
@@ -60359,7 +60521,13 @@
         "蟹黃瀑布丼飯原價$350元，優惠價$245元",
         "生蠔買2送1 (原價1個$150)，優惠價3個$300元"
       ],
-      "booking_offer_count": 2
+      "booking_offer_count": 2,
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 880,
+      "booking_menu_max_price": 1880,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 559400,
@@ -61630,7 +61798,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CXF/02JXS6C7D5EA07C24375B5mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/D/AO1/023V0O3E2D7289C91E3A51lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJK8BB1534DE824112E8lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 2,
+      "booking_menu_min_price": 1800,
+      "booking_menu_max_price": 2499,
+      "booking_menu_avg_discount_pct": 8.1
     },
     {
       "or_id": 560904,
@@ -65381,7 +65555,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D46/02L9QW79D6E8390DD08CE4mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/7/63B/017BN778BA6196FC35AE6Dlv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D0W/02KMFQ873786969498BAB6lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 2,
+      "booking_menu_min_price": 1500,
+      "booking_menu_max_price": 2150,
+      "booking_menu_avg_discount_pct": 21.5
     },
     {
       "or_id": 564010,
@@ -66152,7 +66332,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D3Z/02L8D257196BBC9EB84FECmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D3Z/02L8D257196BBC9EB84FECmx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 1,
+      "booking_menu_min_price": 938,
+      "booking_menu_max_price": 938,
+      "booking_menu_avg_discount_pct": 10.3
     },
     {
       "or_id": 564483,
@@ -66807,7 +66993,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CZ5/02KA0A3416096C8AE69CF3sx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/E/BPT/02BBLAE9399C529979015Clv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/0/4/0000V71303D077CC392471lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 680,
+      "booking_menu_max_price": 3580,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 564963,
@@ -67066,7 +67258,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D46/02L9SH35BCFC3BFEB000E0mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CU6/02JAMG906985381D1D3D36lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJK8BB1534DE824112E8lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 4,
+      "booking_menu_discounted_count": 4,
+      "booking_menu_min_price": 199,
+      "booking_menu_max_price": 2488,
+      "booking_menu_avg_discount_pct": 15.3
     },
     {
       "or_id": 565012,
@@ -68098,7 +68296,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D5A/02LHPCFAA414FE38FEA002mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5A/02LHPCFAA414FE38FEA002mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 3,
+      "booking_menu_min_price": 1000,
+      "booking_menu_max_price": 1200,
+      "booking_menu_avg_discount_pct": 8.4
     },
     {
       "or_id": 565751,
@@ -69663,7 +69867,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/CUJ/02JDA66301485607FD62A7mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CUJ/02JDA66301485607FD62A7mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 8620,
+      "booking_menu_max_price": 8620,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 566598,
@@ -70803,7 +71013,13 @@
       "booking_offers": [
         "壽星優惠"
       ],
-      "booking_offer_count": 1
+      "booking_offer_count": 1,
+      "has_booking_menu": true,
+      "booking_menu_count": 8,
+      "booking_menu_discounted_count": 8,
+      "booking_menu_min_price": 149,
+      "booking_menu_max_price": 4880,
+      "booking_menu_avg_discount_pct": 9.3
     },
     {
       "or_id": 567502,
@@ -71275,7 +71491,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CXL/02JYX51C74A677A15449B3mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/9/7RQ/01J96K487938D9F59236E6lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D5K/02LJK8BB1534DE824112E8lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 1,
+      "booking_menu_min_price": 2280,
+      "booking_menu_max_price": 2280,
+      "booking_menu_avg_discount_pct": 20.0
     },
     {
       "or_id": 567753,
@@ -72075,7 +72297,13 @@
         "壽星專屬好禮：滿$500招待牛舌一份",
         "品味鳶園｜預訂套餐享招待飲品"
       ],
-      "booking_offer_count": 2
+      "booking_offer_count": 2,
+      "has_booking_menu": true,
+      "booking_menu_count": 8,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 688,
+      "booking_menu_max_price": 1888,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 578178,
@@ -79048,7 +79276,13 @@
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D67/02LO5V8603312867D847D7mx.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/0/CU/002JAX9DD6FEA70239D867lv.jpg",
         "https://cdn-tw.orstatic.com/userphoto/photo/G/CP6/02IB5PA70B3301204F48F4lv.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 6,
+      "booking_menu_discounted_count": 6,
+      "booking_menu_min_price": 3694,
+      "booking_menu_max_price": 8000,
+      "booking_menu_avg_discount_pct": 6.7
     },
     {
       "or_id": 727152,
@@ -79143,7 +79377,13 @@
       "booking_offers": [
         "生日驚喜禮：免費4吋蛋糕等你領取(4吋蛋糕一顆)"
       ],
-      "booking_offer_count": 1
+      "booking_offer_count": 1,
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 2,
+      "booking_menu_min_price": 5880,
+      "booking_menu_max_price": 7880,
+      "booking_menu_avg_discount_pct": 9.2
     },
     {
       "or_id": 727192,
@@ -81827,7 +82067,13 @@
         "當月壽星 招待特調一杯",
         "信義區友好活動"
       ],
-      "booking_offer_count": 2
+      "booking_offer_count": 2,
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 1000,
+      "booking_menu_max_price": 1000,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 740876,
@@ -82059,7 +82305,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D4R/02LDS45EBE803D33E2446Dmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D4R/02LDS45EBE803D33E2446Dmx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 4,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 880,
+      "booking_menu_max_price": 2499,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 751199,
@@ -82137,7 +82389,13 @@
       "booking_offers": [
         "生日壽星優惠"
       ],
-      "booking_offer_count": 1
+      "booking_offer_count": 1,
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 2,
+      "booking_menu_min_price": 950,
+      "booking_menu_max_price": 1050,
+      "booking_menu_avg_discount_pct": 20.6
     },
     {
       "or_id": 751318,
@@ -82224,7 +82482,13 @@
         "當月壽星至店內用餐，贈主廚甜點乙份",
         "OpenRice會員專屬優惠"
       ],
-      "booking_offer_count": 2
+      "booking_offer_count": 2,
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 500,
+      "booking_menu_max_price": 500,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 751370,
@@ -82312,7 +82576,13 @@
       "booking_offers": [
         "OpenRice會員專屬優惠"
       ],
-      "booking_offer_count": 1
+      "booking_offer_count": 1,
+      "has_booking_menu": true,
+      "booking_menu_count": 3,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 1000,
+      "booking_menu_max_price": 1000,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 751516,
@@ -82613,7 +82883,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6L/02LQYV41274CFF8C437496mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6L/02LQYV41274CFF8C437496mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 2,
+      "booking_menu_min_price": 647,
+      "booking_menu_max_price": 977,
+      "booking_menu_avg_discount_pct": 16.0
     },
     {
       "or_id": 752073,
@@ -82772,7 +83048,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6Q/02LRZF7819D9078DD46607mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6Q/02LRZF7819D9078DD46607mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 350,
+      "booking_menu_max_price": 430,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 752116,
@@ -82860,7 +83142,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRNPF8F482EC50BAB2ABmx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRNPF8F482EC50BAB2ABmx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 1,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 500,
+      "booking_menu_max_price": 500,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 752241,
@@ -82940,7 +83228,13 @@
       "door_photo_url": "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRQXD034DBC74B591870mx.jpg",
       "images": [
         "https://cdn-tw.orstatic.com/userphoto/photo/G/D6P/02LRQXD034DBC74B591870mx.jpg"
-      ]
+      ],
+      "has_booking_menu": true,
+      "booking_menu_count": 2,
+      "booking_menu_discounted_count": 0,
+      "booking_menu_min_price": 550,
+      "booking_menu_max_price": 880,
+      "booking_menu_avg_discount_pct": null
     },
     {
       "or_id": 752281,
