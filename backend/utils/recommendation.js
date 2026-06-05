@@ -1,6 +1,20 @@
 const fs = require('fs');
 const path = require('path');
 
+// 全域城市白名單：只服務北北基（改這裡 = 全站生效）
+const CITY_ALLOWLIST = new Set(['台北市', '新北市', '基隆市']);
+
+/**
+ * 套用城市白名單，過濾掉其他縣市
+ */
+function applyCityAllowlist(data) {
+  if (!data || !Array.isArray(data.restaurants)) return data;
+  const before = data.restaurants.length;
+  data.restaurants = data.restaurants.filter(r => CITY_ALLOWLIST.has(r.city));
+  console.log(`CityAllowlist: kept ${data.restaurants.length}/${before} (北北基 only)`);
+  return data;
+}
+
 /**
  * 載入餐廳資料庫
  */
@@ -9,7 +23,7 @@ function loadRestaurantDatabase() {
   if (process.env.RESTAURANT_DB_PATH && fs.existsSync(process.env.RESTAURANT_DB_PATH)) {
     console.log(`Found database via env var: ${process.env.RESTAURANT_DB_PATH}`);
     const data = fs.readFileSync(process.env.RESTAURANT_DB_PATH, 'utf-8');
-    return JSON.parse(data);
+    return applyCityAllowlist(JSON.parse(data));
   }
   
   // 嘗試多個可能的路徑（支持本地開發和 Netlify Functions）
@@ -30,7 +44,7 @@ function loadRestaurantDatabase() {
       if (fs.existsSync(dbPath)) {
         console.log(`Found database at: ${dbPath}`);
         const data = fs.readFileSync(dbPath, 'utf-8');
-        return JSON.parse(data);
+        return applyCityAllowlist(JSON.parse(data));
       } else {
         errors.push(`Path does not exist: ${dbPath}`);
       }

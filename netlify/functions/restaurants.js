@@ -5,6 +5,17 @@ const path = require('path');
 // 先導入 recommendation 模組
 const recommendationModule = require('../../backend/utils/recommendation');
 
+// 全域城市白名單：只服務北北基（改這裡 = 全站生效）
+const CITY_ALLOWLIST = new Set(['台北市', '新北市', '基隆市']);
+
+function applyCityAllowlist(data) {
+  if (!data || !Array.isArray(data.restaurants)) return data;
+  const before = data.restaurants.length;
+  data.restaurants = data.restaurants.filter(r => CITY_ALLOWLIST.has(r.city));
+  console.log(`CityAllowlist: kept ${data.restaurants.length}/${before} (北北基 only)`);
+  return data;
+}
+
 // 覆蓋 loadRestaurantDatabase 函數以使用正確的路徑
 // 在 Netlify Functions 中，嘗試從模組導入數據庫
 function loadRestaurantDatabase() {
@@ -16,7 +27,7 @@ function loadRestaurantDatabase() {
   try {
     const database = require('./database');
     console.log('Database loaded from module, restaurants count:', database.restaurants?.length || 0);
-    return database;
+    return applyCityAllowlist(database);
   } catch (err) {
     console.log('Failed to load from module, trying file system...', err.message);
   }
@@ -42,14 +53,14 @@ function loadRestaurantDatabase() {
       const data = fs.readFileSync(functionDbPath, 'utf-8');
       const parsed = JSON.parse(data);
       console.log('Database loaded successfully, restaurants count:', parsed.restaurants?.length || 0);
-      return parsed;
+      return applyCityAllowlist(parsed);
     } catch (err) {
       console.error('Error reading database file:', err);
       console.error('Error stack:', err.stack);
       throw new Error(`Failed to read database file: ${err.message}`);
     }
   }
-  
+
   // 如果函數目錄中沒有，嘗試其他路徑
   const possiblePaths = [
     path.join(__dirname, '../restaurants_database.json'), // 上一級目錄
@@ -72,7 +83,7 @@ function loadRestaurantDatabase() {
         const data = fs.readFileSync(dbPath, 'utf-8');
         const parsed = JSON.parse(data);
         console.log('Database loaded successfully, restaurants count:', parsed.restaurants?.length || 0);
-        return parsed;
+        return applyCityAllowlist(parsed);
       } catch (err) {
         console.error('Error reading database file:', err);
         console.error('Error stack:', err.stack);
@@ -80,7 +91,7 @@ function loadRestaurantDatabase() {
       }
     }
   }
-  
+
   const errorMsg = `Database file not found. Tried: ${functionDbPath}, ${possiblePaths.join(', ')}`;
   console.error(errorMsg);
   throw new Error(errorMsg);

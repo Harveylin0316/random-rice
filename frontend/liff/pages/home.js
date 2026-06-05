@@ -245,11 +245,11 @@ async function loadLocationOptions() {
     }
 }
 
-// 渲染縣市選項
+// 渲染縣市選項（已鎖定北北基，UI 隱藏，僅內部保留 select）
 function renderCityOptions() {
     const citySelect = document.getElementById('citySelect');
     if (!citySelect) return;
-    
+
     citySelect.innerHTML = '<option value="">不限</option>';
     locationOptions.cities.forEach(city => {
         const option = document.createElement('option');
@@ -257,27 +257,38 @@ function renderCityOptions() {
         option.textContent = city;
         citySelect.appendChild(option);
     });
+    // 縣市已隱藏 → 直接渲染北北基所有行政區
+    renderAllAllowedDistricts();
 }
 
-// 渲染行政區選項
-function renderDistrictOptions(city) {
+// 北北基所有行政區整合到單一下拉（用 optgroup 分組標示城市）
+// value 格式：`${city}|${district}`，submit 時解析
+function renderAllAllowedDistricts() {
     const districtSelect = document.getElementById('districtSelect');
     if (!districtSelect) return;
-    
-    districtSelect.innerHTML = '<option value="">不限</option>';
-    
-    if (!city || !locationOptions.districts[city]) {
-        districtSelect.disabled = true;
-        return;
-    }
-    
+
+    districtSelect.innerHTML = '<option value="">不限（北北基隨機）</option>';
     districtSelect.disabled = false;
-    locationOptions.districts[city].forEach(district => {
-        const option = document.createElement('option');
-        option.value = district;
-        option.textContent = district;
-        districtSelect.appendChild(option);
+
+    // locationOptions.cities 已由後端過濾為北北基三城
+    locationOptions.cities.forEach(city => {
+        const districts = locationOptions.districts[city] || [];
+        if (!districts.length) return;
+        const grp = document.createElement('optgroup');
+        grp.label = city;
+        districts.forEach(district => {
+            const opt = document.createElement('option');
+            opt.value = `${city}|${district}`;
+            opt.textContent = district;
+            grp.appendChild(opt);
+        });
+        districtSelect.appendChild(grp);
     });
+}
+
+// 保留舊 API（避免外部呼叫壞掉），但不再依賴它
+function renderDistrictOptions(_city) {
+    renderAllAllowedDistricts();
 }
 
 // 設置地區模式處理器
@@ -327,9 +338,9 @@ function setupLocationModeHandlers() {
             
             if (mode !== 'area') {
                 if (citySelect) citySelect.value = '';
+                // 行政區下拉永遠保持可用（北北基），切換時僅重置選值
                 if (districtSelect) {
                     districtSelect.value = '';
-                    districtSelect.disabled = true;
                 }
             }
         });
@@ -464,13 +475,7 @@ function setupFormSubmit() {
             }
         }
         
-        if (locationModeRadio.value === 'area') {
-            const citySelect = document.getElementById('citySelect');
-            if (!citySelect || !citySelect.value) {
-                showError('請選擇縣市');
-                return;
-            }
-        }
+        // area 模式：北北基鎖定，行政區「不限」也允許（後端會在三城內隨機）
         
         showLoading();
         if (submitBtn) submitBtn.disabled = true;
@@ -607,18 +612,15 @@ function collectFormData() {
             formData.maxDistance = 5.0;
         }
     } else if (locationMode === 'area') {
-        const citySelect = document.getElementById('citySelect');
-        const city = citySelect ? citySelect.value : '';
-        if (!city) {
-            throw new Error('請選擇縣市');
-        }
-        
-        formData.city = city;
+        // 北北基鎖定：district value 格式為 `${city}|${district}`，不選代表三城全範圍
         const districtSelect = document.getElementById('districtSelect');
-        const district = districtSelect ? districtSelect.value : '';
-        if (district) {
-            formData.district = district;
+        const raw = districtSelect ? districtSelect.value : '';
+        if (raw) {
+            const [city, district] = raw.split('|');
+            if (city) formData.city = city;
+            if (district) formData.district = district;
         }
+        // 沒選任何 district → city/district 都留空，後端會在北北基白名單內隨機
     }
     
     return formData;

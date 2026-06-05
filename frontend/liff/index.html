@@ -142,16 +142,17 @@
 
                 <div id="areaOptions" class="location-options" style="margin-top: var(--space-4);">
                     <div class="area-select-group">
-                        <label class="area-select-label">
+                        <!-- 縣市鎖定為北北基，隱藏選單；用 hidden input 保留 citySelect 避免舊 JS 出錯 -->
+                        <label class="area-select-label" style="display: none;">
                             <span>縣市</span>
                             <select id="citySelect" name="city" aria-label="選擇縣市">
-                                <option value="">請選擇縣市</option>
+                                <option value="">不限</option>
                             </select>
                         </label>
                         <label class="area-select-label">
-                            <span>行政區</span>
-                            <select id="districtSelect" name="district" disabled aria-label="選擇行政區">
-                                <option value="">請先選擇縣市</option>
+                            <span>行政區（北北基）</span>
+                            <select id="districtSelect" name="district" aria-label="選擇行政區">
+                                <option value="">不限（北北基隨機）</option>
                             </select>
                         </label>
                     </div>
