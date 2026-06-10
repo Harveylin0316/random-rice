@@ -456,6 +456,10 @@ exports.handler = async (event, context) => {
           image: (r.images && r.images[0]) || r.door_photo_url || null,
           booking_offers: r.booking_offers,
           booking_offer_count: r.booking_offer_count,
+          // 廣告影片（有的話前端會用 <video> 替代 <img>）
+          video_url: r.video_url || null,
+          video_poster: r.video_poster || null,
+          video_reel_url: r.video_reel_url || null,
         }));
       return {
         statusCode: 200,
@@ -478,6 +482,10 @@ exports.handler = async (event, context) => {
           cuisine_style: r.cuisine_style,
           image: (r.images && r.images[0]) || r.door_photo_url || null,
           landmarks: r.landmarks,
+          // 廣告影片
+          video_url: r.video_url || null,
+          video_poster: r.video_poster || null,
+          video_reel_url: r.video_reel_url || null,
         }));
       return {
         statusCode: 200,

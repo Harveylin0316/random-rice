@@ -1,0 +1,8 @@
+or_id,video_url,video_poster,video_reel_url,note
+# 廣告影片 manifest
+# - video_url:        必填。MP4 路徑（建議用相對路徑 /liff/videos/xxx.mp4，也接受絕對 https URL）
+# - video_poster:     可選。封面圖。空白則用第一張 image。
+# - video_reel_url:   可選。IG Reel 連結，點影片時可跳轉。
+# - note:             內部備註，不會用到。
+# 加完後跑：python3 _rebuild/13_apply_videos.py
+526998,/liff/videos/526998.mp4,/liff/videos/526998.jpg,,濟安鮨 POC（影片檔請放入 frontend/liff/videos/）

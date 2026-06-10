@@ -913,7 +913,7 @@ function renderOfferAd(container, r) {
     container.innerHTML = `
         <div class="ad-card ad-card--offer">
             <div class="ad-card__badge ad-card__badge--offer">★ 訂位獨家優惠</div>
-            ${r.image ? `<div class="ad-offer__image"><img src="${r.image}" alt="${r.name}" onerror="this.style.display='none'"></div>` : ''}
+            ${buildAdMediaHtml(r, 'ad-offer__image')}
             <h3 class="ad-card__title">${r.name}</h3>
             ${r.address ? `<p class="ad-offer__address">${r.address}</p>` : ''}
             ${offersHtml}
@@ -921,7 +921,8 @@ function renderOfferAd(container, r) {
             ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener" class="ad-card__cta">立即訂位享優惠</a>` : ''}
         </div>
     `;
-    track('ad_shown', { kind: 'offer', or_id: r.or_id, name: r.name });
+    track('ad_shown', { kind: 'offer', or_id: r.or_id, name: r.name, has_video: !!r.video_url });
+    attachAdMediaListeners(container, r, 'offer');
     const cta = container.querySelector('.ad-card__cta');
     if (cta) {
         cta.addEventListener('click', () => track('ad_cta_click', { kind: 'offer', or_id: r.or_id, name: r.name }));
@@ -938,7 +939,7 @@ function renderSponsoredAd(container, r) {
     container.innerHTML = `
         <div class="ad-card ad-card--sponsored">
             <div class="ad-card__badge ad-card__badge--sponsored">合作店家</div>
-            ${r.image ? `<div class="ad-sponsored__image"><img src="${r.image}" alt="${r.name}" onerror="this.style.display='none'"></div>` : ''}
+            ${buildAdMediaHtml(r, 'ad-sponsored__image')}
             <h3 class="ad-card__title">${r.name}</h3>
             ${r.address ? `<p class="ad-sponsored__address">${r.address}</p>` : ''}
             <div class="ad-sponsored__meta">${ratingHtml}${reviewHtml}${budgetHtml}</div>
@@ -946,10 +947,62 @@ function renderSponsoredAd(container, r) {
             ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener" class="ad-card__cta">查看 / 訂位</a>` : ''}
         </div>
     `;
-    track('ad_shown', { kind: 'sponsored', or_id: r.or_id, name: r.name });
+    track('ad_shown', { kind: 'sponsored', or_id: r.or_id, name: r.name, has_video: !!r.video_url });
+    attachAdMediaListeners(container, r, 'sponsored');
     const cta = container.querySelector('.ad-card__cta');
     if (cta) {
         cta.addEventListener('click', () => track('ad_cta_click', { kind: 'sponsored', or_id: r.or_id, name: r.name }));
+    }
+}
+
+// 廣告媒體區（影片優先，否則 fallback 圖片）— 共用 helper
+function buildAdMediaHtml(r, wrapperClass) {
+    // 影片優先
+    if (r.video_url) {
+        const poster = r.video_poster || r.image || '';
+        const reelOverlay = r.video_reel_url
+            ? `<a class="ad-media__reel" href="${r.video_reel_url}" target="_blank" rel="noopener" aria-label="到 IG Reel 看完整版">
+                 <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                   <path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5.5-3.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"/>
+                 </svg>
+                 IG Reel
+               </a>`
+            : '';
+        return `<div class="${wrapperClass} ad-media ad-media--video">
+                  <video class="ad-media__video" src="${r.video_url}" ${poster ? `poster="${poster}"` : ''} autoplay muted loop playsinline preload="metadata"></video>
+                  ${reelOverlay}
+                </div>`;
+    }
+    // 沒影片 → 用原來的圖片
+    if (r.image) {
+        return `<div class="${wrapperClass}"><img src="${r.image}" alt="${r.name}" onerror="this.style.display='none'"></div>`;
+    }
+    return '';
+}
+
+// 廣告影片：追蹤播放事件 + 失敗時降級到 poster/image
+function attachAdMediaListeners(container, r, kind) {
+    const v = container.querySelector('.ad-media__video');
+    if (!v) return;
+    let played = false;
+    v.addEventListener('playing', () => {
+        if (played) return;
+        played = true;
+        track('ad_video_played', { kind, or_id: r.or_id, name: r.name });
+    }, { once: true });
+    v.addEventListener('error', () => {
+        // 影片載失敗 → 換成 poster 或 image 當靜態圖
+        const fallback = r.video_poster || r.image;
+        if (!fallback) { v.remove(); return; }
+        const img = document.createElement('img');
+        img.src = fallback;
+        img.alt = r.name;
+        v.replaceWith(img);
+        track('ad_video_error', { kind, or_id: r.or_id, name: r.name });
+    });
+    const reelLink = container.querySelector('.ad-media__reel');
+    if (reelLink) {
+        reelLink.addEventListener('click', () => track('ad_video_reel_click', { kind, or_id: r.or_id, name: r.name }));
     }
 }
 

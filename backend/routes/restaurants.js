@@ -181,6 +181,9 @@ router.get('/with-booking-offers', (req, res) => {
         image: (r.images && r.images[0]) || r.door_photo_url || null,
         booking_offers: r.booking_offers,
         booking_offer_count: r.booking_offer_count,
+        video_url: r.video_url || null,
+        video_poster: r.video_poster || null,
+        video_reel_url: r.video_reel_url || null,
       }));
     res.json({ success: true, count: list.length, restaurants: list });
   } catch (error) {
@@ -209,6 +212,9 @@ router.get('/sponsored', (req, res) => {
         cuisine_style: r.cuisine_style,
         image: (r.images && r.images[0]) || r.door_photo_url || null,
         landmarks: r.landmarks,
+        video_url: r.video_url || null,
+        video_poster: r.video_poster || null,
+        video_reel_url: r.video_reel_url || null,
       }));
     res.json({ success: true, count: sponsored.length, restaurants: sponsored });
   } catch (error) {

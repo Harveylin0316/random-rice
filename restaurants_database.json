@@ -30551,7 +30551,10 @@
           "has_discount": false,
           "discount_pct": null
         }
-      ]
+      ],
+      "video_url": "/liff/videos/526998.mp4",
+      "has_video": true,
+      "video_poster": "/liff/videos/526998.jpg"
     },
     {
       "or_id": 527501,
