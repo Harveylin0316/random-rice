@@ -38,16 +38,19 @@ let drawCount = 0;
 let sponsoredRestaurants = [];      // is_paid_account=true 的店
 let bookingOfferRestaurants = [];   // 有訂位獨家優惠的店
 
-// 合併廣告池：tips + sponsored + booking offer 餐廳
-function buildAdPool() {
-    return [
-        ...ADS.map(a => ({ kind: 'tip', data: a })),
-        ...sponsoredRestaurants.map(s => ({ kind: 'sponsored', data: s })),
-        ...bookingOfferRestaurants.map(s => ({ kind: 'offer', data: s })),
-    ];
+// 三個獨立分組（優先順序：sponsored > offer > tip）
+//  - sponsored：付費合作店家（最高優先）
+//  - offer：有訂位獨家優惠
+//  - tip：OpenRice 小知識（補位用）
+function buildAdGroups() {
+    return {
+        sponsored: sponsoredRestaurants.map(s => ({ kind: 'sponsored', data: s })),
+        offer:     bookingOfferRestaurants.map(s => ({ kind: 'offer', data: s })),
+        tip:       ADS.map(a => ({ kind: 'tip', data: a })),
+    };
 }
 
-let adQueue = []; // 已洗牌的 entries
+let adQueue = []; // 已排好順序的 entries（pop 從尾端取，所以尾端 = 最先播）
 let lastAdSig = null;
 
 function adSig(entry) {
@@ -57,17 +60,28 @@ function adSig(entry) {
     return 'unknown';
 }
 
+function shuffleInPlace(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
 function pickNextAd() {
-    const pool = buildAdPool();
-    if (pool.length === 0) return null;
+    const groups = buildAdGroups();
+    const totalCount = groups.sponsored.length + groups.offer.length + groups.tip.length;
+    if (totalCount === 0) return null;
+
     if (adQueue.length === 0) {
-        adQueue = pool.slice();
-        for (let i = adQueue.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [adQueue[i], adQueue[j]] = [adQueue[j], adQueue[i]];
-        }
-        // 防接縫處撞同一個
-        if (pool.length > 1 && lastAdSig && adSig(adQueue[adQueue.length - 1]) === lastAdSig) {
+        // 各分組內部洗牌
+        const spo = shuffleInPlace(groups.sponsored.slice());
+        const off = shuffleInPlace(groups.offer.slice());
+        const tip = shuffleInPlace(groups.tip.slice());
+        // 順序：tip 在前、offer 中間、sponsored 在尾（pop 從尾取 → sponsored 最先）
+        adQueue = [...tip, ...off, ...spo];
+        // 防接縫處撞同一個（要播的下一個是尾端，舊版的最後一個剛好也是同一個）
+        if (adQueue.length > 1 && lastAdSig && adSig(adQueue[adQueue.length - 1]) === lastAdSig) {
             const last = adQueue.length - 1;
             [adQueue[last], adQueue[last - 1]] = [adQueue[last - 1], adQueue[last]];
         }
@@ -732,7 +746,7 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
 
     // 頂部 badge（廣告版才有）
     const adBadgeHtml = opts.adKind === 'sponsored'
-        ? `<div class="card-ad-badge card-ad-badge--sponsored">合作店家</div>`
+        ? `<div class="card-ad-badge card-ad-badge--sponsored">★ 精選推薦</div>`
         : opts.adKind === 'offer'
         ? `<div class="card-ad-badge card-ad-badge--offer">★ 訂位獨家優惠</div>`
         : '';

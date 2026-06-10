@@ -1058,19 +1058,24 @@
     background: var(--color-accent);
     color: var(--gray-900);
   }
-  /* 影片區（取代圖片輪播時用）— 直式 reel 風格但限制高度，留空間給卡片內容 */
+  /* 影片區（取代圖片輪播時用）— 直式 reel 完整顯示，不裁切
+     容器固定 9:16，max-width 把寬度拉窄到合理範圍，置中，黑底襯托 */
   .card-video-container {
     position: relative;
+    width: 100%;
+    max-width: 280px;
     aspect-ratio: 9/16;
-    max-height: 420px;
+    margin: 0 auto var(--space-2);
     background: #000;
     overflow: hidden;
+    border-radius: var(--radius-md);
   }
   .card-video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
+    background: #000;
   }
   .card-video__reel {
     position: absolute;
