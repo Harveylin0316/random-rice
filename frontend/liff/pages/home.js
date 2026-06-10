@@ -757,11 +757,11 @@ function buildCardHTML(restaurant, cardIndex, opts = {}) {
         const v = opts.video;
         const posterAttr = v.poster ? `poster="${v.poster}"` : (images[0] ? `poster="${images[0]}"` : '');
         const reelOverlay = v.reelUrl
-            ? `<a class="card-video__reel" href="${v.reelUrl}" target="_blank" rel="noopener" aria-label="到 IG Reel 看完整版">
+            ? `<a class="card-video__reel" href="${v.reelUrl}" target="_blank" rel="noopener" aria-label="完整請看 IG Reel">
                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                    <path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5.5-3.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"/>
                  </svg>
-                 IG Reel
+                 完整請看 IG Reel
                </a>`
             : '';
         // 靜音切換按鈕（autoplay 一定要 muted 才能跑，使用者點按解除）
