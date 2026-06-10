@@ -23,14 +23,15 @@ XLSX = '/Users/harveylin/Desktop/Claude-workspace/projects/openrice-crawler/expo
 MAIN_DB = 'restaurants_database.json'
 NETLIFY_DB = 'netlify/functions/restaurants_database.json'
 BOOKING_BLOCKLIST = '_rebuild/booking_blocklist.txt'
+RESTAURANT_BLOCKLIST = '_rebuild/restaurant_blocklist.txt'
 
 
-def load_booking_blocklist():
-    """讀 booking_blocklist.txt → set of or_ids 強制 bookable=false"""
-    if not os.path.exists(BOOKING_BLOCKLIST):
+def _load_id_blocklist(path):
+    """通用 blocklist loader：每行一個 or_id，# 開頭是註解"""
+    if not os.path.exists(path):
         return set()
     blocked = set()
-    with open(BOOKING_BLOCKLIST, encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         for line in f:
             line = line.split('#')[0].strip()
             if not line: continue
@@ -41,7 +42,30 @@ def load_booking_blocklist():
     return blocked
 
 
+def load_booking_blocklist():
+    """booking_blocklist.txt → 強制 bookable=false"""
+    return _load_id_blocklist(BOOKING_BLOCKLIST)
+
+
+def load_restaurant_blocklist():
+    """restaurant_blocklist.txt → 強制 enabled=false（完全從推薦池移除）"""
+    return _load_id_blocklist(RESTAURANT_BLOCKLIST)
+
+
 BOOKING_BLOCKED_IDS = set()  # 載入時設定
+RESTAURANT_BLOCKED_IDS = set()
+
+
+def is_empty_shell(out):
+    """空殼餐廳：OR 頁面點進去幾乎沒東西。
+    判斷：images 空 + rating 空 + type 空 + cuisine_style 空。
+    這種店推薦給用戶體驗很差，直接從推薦池移除。"""
+    return (
+        not out.get('images')
+        and not out.get('rating')
+        and not out.get('type')
+        and not out.get('cuisine_style')
+    )
 
 DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 DAY_CH = {'一': 'monday', '二': 'tuesday', '三': 'wednesday',
@@ -290,7 +314,17 @@ def map_to_db_schema(rec, existing=None):
     else:
         out['images'] = [out['door_photo_url']] if out['door_photo_url'] else []
 
-    if not is_normal:
+    # 套用額外 disable 規則（在 images 等欄位齊備之後再判定）
+    extra_reasons = []
+    if poi_id in RESTAURANT_BLOCKED_IDS:
+        extra_reasons.append('manually blocked')
+    if is_empty_shell(out):
+        extra_reasons.append('empty shell (no images/rating/type/cuisine)')
+
+    if extra_reasons:
+        out['enabled'] = False
+
+    if not out['enabled']:
         reasons = []
         if rec.get('status') != 'Normal':
             reasons.append(f"status={rec.get('status')}")
@@ -298,16 +332,20 @@ def map_to_db_schema(rec, existing=None):
             reasons.append('blacklisted')
         if is_test_restaurant(name):
             reasons.append('test restaurant')
+        reasons.extend(extra_reasons)
         out['disabled_reason'] = ' / '.join(reasons) or 'unknown'
 
     return out
 
 
 def main():
-    global BOOKING_BLOCKED_IDS
+    global BOOKING_BLOCKED_IDS, RESTAURANT_BLOCKED_IDS
     BOOKING_BLOCKED_IDS = load_booking_blocklist()
+    RESTAURANT_BLOCKED_IDS = load_restaurant_blocklist()
     if BOOKING_BLOCKED_IDS:
         print(f'載入訂位 blocklist: {len(BOOKING_BLOCKED_IDS)} 間強制 bookable=false')
+    if RESTAURANT_BLOCKED_IDS:
+        print(f'載入餐廳 blocklist: {len(RESTAURANT_BLOCKED_IDS)} 間強制 enabled=false')
 
     print('讀外部 xlsx...')
     records = load_xlsx()

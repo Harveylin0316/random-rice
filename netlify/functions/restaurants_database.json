@@ -825,7 +825,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -858,7 +858,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 32225,
@@ -3922,7 +3923,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -3955,7 +3956,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 222266,
@@ -6429,7 +6431,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -6462,7 +6464,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 308849,
@@ -7012,7 +7015,7 @@
       "price_max": null,
       "door_photo_url": null,
       "images": [],
-      "disabled_reason": "status=Hide"
+      "disabled_reason": "status=Hide / empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 317077,
@@ -8985,7 +8988,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -9018,7 +9021,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 395690,
@@ -9151,7 +9155,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -9184,7 +9188,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 400853,
@@ -14907,7 +14912,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -14940,7 +14945,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 464571,
@@ -15351,7 +15357,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -15384,7 +15390,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 468109,
@@ -22046,7 +22053,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -22079,7 +22086,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 500886,
@@ -22855,7 +22863,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -22888,7 +22896,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 505267,
@@ -28080,7 +28089,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -28113,7 +28122,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 518114,
@@ -28234,7 +28244,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -28267,7 +28277,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 518559,
@@ -28383,7 +28394,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -28416,7 +28427,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 518894,
@@ -28606,7 +28618,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -28639,7 +28651,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 519456,
@@ -28923,7 +28936,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -28956,7 +28969,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 521291,
@@ -29928,7 +29942,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -29961,7 +29975,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 525504,
@@ -30080,7 +30095,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -30113,7 +30128,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 526183,
@@ -30233,7 +30249,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -30266,7 +30282,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 526494,
@@ -30676,7 +30693,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -30709,7 +30726,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 527957,
@@ -30724,7 +30742,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -30757,7 +30775,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 527987,
@@ -31072,7 +31091,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -31105,7 +31124,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 528362,
@@ -32651,7 +32671,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -32684,7 +32704,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 531665,
@@ -32861,7 +32882,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -32894,7 +32915,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 532302,
@@ -33614,7 +33636,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -33647,7 +33669,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 533827,
@@ -33662,7 +33685,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -33695,7 +33718,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 533836,
@@ -34246,7 +34270,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -34279,7 +34303,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 535009,
@@ -34527,7 +34552,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -34560,7 +34585,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 535321,
@@ -34575,7 +34601,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -34608,7 +34634,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 535357,
@@ -34947,7 +34974,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -34980,7 +35007,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 535972,
@@ -36784,7 +36812,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -36817,7 +36845,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 537031,
@@ -36832,7 +36861,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -36865,7 +36894,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 537043,
@@ -37751,7 +37781,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -37784,7 +37814,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 538000,
@@ -38677,7 +38708,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -38710,7 +38741,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 539152,
@@ -39255,7 +39287,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -39288,7 +39320,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 539419,
@@ -39568,7 +39601,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -39601,7 +39634,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 540038,
@@ -39822,7 +39856,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -39855,7 +39889,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 540665,
@@ -42721,7 +42756,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -42754,7 +42789,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 543431,
@@ -42858,7 +42894,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -42891,7 +42927,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 543446,
@@ -43076,7 +43113,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -43109,7 +43146,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 543677,
@@ -43852,7 +43890,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -43885,7 +43923,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 543947,
@@ -43900,7 +43939,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -43933,7 +43972,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 543950,
@@ -44243,7 +44283,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -44276,7 +44316,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 543977,
@@ -44664,7 +44705,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -44697,7 +44738,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 544223,
@@ -45293,7 +45335,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -45326,7 +45368,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 544586,
@@ -45802,7 +45845,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -45835,7 +45878,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 544745,
@@ -46310,7 +46354,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -46343,7 +46387,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 545072,
@@ -46358,7 +46403,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -46391,7 +46436,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 545114,
@@ -48403,7 +48449,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -48436,7 +48482,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 546521,
@@ -50808,7 +50855,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -50841,7 +50888,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 548654,
@@ -51693,7 +51741,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -51726,7 +51774,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 550698,
@@ -53870,7 +53919,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -53903,7 +53952,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 554221,
@@ -58496,7 +58546,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -58529,7 +58579,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 558037,
@@ -58544,7 +58595,7 @@
         "ThirdPartyBookingService"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -58577,7 +58628,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 558079,
@@ -61122,7 +61174,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -61155,7 +61207,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 559406,
@@ -62850,7 +62903,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -62883,7 +62936,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 561815,
@@ -82565,7 +82619,7 @@
         "RMSLite"
       ],
       "bookable": false,
-      "enabled": true,
+      "enabled": false,
       "cuisine_style": [],
       "type": [],
       "budget": null,
@@ -82598,7 +82652,8 @@
       "price_min": null,
       "price_max": null,
       "door_photo_url": null,
-      "images": []
+      "images": [],
+      "disabled_reason": "empty shell (no images/rating/type/cuisine)"
     },
     {
       "or_id": 729135,
@@ -84486,10 +84541,10 @@
     }
   ],
   "_metadata": {
-    "updated_at": "2026-06-10T16:56:42.751944",
+    "updated_at": "2026-06-10T17:54:06.920481",
     "source": "openrice-crawler/exports/restaurants_for_app.xlsx",
     "total": 928,
-    "enabled": 921,
+    "enabled": 866,
     "has_rating": 771,
     "has_review_count": 351
   }
